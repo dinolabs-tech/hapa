@@ -306,7 +306,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
                             <div class="card mb-3">
                                 <div class="card-body">
-                                    <h2 class="login-title text-center mb-4">Login</h2>
+                                    <h2 class="login-title text-center mb-4">Login AA</h2>
                                     <?php if (!empty($login_error)): ?>
                                         <p class="error"><?php echo htmlspecialchars($login_error); ?></p>
                                     <?php endif; ?>
