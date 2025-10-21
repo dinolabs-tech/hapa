@@ -1,0 +1,172 @@
+[01-Jul-2025 16:58:58 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/hapacoll/public_html/db_connect.php:18
+Stack trace:
+#0 /home/hapacoll/public_html/db_connect.php(18): mysqli->__construct('localhost', 'root', '', 'command')
+#1 /home/hapacoll/public_html/index.php(4): include('/home/hapacoll/...')
+#2 {main}
+  thrown in /home/hapacoll/public_html/db_connect.php on line 18
+[01-Jul-2025 17:02:55 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Failed to open the referenced table 'users' in /home/hapacoll/public_html/database_schema.php:65
+Stack trace:
+#0 /home/hapacoll/public_html/database_schema.php(65): mysqli->query('\r\n        CREAT...')
+#1 {main}
+  thrown in /home/hapacoll/public_html/database_schema.php on line 65
+[01-Jul-2025 17:04:42 UTC] PHP Warning:  Undefined variable $conn in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:04:42 UTC] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/hapacoll/public_html/index.php:923
+Stack trace:
+#0 {main}
+  thrown in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:05:06 UTC] PHP Warning:  Undefined variable $conn in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:05:06 UTC] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/hapacoll/public_html/index.php:923
+Stack trace:
+#0 {main}
+  thrown in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:07:15 UTC] PHP Warning:  Undefined variable $conn in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:07:15 UTC] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/hapacoll/public_html/index.php:923
+Stack trace:
+#0 {main}
+  thrown in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:14:08 UTC] PHP Warning:  Undefined variable $conn in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:14:08 UTC] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/hapacoll/public_html/index.php:923
+Stack trace:
+#0 {main}
+  thrown in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:17:37 UTC] PHP Warning:  Undefined variable $conn in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:17:37 UTC] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/hapacoll/public_html/index.php:923
+Stack trace:
+#0 {main}
+  thrown in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:18:10 UTC] PHP Warning:  Undefined variable $conn in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:18:10 UTC] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/hapacoll/public_html/index.php:923
+Stack trace:
+#0 {main}
+  thrown in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:18:44 UTC] PHP Warning:  Undefined variable $conn in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:18:44 UTC] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/hapacoll/public_html/index.php:923
+Stack trace:
+#0 {main}
+  thrown in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:19:08 UTC] PHP Warning:  Undefined variable $conn in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:19:08 UTC] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/hapacoll/public_html/index.php:923
+Stack trace:
+#0 {main}
+  thrown in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:21:57 UTC] PHP Warning:  Undefined variable $conn in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:21:57 UTC] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/hapacoll/public_html/index.php:923
+Stack trace:
+#0 {main}
+  thrown in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:25:43 UTC] PHP Warning:  Undefined variable $conn in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:25:43 UTC] PHP Fatal error:  Uncaught Error: Call to a member function query() on null in /home/hapacoll/public_html/index.php:923
+Stack trace:
+#0 {main}
+  thrown in /home/hapacoll/public_html/index.php on line 923
+[01-Jul-2025 17:40:52 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Failed to open the referenced table 'login' in /home/hapacoll/public_html/database_schema.php:64
+Stack trace:
+#0 /home/hapacoll/public_html/database_schema.php(64): mysqli->query('\r\n        CREAT...')
+#1 {main}
+  thrown in /home/hapacoll/public_html/database_schema.php on line 64
+[01-Jul-2025 17:43:25 UTC] PHP Parse error:  syntax error, unexpected token "--" in /home/hapacoll/public_html/index.php on line 917
+[01-Jul-2025 17:54:52 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'posts.title' in 'field list' in /home/hapacoll/public_html/dashboard.php:104
+Stack trace:
+#0 /home/hapacoll/public_html/dashboard.php(104): mysqli->query('SELECT posts.id...')
+#1 {main}
+  thrown in /home/hapacoll/public_html/dashboard.php on line 104
+[01-Jul-2025 18:00:24 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'posts.author_id' in 'on clause' in /home/hapacoll/public_html/post.php:8
+Stack trace:
+#0 /home/hapacoll/public_html/post.php(8): mysqli->query('SELECT posts.*,...')
+#1 {main}
+  thrown in /home/hapacoll/public_html/post.php on line 8
+[01-Jul-2025 18:05:15 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'title' in 'field list' in /home/hapacoll/public_html/update_post.php:74
+Stack trace:
+#0 /home/hapacoll/public_html/update_post.php(74): mysqli->query('UPDATE posts SE...')
+#1 {main}
+  thrown in /home/hapacoll/public_html/update_post.php on line 74
+[01-Jul-2025 18:06:00 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'posts.title' in 'field list' in /home/hapacoll/public_html/dashboard.php:104
+Stack trace:
+#0 /home/hapacoll/public_html/dashboard.php(104): mysqli->query('SELECT posts.id...')
+#1 {main}
+  thrown in /home/hapacoll/public_html/dashboard.php on line 104
+[08-Jul-2025 08:45:40 UTC] PHP Fatal error:  Uncaught ValueError: Path cannot be empty in /home/hapacoll/public_html/save_post.php:23
+Stack trace:
+#0 /home/hapacoll/public_html/save_post.php(23): getimagesize('')
+#1 {main}
+  thrown in /home/hapacoll/public_html/save_post.php on line 23
+[08-Jul-2025 08:46:25 UTC] PHP Fatal error:  Uncaught ValueError: Path cannot be empty in /home/hapacoll/public_html/save_post.php:23
+Stack trace:
+#0 /home/hapacoll/public_html/save_post.php(23): getimagesize('')
+#1 {main}
+  thrown in /home/hapacoll/public_html/save_post.php on line 23
+[08-Jul-2025 08:51:53 UTC] PHP Fatal error:  Uncaught ValueError: Path cannot be empty in /home/hapacoll/public_html/save_post.php:23
+Stack trace:
+#0 /home/hapacoll/public_html/save_post.php(23): getimagesize('')
+#1 {main}
+  thrown in /home/hapacoll/public_html/save_post.php on line 23
+[08-Jul-2025 08:56:16 UTC] PHP Fatal error:  Uncaught ValueError: Path cannot be empty in /home/hapacoll/public_html/save_post.php:23
+Stack trace:
+#0 /home/hapacoll/public_html/save_post.php(23): getimagesize('')
+#1 {main}
+  thrown in /home/hapacoll/public_html/save_post.php on line 23
+[08-Jul-2025 12:23:07 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home/hapacoll/public_html/delete_category.php on line 2
+[08-Jul-2025 12:23:07 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/hapacoll/public_html/delete_category.php:1) in /home/hapacoll/public_html/delete_category.php on line 4
+[08-Jul-2025 12:25:05 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home/hapacoll/public_html/delete_category.php on line 2
+[08-Jul-2025 12:25:05 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/hapacoll/public_html/delete_category.php:1) in /home/hapacoll/public_html/delete_category.php on line 4
+[08-Jul-2025 12:25:29 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home/hapacoll/public_html/delete_category.php on line 2
+[08-Jul-2025 12:25:29 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/hapacoll/public_html/delete_category.php:1) in /home/hapacoll/public_html/delete_category.php on line 4
+[08-Jul-2025 12:25:43 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home/hapacoll/public_html/delete_category.php on line 2
+[08-Jul-2025 12:25:43 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/hapacoll/public_html/delete_category.php:1) in /home/hapacoll/public_html/delete_category.php on line 4
+[08-Jul-2025 12:33:48 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home/hapacoll/public_html/delete_category.php on line 2
+[08-Jul-2025 12:33:48 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/hapacoll/public_html/delete_category.php:1) in /home/hapacoll/public_html/delete_category.php on line 4
+[08-Jul-2025 12:34:55 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home/hapacoll/public_html/delete_category.php on line 2
+[08-Jul-2025 12:34:55 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/hapacoll/public_html/delete_category.php:1) in /home/hapacoll/public_html/delete_category.php on line 15
+[08-Jul-2025 12:36:06 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home/hapacoll/public_html/delete_category.php on line 2
+[08-Jul-2025 12:36:06 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/hapacoll/public_html/delete_category.php:1) in /home/hapacoll/public_html/delete_category.php on line 4
+[08-Jul-2025 12:36:34 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home/hapacoll/public_html/delete_category.php on line 2
+[08-Jul-2025 12:36:34 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/hapacoll/public_html/delete_category.php:1) in /home/hapacoll/public_html/delete_category.php on line 15
+[08-Jul-2025 12:37:23 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home/hapacoll/public_html/delete_category.php on line 2
+[08-Jul-2025 12:37:23 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/hapacoll/public_html/delete_category.php:1) in /home/hapacoll/public_html/delete_category.php on line 4
+[08-Jul-2025 12:38:04 UTC] PHP Warning:  session_start(): Session cannot be started after headers have already been sent in /home/hapacoll/public_html/delete_category.php on line 2
+[08-Jul-2025 12:38:04 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/hapacoll/public_html/delete_category.php:1) in /home/hapacoll/public_html/delete_category.php on line 15
+[28-Aug-2025 10:19:35 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Cannot add or update a child row: a foreign key constraint fails (`hapacoll_portal`.`blog_posts`, CONSTRAINT `blog_posts_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`)) in /home/hapacoll/public_html/save_post.php:55
+Stack trace:
+#0 /home/hapacoll/public_html/save_post.php(55): mysqli->query('INSERT INTO blo...')
+#1 {main}
+  thrown in /home/hapacoll/public_html/save_post.php on line 55
+[28-Aug-2025 10:58:25 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Cannot add or update a child row: a foreign key constraint fails (`hapacoll_portal`.`blog_posts`, CONSTRAINT `blog_posts_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`)) in /home/hapacoll/public_html/save_post.php:55
+Stack trace:
+#0 /home/hapacoll/public_html/save_post.php(55): mysqli->query('INSERT INTO blo...')
+#1 {main}
+  thrown in /home/hapacoll/public_html/save_post.php on line 55
+[28-Aug-2025 16:48:56 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Too many connections in /home/hapacoll/public_html/portal/db_connection.php:6
+Stack trace:
+#0 /home/hapacoll/public_html/portal/db_connection.php(6): mysqli->__construct('localhost', 'hapacoll_root', 'foxtrot2novembe...', 'hapacoll_portal')
+#1 /home/hapacoll/public_html/db_connect.php(24): include('/home/hapacoll/...')
+#2 /home/hapacoll/public_html/blog.php(3): include('/home/hapacoll/...')
+#3 {main}
+  thrown in /home/hapacoll/public_html/portal/db_connection.php on line 6
+[28-Aug-2025 16:48:58 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Too many connections in /home/hapacoll/public_html/portal/db_connection.php:6
+Stack trace:
+#0 /home/hapacoll/public_html/portal/db_connection.php(6): mysqli->__construct('localhost', 'hapacoll_root', 'foxtrot2novembe...', 'hapacoll_portal')
+#1 /home/hapacoll/public_html/db_connect.php(24): include('/home/hapacoll/...')
+#2 /home/hapacoll/public_html/blog.php(3): include('/home/hapacoll/...')
+#3 {main}
+  thrown in /home/hapacoll/public_html/portal/db_connection.php on line 6
+[28-Aug-2025 16:49:01 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Too many connections in /home/hapacoll/public_html/portal/db_connection.php:6
+Stack trace:
+#0 /home/hapacoll/public_html/portal/db_connection.php(6): mysqli->__construct('localhost', 'hapacoll_root', 'foxtrot2novembe...', 'hapacoll_portal')
+#1 /home/hapacoll/public_html/db_connect.php(24): include('/home/hapacoll/...')
+#2 /home/hapacoll/public_html/blog.php(3): include('/home/hapacoll/...')
+#3 {main}
+  thrown in /home/hapacoll/public_html/portal/db_connection.php on line 6
+[28-Aug-2025 16:49:08 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Too many connections in /home/hapacoll/public_html/portal/db_connection.php:6
+Stack trace:
+#0 /home/hapacoll/public_html/portal/db_connection.php(6): mysqli->__construct('localhost', 'hapacoll_root', 'foxtrot2novembe...', 'hapacoll_portal')
+#1 /home/hapacoll/public_html/db_connect.php(24): include('/home/hapacoll/...')
+#2 /home/hapacoll/public_html/index.php(4): include('/home/hapacoll/...')
+#3 {main}
+  thrown in /home/hapacoll/public_html/portal/db_connection.php on line 6
+[28-Aug-2025 16:49:10 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Too many connections in /home/hapacoll/public_html/portal/db_connection.php:6
+Stack trace:
+#0 /home/hapacoll/public_html/portal/db_connection.php(6): mysqli->__construct('localhost', 'hapacoll_root', 'foxtrot2novembe...', 'hapacoll_portal')
+#1 /home/hapacoll/public_html/db_connect.php(24): include('/home/hapacoll/...')
+#2 /home/hapacoll/public_html/index.php(4): include('/home/hapacoll/...')
+#3 {main}
+  thrown in /home/hapacoll/public_html/portal/db_connection.php on line 6

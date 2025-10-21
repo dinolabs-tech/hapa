@@ -1,0 +1,281 @@
+[2025-04-03 16:07:09] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\eduhive/backup_portal.sql" 2>&1
+[2025-04-03 16:07:09] Return code: 1
+[2025-04-03 16:07:09] Error: Backup failed with status code 1
+[2025-04-03 16:07:09] Output: 
+[2025-04-04 16:21:54] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\eduhive/backup_portal.sql" 2>&1
+[2025-04-04 16:21:54] Return code: 1
+[2025-04-04 16:21:54] Error: Backup failed with status code 1
+[2025-04-04 16:21:54] Output: 
+[2025-04-07 15:09:32] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\eduhive/backup_portal.sql" 2>&1
+[2025-04-07 15:09:32] Return code: 1
+[2025-04-07 15:09:32] Error: Backup failed with status code 1
+[2025-04-07 15:09:32] Output: 
+[2025-04-09 16:13:52] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\eduhive/backup_portal.sql" 2>&1
+[2025-04-09 16:13:52] Return code: 1
+[2025-04-09 16:13:52] Error: Backup failed with status code 1
+[2025-04-09 16:13:52] Output: 
+[2025-04-14 09:08:41] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\eduhive/backup_portal.sql" 2>&1
+[2025-04-14 09:08:41] Return code: 1
+[2025-04-14 09:08:41] Error: Backup failed with status code 1
+[2025-04-14 09:08:41] Output: 
+[2025-04-15 10:48:59] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\eduhive/backup_portal.sql" 2>&1
+[2025-04-15 10:48:59] Return code: 1
+[2025-04-15 10:48:59] Error: Backup failed with status code 1
+[2025-04-15 10:48:59] Output: 
+[2025-04-16 12:34:18] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\eduhive/backup_portal.sql" 2>&1
+[2025-04-16 12:34:18] Return code: 1
+[2025-04-16 12:34:18] Error: Backup failed with status code 1
+[2025-04-16 12:34:18] Output: 
+[2025-04-20 18:42:11] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\eduhive/backup_portal.sql" 2>&1
+[2025-04-20 18:42:11] Return code: 1
+[2025-04-20 18:42:11] Error: Backup failed with status code 1
+[2025-04-20 18:42:11] Output: 
+[2025-04-23 13:19:34] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\eduhive/backup_portal.sql" 2>&1
+[2025-04-23 13:19:34] Return code: 1
+[2025-04-23 13:19:34] Error: Backup failed with status code 1
+[2025-04-23 13:19:34] Output: 
+[2025-04-24 14:33:04] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\eduhive/backup_portal.sql" 2>&1
+[2025-04-24 14:33:04] Return code: 1
+[2025-04-24 14:33:04] Error: Backup failed with status code 1
+[2025-04-24 14:33:04] Output: 
+[2025-04-26 09:36:26] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapacollege/backup_portal.sql" 2>&1
+[2025-04-26 09:36:26] Return code: 1
+[2025-04-26 09:36:26] Error: Backup failed with status code 1
+[2025-04-26 09:36:26] Output: 
+[2025-04-28 09:17:48] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapacollege/backup_portal.sql" 2>&1
+[2025-04-28 09:17:48] Return code: 1
+[2025-04-28 09:17:48] Error: Backup failed with status code 1
+[2025-04-28 09:17:48] Output: 
+[2025-04-29 12:55:23] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapacollege/backup_portal.sql" 2>&1
+[2025-04-29 12:55:23] Return code: 1
+[2025-04-29 12:55:23] Error: Backup failed with status code 1
+[2025-04-29 12:55:23] Output: 
+[2025-04-30 23:29:08] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapacollege/backup_portal.sql" 2>&1
+[2025-04-30 23:29:08] Return code: 1
+[2025-04-30 23:29:08] Error: Backup failed with status code 1
+[2025-04-30 23:29:08] Output: 
+[2025-05-03 16:32:54] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapacollege/backup_portal.sql" 2>&1
+[2025-05-03 16:32:54] Return code: 1
+[2025-05-03 16:32:54] Error: Backup failed with status code 1
+[2025-05-03 16:32:54] Output: 
+[2025-05-06 12:49:43] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapacollege/backup_portal.sql" 2>&1
+[2025-05-06 12:49:43] Return code: 1
+[2025-05-06 12:49:43] Error: Backup failed with status code 1
+[2025-05-06 12:49:43] Output: 
+[2025-05-09 14:14:22] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapacollege/backup_portal.sql" 2>&1
+[2025-05-09 14:14:22] Return code: 1
+[2025-05-09 14:14:22] Error: Backup failed with status code 1
+[2025-05-09 14:14:22] Output: 
+[2025-05-10 22:25:09] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapacollege/backup_portal.sql" 2>&1
+[2025-05-10 22:25:09] Return code: 1
+[2025-05-10 22:25:09] Error: Backup failed with status code 1
+[2025-05-10 22:25:09] Output: 
+[2025-05-12 16:56:56] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapacollege/backup_portal.sql" 2>&1
+[2025-05-12 16:56:56] Return code: 1
+[2025-05-12 16:56:56] Error: Backup failed with status code 1
+[2025-05-12 16:56:56] Output: 
+[2025-05-15 16:05:23] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapacollege/backup_portal.sql" 2>&1
+[2025-05-15 16:05:23] Return code: 1
+[2025-05-15 16:05:23] Error: Backup failed with status code 1
+[2025-05-15 16:05:23] Output: 
+[2025-05-22 15:04:45] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapacollege/backup_portal.sql" 2>&1
+[2025-05-22 15:04:45] Return code: 1
+[2025-05-22 15:04:45] Error: Backup failed with status code 1
+[2025-05-22 15:04:45] Output: 
+[2025-05-24 23:05:39] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapa\portal/backup_portal.sql" 2>&1
+[2025-05-24 23:05:39] Return code: 1
+[2025-05-24 23:05:39] Error: Backup failed with status code 1
+[2025-05-24 23:05:39] Output: 
+[2025-05-26 14:00:57] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapa\portal/backup_portal.sql" 2>&1
+[2025-05-26 14:00:57] Return code: 1
+[2025-05-26 14:00:57] Error: Backup failed with status code 1
+[2025-05-26 14:00:57] Output: 
+[2025-05-29 10:17:42] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapa\portal/backup_portal.sql" 2>&1
+[2025-05-29 10:17:42] Return code: 1
+[2025-05-29 10:17:42] Error: Backup failed with status code 1
+[2025-05-29 10:17:42] Output: 
+[2025-06-06 19:01:05] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapa\portal/backup_portal.sql" 2>&1
+[2025-06-06 19:01:05] Return code: 1
+[2025-06-06 19:01:05] Error: Backup failed with status code 1
+[2025-06-06 19:01:05] Output: 
+[2025-06-16 20:57:19] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapa\portal/backup_portal.sql" 2>&1
+[2025-06-16 20:57:19] Return code: 1
+[2025-06-16 20:57:19] Error: Backup failed with status code 1
+[2025-06-16 20:57:19] Output: 
+[2025-06-20 21:39:59] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapa\portal/backup_portal.sql" 2>&1
+[2025-06-20 21:39:59] Return code: 1
+[2025-06-20 21:39:59] Error: Backup failed with status code 1
+[2025-06-20 21:39:59] Output: 
+[2025-07-01 02:25:55] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\NiceSchool\portal/backup_portal.sql" 2>&1
+[2025-07-01 02:25:55] Return code: 1
+[2025-07-01 02:25:55] Error: Backup failed with status code 1
+[2025-07-01 02:25:55] Output: 
+[2025-07-01 17:50:37] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-01 17:50:37] Return code: 0
+[2025-07-01 17:50:37] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (384589 bytes)
+[2025-07-03 03:57:28] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-03 03:57:28] Return code: 0
+[2025-07-03 03:57:28] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (387442 bytes)
+[2025-07-06 02:50:12] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-06 02:50:12] Return code: 0
+[2025-07-06 02:50:12] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (387581 bytes)
+[2025-07-07 07:54:42] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-07 07:54:42] Return code: 0
+[2025-07-07 07:54:42] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (387671 bytes)
+[2025-07-08 08:14:42] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-08 08:14:42] Return code: 0
+[2025-07-08 08:14:42] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (387671 bytes)
+[2025-07-09 09:09:41] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-09 09:09:41] Return code: 0
+[2025-07-09 09:09:41] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (387671 bytes)
+[2025-07-10 10:30:53] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-10 10:30:53] Return code: 0
+[2025-07-10 10:30:53] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (387583 bytes)
+[2025-07-11 15:03:20] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-11 15:03:20] Return code: 0
+[2025-07-11 15:03:20] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (387972 bytes)
+[2025-07-12 15:43:54] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-12 15:43:54] Return code: 0
+[2025-07-12 15:43:54] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (388549 bytes)
+[2025-07-14 07:47:51] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-14 07:47:51] Return code: 0
+[2025-07-14 07:47:51] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (388554 bytes)
+[2025-07-15 08:17:06] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-15 08:17:06] Return code: 0
+[2025-07-15 08:17:06] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (388554 bytes)
+[2025-07-16 08:18:09] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-16 08:18:09] Return code: 0
+[2025-07-16 08:18:09] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (388460 bytes)
+[2025-07-17 09:59:03] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-17 09:59:03] Return code: 0
+[2025-07-17 09:59:03] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (388884 bytes)
+[2025-07-18 10:03:42] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-18 10:03:42] Return code: 0
+[2025-07-18 10:03:42] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (390228 bytes)
+[2025-07-19 11:11:40] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-19 11:11:40] Return code: 0
+[2025-07-19 11:11:40] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (395251 bytes)
+[2025-07-21 08:57:49] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-21 08:57:49] Return code: 0
+[2025-07-21 08:57:49] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (399182 bytes)
+[2025-07-22 09:01:12] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-22 09:01:12] Return code: 0
+[2025-07-22 09:01:12] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (401015 bytes)
+[2025-07-23 11:59:28] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-23 11:59:28] Return code: 0
+[2025-07-23 11:59:28] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (475542 bytes)
+[2025-07-24 12:00:49] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-24 12:00:49] Return code: 0
+[2025-07-24 12:00:49] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (423575 bytes)
+[2025-07-25 12:18:52] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-07-25 12:18:52] Return code: 0
+[2025-07-25 12:18:52] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (430270 bytes)
+[2025-08-02 17:21:38] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-08-02 17:21:38] Return code: 0
+[2025-08-02 17:21:38] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (529478 bytes)
+[2025-08-04 09:28:45] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-08-04 09:28:45] Return code: 0
+[2025-08-04 09:28:45] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (529674 bytes)
+[2025-08-06 11:40:15] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-08-06 11:40:15] Return code: 0
+[2025-08-06 11:40:15] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (529674 bytes)
+[2025-08-08 11:43:47] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-08-08 11:43:47] Return code: 0
+[2025-08-08 11:43:47] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (529674 bytes)
+[2025-08-14 09:49:27] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-08-14 09:49:27] Return code: 0
+[2025-08-14 09:49:27] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (529674 bytes)
+[2025-08-18 10:59:28] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-08-18 10:59:28] Return code: 0
+[2025-08-18 10:59:28] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (529674 bytes)
+[2025-08-19 14:57:36] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-08-19 14:57:36] Return code: 0
+[2025-08-19 14:57:36] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (529674 bytes)
+[2025-08-20 15:41:35] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-08-20 15:41:35] Return code: 0
+[2025-08-20 15:41:35] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (438628 bytes)
+[2025-08-21 18:15:32] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-08-21 18:15:32] Return code: 0
+[2025-08-21 18:15:32] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (439642 bytes)
+[2025-08-24 08:33:42] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-08-24 08:33:42] Return code: 0
+[2025-08-24 08:33:42] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (440181 bytes)
+[2025-08-25 10:03:41] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-08-25 10:03:41] Return code: 0
+[2025-08-25 10:03:41] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (440214 bytes)
+[2025-08-26 10:48:13] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-08-26 10:48:13] Return code: 0
+[2025-08-26 10:48:13] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (440227 bytes)
+[2025-08-27 11:10:15] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-08-27 11:10:15] Return code: 0
+[2025-08-27 11:10:15] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (444543 bytes)
+[2025-09-10 10:57:11] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-09-10 10:57:11] Return code: 0
+[2025-09-10 10:57:11] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (444815 bytes)
+[2025-09-11 12:42:18] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-09-11 12:42:18] Return code: 0
+[2025-09-11 12:42:18] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (445152 bytes)
+[2025-09-16 12:24:15] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-09-16 12:24:15] Return code: 0
+[2025-09-16 12:24:15] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (446389 bytes)
+[2025-09-17 13:01:23] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-09-17 13:01:23] Return code: 0
+[2025-09-17 13:01:23] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (446389 bytes)
+[2025-09-18 14:33:35] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-09-18 14:33:35] Return code: 0
+[2025-09-18 14:33:35] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (461868 bytes)
+[2025-09-19 15:14:29] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-09-19 15:14:29] Return code: 0
+[2025-09-19 15:14:29] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (462095 bytes)
+[2025-09-22 08:41:00] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-09-22 08:41:00] Return code: 0
+[2025-09-22 08:41:00] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (462095 bytes)
+[2025-09-23 08:58:31] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-09-23 08:58:31] Return code: 0
+[2025-09-23 08:58:31] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (462134 bytes)
+[2025-09-24 09:24:09] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-09-24 09:24:09] Return code: 0
+[2025-09-24 09:24:09] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (463063 bytes)
+[2025-09-25 10:52:29] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-09-25 10:52:29] Return code: 0
+[2025-09-25 10:52:29] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (465850 bytes)
+[2025-09-26 12:24:33] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-09-26 12:24:33] Return code: 0
+[2025-09-26 12:24:33] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (466954 bytes)
+[2025-09-28 11:58:46] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-09-28 11:58:46] Return code: 0
+[2025-09-28 11:58:46] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (466977 bytes)
+[2025-09-29 12:49:53] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-09-29 12:49:53] Return code: 0
+[2025-09-29 12:49:53] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (466977 bytes)
+[2025-09-30 13:49:56] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-09-30 13:49:56] Return code: 0
+[2025-09-30 13:49:56] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (475500 bytes)
+[2025-10-02 08:53:21] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-10-02 08:53:21] Return code: 0
+[2025-10-02 08:53:21] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (486463 bytes)
+[2025-10-03 10:39:55] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-10-03 10:39:55] Return code: 0
+[2025-10-03 10:39:55] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (514914 bytes)
+[2025-10-06 10:21:37] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-10-06 10:21:37] Return code: 0
+[2025-10-06 10:21:37] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (537089 bytes)
+[2025-10-07 13:37:23] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-10-07 13:37:23] Return code: 0
+[2025-10-07 13:37:23] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (537089 bytes)
+[2025-10-13 07:48:19] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-10-13 07:48:19] Return code: 0
+[2025-10-13 07:48:19] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (533681 bytes)
+[2025-10-14 08:46:41] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-10-14 08:46:41] Return code: 0
+[2025-10-14 08:46:41] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (533681 bytes)
+[2025-10-15 13:51:33] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-10-15 13:51:33] Return code: 0
+[2025-10-15 13:51:33] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (564328 bytes)
+[2025-10-21 17:54:10] Command executed: 'mysqldump' --host='localhost' --user='hapacoll_root' --password='foxtrot2november' 'hapacoll_portal' > '/home/hapacoll/public_html/portal/backup_hapacoll_portal.sql' 2>&1
+[2025-10-21 17:54:10] Return code: 0
+[2025-10-21 17:54:10] Backup successful: /home/hapacoll/public_html/portal/backup_hapacoll_portal.sql (573196 bytes)
+[2025-10-21 21:04:50] Command executed: "mysqldump" --host="localhost" --user="root" --password="" "portal" > "C:\xampp\htdocs\hapacollege\portal/backup_portal.sql" 2>&1
+[2025-10-21 21:04:50] Return code: 1
+[2025-10-21 21:04:50] Error: Backup failed with status code 1
+[2025-10-21 21:04:50] Output: 
