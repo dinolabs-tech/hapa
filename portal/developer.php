@@ -13,11 +13,13 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_log' && isset($_GET['lo
     $log_file = '';
 
     if ($log_type === 'error_log') {
-        $log_file = '../error_log'; // Assuming error_log.txt is in the parent directory
+        $log_file = 'error_log.txt'; // Assuming error_log.txt is in the parent directory
     } elseif ($log_type === 'backup_log') {
         $log_file = 'backup.log'; // Assuming backup.log is in the backend directory
     } elseif ($log_type === 'error_log_no_ext') {
         $log_file = 'error_log'; // Assuming error_log (no extension) is in the current directory
+    } elseif ($log_type === 'deploy_log') {
+        $log_file = '../deploy.log'; // Assuming deploy.log is in the parent directory
     }
 
     if (!empty($log_file) && file_exists($log_file)) {
@@ -30,7 +32,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_log' && isset($_GET['lo
 
 // Handle backup download
 if (isset($_GET['action']) && $_GET['action'] === 'download_backup') {
-    $file = 'backup_hapacoll_portal.sql'; // The name of the SQL backup file
+    $file = 'backup_dinolabs_eduhive.sql'; // The name of the SQL backup file
 
     if (file_exists($file)) {
         header('Content-Description: File Transfer');
@@ -54,11 +56,13 @@ if (isset($_GET['action']) && $_GET['action'] === 'clear_log' && isset($_GET['lo
     $log_file = '';
 
     if ($log_type === 'error_log') {
-        $log_file = '../error_log';
+        $log_file = 'error_log.txt';
     } elseif ($log_type === 'backup_log') {
         $log_file = 'backup.log';
     } elseif ($log_type === 'error_log_no_ext') {
         $log_file = 'error_log';
+    } elseif ($log_type === 'deploy_log') {
+        $log_file = '../deploy.log';
     }
 
     if (!empty($log_file) && file_exists($log_file)) {
@@ -132,6 +136,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'clear_log' && isset($_GET['lo
                                             <button class="btn btn-danger" id="clearBackupLog">Clear backup.log</button>
                                             <button class="btn btn-primary" id="viewErrorLogNoExt">View error_log</button>
                                             <button class="btn btn-warning" id="clearErrorLogNoExt">Clear error_log</button>
+                                            <button class="btn btn-info" id="viewDeployLog">View deploy.log</button>
+                                            <button class="btn btn-danger" id="clearDeployLog">Clear deploy.log</button>
                                             <a href="developer.php?action=download_backup" class="btn btn-success">
                                             Download SQL Backup
                                         </a>
@@ -271,6 +277,43 @@ if (isset($_GET['action']) && $_GET['action'] === 'clear_log' && isset($_GET['lo
                             },
                             error: function() {
                                 alert('Error clearing error_log');
+                            }
+                        });
+                    }
+                });
+
+                $('#viewDeployLog').click(function() {
+                    $.ajax({
+                        url: 'developer.php',
+                        type: 'GET',
+                        data: {
+                            action: 'fetch_log',
+                            log_type: 'deploy_log'
+                        },
+                        success: function(response) {
+                            $('#logContent').text(response);
+                        },
+                        error: function() {
+                            $('#logContent').text('Error fetching deploy.log');
+                        }
+                    });
+                });
+
+                $('#clearDeployLog').click(function() {
+                    if (confirm('Are you sure you want to clear deploy.log? This action cannot be undone.')) {
+                        $.ajax({
+                            url: 'developer.php',
+                            type: 'GET',
+                            data: {
+                                action: 'clear_log',
+                                log_type: 'deploy_log'
+                            },
+                            success: function(response) {
+                                alert(response);
+                                $('#logContent').text(''); // Clear displayed content
+                            },
+                            error: function() {
+                                alert('Error clearing deploy.log');
                             }
                         });
                     }
