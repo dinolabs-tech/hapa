@@ -21,19 +21,25 @@ if ($conn->connect_error) {
 
   $role=isset($_SESSION['role']) ? $_SESSION['role']:'';
   //set the appropriate url based on the user role
-  if ($role ==='Student') {
-    $backurl = 'studentprofile.php';
-  }elseif ($role ==='Administrator'){
-    $backurl='adminprofile.php';
-  }elseif ($role ==='Superuser'){
-    $backurl='adminprofile.php';
-  }elseif ($role ==='Teacher'){
-    $backurl='adminprofile.php';
-  }elseif ($role==='Alumni') {
-    $backurl='studentprofile.php';
-    }elseif ($role==='Parent') {
-    $backurl='parentprofile.php';
-  }
+ if ($role === 'Student') {
+  $backurl = 'studentprofile.php';
+} elseif ($role === 'Administrator') {
+  $backurl = 'adminprofile.php';
+} elseif ($role === 'Superuser') {
+  $backurl = 'adminprofile.php';
+} elseif ($role === 'Teacher') {
+  $backurl = 'adminprofile.php';
+} elseif ($role === 'Bursary') {
+  $backurl = 'adminprofile.php';
+} elseif ($role === 'Tuckshop') {
+  $backurl = 'adminprofile.php';
+} elseif ($role === 'Admission') {
+  $backurl = 'adminprofile.php';
+} elseif ($role === 'Alumni') {
+  $backurl = 'studentprofile.php';
+} elseif ($role === 'Parent') {
+  $backurl = 'parentprofile.php';
+}
 
   
 
