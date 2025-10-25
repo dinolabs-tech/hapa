@@ -156,7 +156,7 @@ if (isset($_POST['expirydate_submit'])) {
                         <form action="" method="POST">
                           <div class="d-flex gap-2">
                             <input class="form-control" type="date" id="expirydate" name="expirydate" required>
-                            <input class="btn btn-success" type="submit" name="expirydate_submit" value="Apply">
+                            <button class="btn btn-success" type="submit" name="expirydate_submit"><i class="fas fa-check"></i></button>
                           </div>
                         </form>
 
@@ -167,8 +167,51 @@ if (isset($_POST['expirydate_submit'])) {
               </div>
             </div>
 
+            <div class="col-sm-6 col-md-3">
+              <a href="developer.php" class="card card-stats card-danger card-round">
+                <div class="card-body skew-shadow">
+                  <div class="row align-items-center">
+                    <div class="col-icon">
+                      <div class="icon-big text-center icon-dark bubble-shadow-small">
+                        <i class="fas fa-code"></i>
+                      </div>
+                    </div>
+                    <div class="col col-stats ms-3 ms-sm-0">
+                      <div class="numbers">
+                        <p class="card-category">Developer Page</p>
+                        <h4 class="card-title">Access Tools</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+          </div>
 
 
+          <!-- ================ STUDENT ENROLLED PANEL =================== -->
+          <div class="row">
+            <div class="col-sm-6 col-md-3">
+              <div class="card card-stats card-success card-round">
+                <div class="card-body skew-shadow">
+                  <div class="row align-items-center">
+                    <div class="col-icon">
+                      <div class="icon-big text-center icon-success bubble-shadow-small">
+                        <i class="fas fa-user-graduate"></i>
+                      </div>
+                    </div>
+                    <div class="col col-stats ms-3 ms-sm-0">
+                      <div class="numbers">
+                        <p class="card-category">Students Enrolled</p>
+                        <h4 class="card-title"><?php echo $total_students; ?></h4>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div class="col-sm-6 col-md-3">
               <div class="card card-stats card-primary card-round">
@@ -191,35 +234,7 @@ if (isset($_POST['expirydate_submit'])) {
               </div>
             </div>
 
-
-          </div>
-
-
-
-          <!-- ================ STUDENT ENROLLED PANEL =================== -->
-          <div class="row">
-            <div class="col-sm-6 col-md-4">
-              <div class="card card-stats card-success card-round">
-                <div class="card-body skew-shadow">
-                  <div class="row align-items-center">
-                    <div class="col-icon">
-                      <div class="icon-big text-center icon-success bubble-shadow-small">
-                        <i class="fas fa-user-graduate"></i>
-                      </div>
-                    </div>
-                    <div class="col col-stats ms-3 ms-sm-0">
-                      <div class="numbers">
-                        <p class="card-category">Students Enrolled</p>
-                        <h4 class="card-title"><?php echo $total_students; ?></h4>
-
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-sm-6 col-md-4">
+            <div class="col-sm-6 col-md-3">
               <div class="card card-stats card-secondary card-round">
                 <div class="card-body curves-shadow">
                   <div class="row align-items-center">
@@ -240,7 +255,7 @@ if (isset($_POST['expirydate_submit'])) {
               </div>
             </div>
 
-            <div class="col-sm-6 col-md-4">
+            <div class="col-sm-6 col-md-3">
               <div class="card card-stats card-info card-round">
                 <div class="card-body skew-shadow">
                   <div class="row align-items-center">
