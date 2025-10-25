@@ -13,7 +13,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_log' && isset($_GET['lo
     $log_file = '';
 
     if ($log_type === 'error_log') {
-        $log_file = 'error_log.txt'; // Assuming error_log.txt is in the parent directory
+        $log_file = '../error_log'; // Assuming error_log.txt is in the parent directory
     } elseif ($log_type === 'backup_log') {
         $log_file = 'backup.log'; // Assuming backup.log is in the backend directory
     } elseif ($log_type === 'error_log_no_ext') {
@@ -54,7 +54,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'clear_log' && isset($_GET['lo
     $log_file = '';
 
     if ($log_type === 'error_log') {
-        $log_file = 'error_log.txt';
+        $log_file = '../error_log';
     } elseif ($log_type === 'backup_log') {
         $log_file = 'backup.log';
     } elseif ($log_type === 'error_log_no_ext') {
