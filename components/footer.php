@@ -41,8 +41,6 @@
           <li><a href="anthem.php">School Anthem</a></li>
           <li><a href="campus-facilities.php">Campus & Facilities</a></li>
           <li><a href="affiliates.php">Study Abroad</a></li>
-          <!-- <li><a href="portal/login.php">Login</a></li> -->
-
           <?php if (isset($_SESSION["user_id"])) { ?>
             <li><a href="portal/logout.php">Logout</a></li>
           <?php } else { ?>
