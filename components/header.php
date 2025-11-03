@@ -23,16 +23,16 @@
            </ul>
          </li>
 
-          <li class="dropdown"><a href="admissions.php"><span>Admissions</span>
-        <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-        <ul>
-          <li><a href="e-form.pdf">E-Form [Download]</a></li>
-        </ul>
-        </li>
-        
-        
+         <li class="dropdown"><a href="admissions.php"><span>Admissions</span>
+             <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+           <ul>
+             <li><a href="e-form.pdf">E-Form [Download]</a></li>
+           </ul>
+         </li>
+
+
          <li><a href="academics.php">Academics</a></li>
-        
+
          <li><a href="students-life.php">Students Life</a></li>
 
          <?php if (isset($_SESSION["staffname"])) { ?>
@@ -89,24 +89,32 @@
               <li><a href="#">Dropdown 4</a></li>
             </ul>
           </li> -->
-          
+
          <!--<li><a href="careers.php">Careers</a></li>-->
          <li><a href="careers.php">Careers</a></li>
          <li><a href="affiliates.php">Study Abroad</a></li>
          <li><a href="contact.php">Contact</a></li>
 
 
-         <?php if (isset($_SESSION["staffname"])) { ?>
-           <?php if ($_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Teacher') { ?>
-             <li><a href="portal/dashboard.php">Portal</a></li>
-           <?php } elseif ($_SESSION['role'] == 'Superuser') { ?>
-<li><a href="portal/superdashboard.php">Portal</a></li>
-           <?php } ?>
+         <?php
+          $role = $_SESSION['role'] ?? null;
 
-         <?php } else { ?>
+          $links = [
+            'Superuser'    => 'backend/superdashboard.php',
+            'Administrator' => 'backend/dashboard.php',
+            'Teacher'      => 'backend/dashboard.php',
+            'Admmission'   => 'backend/dashboard.php',
+            'Tuckshop'     => 'backend/tuckdashboard.php',
+            'Bursary'      => 'backend/bursary_dashboard.php',
+            'Student'      => 'backend/students.php',
+            'Parent'       => 'backend/parent.php',
+            'Alumni'       => 'backend/alumni.php'
+          ];
 
-<li><a href="portal/login.php">Portal</a></li>
-         <?php } ?>
+          $link = $links[$role] ?? 'backend/login.php';
+          ?>
+         <li><a href="<?= htmlspecialchars($link) ?>">Portal</a></li>
+
 
 
        </ul>
