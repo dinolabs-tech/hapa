@@ -100,18 +100,18 @@
           $role = $_SESSION['role'] ?? null;
 
           $links = [
-            'Superuser'    => 'backend/superdashboard.php',
-            'Administrator' => 'backend/dashboard.php',
-            'Teacher'      => 'backend/dashboard.php',
-            'Admmission'   => 'backend/dashboard.php',
-            'Tuckshop'     => 'backend/tuckdashboard.php',
-            'Bursary'      => 'backend/bursary_dashboard.php',
-            'Student'      => 'backend/students.php',
-            'Parent'       => 'backend/parent.php',
-            'Alumni'       => 'backend/alumni.php'
+            'Superuser'    => 'portal/superdashboard.php',
+            'Administrator' => 'portal/dashboard.php',
+            'Teacher'      => 'portal/dashboard.php',
+            'Admmission'   => 'portal/dashboard.php',
+            'Tuckshop'     => 'portal/tuckdashboard.php',
+            'Bursary'      => 'portal/bursary_dashboard.php',
+            'Student'      => 'portal/students.php',
+            'Parent'       => 'portal/parent.php',
+            'Alumni'       => 'portal/alumni.php'
           ];
 
-          $link = $links[$role] ?? 'backend/login.php';
+          $link = $links[$role] ?? 'portal/login.php';
           ?>
          <li><a href="<?= htmlspecialchars($link) ?>">Portal</a></li>
 
