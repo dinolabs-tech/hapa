@@ -422,9 +422,9 @@ if (is_dir($assignment_dir)) {
 }
 
 // NOTES=========================
-// Fetch notes for the student's class from the 'Notes' folder
+// Fetch notes for the student's class from the 'notes' folder
 $notes_files = [];
-$notes_dir = 'Notes/'; // Path to the assignment folder
+$notes_dir = 'notes/'; // Path to the assignment folder
 
 // Ensure that the directory exists and is readable
 if (is_dir($notes_dir)) {
