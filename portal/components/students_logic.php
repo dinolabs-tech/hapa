@@ -302,26 +302,6 @@ if ($conn) {
     } else {
         die("Error preparing statement: " . $conn->error);
     }
-
-   // Fetch timetable for today only
-if (!empty($student_class) && !empty($student_arm)) {
-    $stmt = $conn->prepare("SELECT starttime, endtime, subject FROM timetable WHERE class = ? AND arm = ? AND day = ? ORDER BY starttime ASC");
-    if ($stmt) {
-        $stmt->bind_param("sss", $student_class, $student_arm, $today);
-        $stmt->execute();
-        $stmt->bind_result($starttime, $endtime, $subject);
-        
-        while ($stmt->fetch()) {
-            $time_slot = date("h:i A", strtotime($starttime)) . " - " . date("h:i A", strtotime($endtime));
-            $timetable[] = ['subject' => $subject, 'time' => $time_slot];
-        }
-        $stmt->close();
-    } else {
-        die("Error preparing statement: " . $conn->error);
-    }
-} else {
-    die("Database connection error.");
-}
 }
 
 
