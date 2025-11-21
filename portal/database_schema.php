@@ -9,6 +9,13 @@ function tableExists($conn, $table)
     return $result->num_rows > 0;
 }
 
+// Function to check if a column exists in a table
+function columnExists($conn, $table, $column)
+{
+    $result = $conn->query("SHOW COLUMNS FROM `$table` LIKE '$column'");
+    return $result->num_rows > 0;
+}
+
 // Array of table creation queries
 $tables = [
     // Table: admin
@@ -1089,6 +1096,20 @@ foreach ($tables as $tableName => $query) {
             // Table created successfully
         } else {
             error_log("Error creating table $tableName: " . $conn->error);
+        }
+    }
+}
+
+if (tableExists($conn, 'mst_useranswer')) {
+    if (!columnExists($conn, 'mst_useranswer', 'que_id')) {
+
+        $sql = "ALTER TABLE `mst_useranswer`
+                ADD COLUMN `que_id` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY";
+
+        if ($conn->query($sql) === TRUE) {
+            // Success
+        } else {
+            error_log("Error adding auto increment que_id: " . $conn->error);
         }
     }
 }

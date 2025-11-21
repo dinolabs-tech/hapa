@@ -169,11 +169,11 @@ $subjectEsc = mysqli_real_escape_string($conn, $subject);
                             if ($selectedAnswer == $row[7] && $currentUA['your_ans'] != $row[7]) {
                                 $_SESSION['trueans']++;
                             }
-                            mysqli_query($conn, "UPDATE mst_useranswer SET your_ans='$selectedAnswer' WHERE sess_id='" . $currentUA['sess_id'] . "'");
+                            mysqli_query($conn, "UPDATE mst_useranswer SET your_ans='$selectedAnswer' WHERE sess_id='" . $currentUA['sess_id'] . "' AND que_id = '" . $row[0] . "'");
                         }
                     } else {
                         // No record exists for this question: insert a new record.
-                        mysqli_query($conn, "INSERT INTO mst_useranswer(sess_id, subject, que_des, ans1, ans2, ans3, ans4, true_ans, your_ans) 
+                        mysqli_query($conn, "INSERT INTO mst_useranswer(sess_id, subject, que_id, que_des, ans1, ans2, ans3, ans4, true_ans, your_ans) 
                             VALUES ('" . session_id() . "', '$subjectEsc', '" . addslashes($row[2]) . "', '" . addslashes($row[3]) . "', '" . addslashes($row[4]) . "', '" . addslashes($row[5]) . "', '" . addslashes($row[6]) . "', '" . addslashes($row[7]) . "', '$selectedAnswer')");
                         if ($selectedAnswer == $row[7]) {
                             $_SESSION['trueans']++;
@@ -208,7 +208,7 @@ $subjectEsc = mysqli_real_escape_string($conn, $subject);
               $row = mysqli_fetch_row($rs);
 
               // Try to fetch the user’s answer (if it exists) for this question.
-              $uaQuery = "SELECT your_ans FROM mst_useranswer WHERE sess_id='" . session_id() . "' ORDER BY sess_id LIMIT " . $_SESSION['qn'] . ",1";
+              $uaQuery = "SELECT your_ans FROM mst_useranswer WHERE sess_id='" . session_id() . "' AND que_id = '$current_que_id'";
               $uaResult = mysqli_query($conn, $uaQuery);
               $uaRow = mysqli_fetch_assoc($uaResult);
               $user_answer = isset($uaRow['your_ans']) ? $uaRow['your_ans'] : 0;
