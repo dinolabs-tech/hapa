@@ -77,6 +77,100 @@ if (isset($_GET['action']) && $_GET['action'] === 'clear_log' && isset($_GET['lo
     exit(); // Exit after clearing the log
 }
 
+// Handle dropping all tables
+if (isset($_GET['action']) && $_GET['action'] === 'drop_all_tables') {
+    include('db_connection.php'); // Assuming this file establishes $conn
+
+    if ($conn) {
+        try {
+            // Disable foreign key checks
+            $conn->query("SET FOREIGN_KEY_CHECKS = 0;");
+
+            // Generate DROP TABLE statements for all tables
+            $tables_query = "SELECT GROUP_CONCAT(CONCAT('`', table_name, '`')) FROM information_schema.tables WHERE table_schema = DATABASE();";
+            $result = $conn->query($tables_query);
+            $row = $result->fetch_row();
+            $tables = $row[0];
+
+            if ($tables) {
+                // Prepare and execute the DROP statement
+                $drop_statement = "DROP TABLE $tables;";
+                $conn->query($drop_statement);
+                echo "All tables dropped successfully.";
+            } else {
+                echo "No tables found to drop.";
+            }
+
+            // Re-enable foreign key checks
+            $conn->query("SET FOREIGN_KEY_CHECKS = 1;");
+        } catch (Exception $e) {
+            echo "Error dropping tables: " . $e->getMessage();
+        } finally {
+            $conn->close();
+        }
+    } else {
+        echo "Database connection failed.";
+    }
+    exit();
+}
+
+// Handle executing custom SQL commands
+if (isset($_POST['action']) && $_POST['action'] === 'execute_sql' && isset($_POST['sql_command'])) {
+    include('db_connection.php');
+
+    if ($conn) {
+        $sql_command = $_POST['sql_command'];
+        $output = '';
+
+        try {
+            // Execute multi-query if multiple statements are present, otherwise single query
+            if ($conn->multi_query($sql_command)) {
+                $output .= "SQL executed successfully.\n";
+                do {
+                    if ($result = $conn->store_result()) {
+                        if ($result->num_rows > 0) {
+                            $output .= "Results:\n";
+                            // Get column names
+                            $fields = $result->fetch_fields();
+                            $column_names = [];
+                            foreach ($fields as $field) {
+                                $column_names[] = $field->name;
+                            }
+                            $output .= implode("\t| ", $column_names) . "\n";
+                            $output .= str_repeat("-\t", count($column_names)) . "\n";
+
+                            // Fetch rows
+                            while ($row = $result->fetch_assoc()) {
+                                $row_values = [];
+                                foreach ($column_names as $col_name) {
+                                    $row_values[] = $row[$col_name];
+                                }
+                                $output .= implode("\t| ", $row_values) . "\n";
+                            }
+                        } else {
+                             $output .= "No rows returned for this statement.\n";
+                        }
+                        $result->free();
+                    }
+                    if ($conn->more_results()) {
+                        $output .= "\n--- Next Query Results ---\n\n";
+                    }
+                } while ($conn->next_result());
+            } else {
+                $output .= "Error executing SQL: " . $conn->error . "\n";
+            }
+        } catch (Exception $e) {
+            $output .= "Error: " . $e->getMessage() . "\n";
+        } finally {
+            $conn->close();
+        }
+    } else {
+        $output .= "Database connection failed.";
+    }
+    echo $output;
+    exit();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -141,6 +235,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'clear_log' && isset($_GET['lo
                                             <a href="developer.php?action=download_backup" class="btn btn-success">
                                             Download SQL Backup
                                         </a>
+                                        <button class="btn btn-danger" id="dropAllTablesButton">Drop All Tables</button>
                                         </div>
                                     </div>
 
@@ -150,7 +245,23 @@ if (isset($_GET['action']) && $_GET['action'] === 'clear_log' && isset($_GET['lo
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    Execute Custom SQL Commands
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-danger"><strong>WARNING:</strong> Executing SQL commands directly can lead to data loss or corruption if not used carefully. Proceed with caution.</p>
+                                    <div class="form-group">
+                                        <label for="sqlCommandInput">SQL Command:</label>
+                                        <textarea class="form-control" id="sqlCommandInput" rows="5" placeholder="Enter SQL command here..."></textarea>
+                                    </div>
+                                    <button class="btn btn-primary mt-2" id="executeSqlCommand">Execute SQL</button>
+                                    <div id="sqlResultContent" class="mt-3"
+                                        style="white-space: pre-wrap; background-color: #f8f9fa; padding: 15px; border-radius: 5px; max-height: 500px; overflow-y: scroll;">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -314,6 +425,50 @@ if (isset($_GET['action']) && $_GET['action'] === 'clear_log' && isset($_GET['lo
                             },
                             error: function() {
                                 alert('Error clearing deploy.log');
+                            }
+                        });
+                    }
+                });
+
+                $('#dropAllTablesButton').click(function() {
+                    if (confirm('WARNING: Are you absolutely sure you want to drop ALL tables? This action is irreversible and will result in complete data loss.')) {
+                        $.ajax({
+                            url: 'developer.php',
+                            type: 'GET',
+                            data: {
+                                action: 'drop_all_tables'
+                            },
+                            success: function(response) {
+                                alert(response);
+                                $('#logContent').text(response);
+                            },
+                            error: function() {
+                                alert('Error dropping tables.');
+                            }
+                        });
+                    }
+                });
+
+                $('#executeSqlCommand').click(function() {
+                    const sqlCommand = $('#sqlCommandInput').val();
+                    if (sqlCommand.trim() === '') {
+                        alert('Please enter an SQL command to execute.');
+                        return;
+                    }
+
+                    if (confirm('WARNING: Are you sure you want to execute this SQL command? This action can be destructive and irreversible.')) {
+                        $.ajax({
+                            url: 'developer.php',
+                            type: 'POST',
+                            data: {
+                                action: 'execute_sql',
+                                sql_command: sqlCommand
+                            },
+                            success: function(response) {
+                                $('#sqlResultContent').text(response);
+                            },
+                            error: function() {
+                                $('#sqlResultContent').text('Error executing SQL command.');
                             }
                         });
                     }
