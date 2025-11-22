@@ -449,6 +449,7 @@ $tables = [
         CREATE TABLE IF NOT EXISTS `mst_useranswer` (
             `sess_id` varchar(80) DEFAULT NULL,
             `subject` varchar(111) DEFAULT NULL,
+            `que_id` INT(11) DEFAULT NULL AUTO_INCREMENT PRIMARY KEY,
             `que_des` varchar(200) DEFAULT NULL,
             `ans1` varchar(50) DEFAULT NULL,
             `ans2` varchar(50) DEFAULT NULL,
