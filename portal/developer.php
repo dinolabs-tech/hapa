@@ -232,6 +232,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'execute_sql' && isset($_POS
                                             <button class="btn btn-warning" id="clearErrorLogNoExt">Clear error_log</button>
                                             <button class="btn btn-info" id="viewDeployLog">View deploy.log</button>
                                             <button class="btn btn-danger" id="clearDeployLog">Clear deploy.log</button>
+                                            <a href="database_schema.php" class="btn btn-primary">Run DB Schema</a>
                                             <a href="developer.php?action=download_backup" class="btn btn-success">
                                             Download SQL Backup
                                         </a>
