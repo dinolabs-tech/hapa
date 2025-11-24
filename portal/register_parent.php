@@ -126,7 +126,8 @@ $stmt->close();
                                         <table id="basic-datatables" class="table table-striped table-bordered">
                                             <thead>
                                                 <tr>
-                                                    <th>Name</th>
+                                                    <th>Student Name</th>
+                                                    <th>Guardian Name</th>
                                                     <th>Mobile</th>
                                                     <th>Occupation</th>
                                                     <th>Address</th>
@@ -137,23 +138,26 @@ $stmt->close();
                                             <tbody>
                                                 <?php
                                                 // Fetch parent details from the students table
-                                                $sql = "SELECT id, gname, mobile, goccupation, gaddress, grelationship FROM students";
+                                                $sql = "SELECT id, name, gname, mobile, goccupation, gaddress, grelationship FROM students";
                                                 $result = $conn->query($sql);
 
                                                 if ($result && $result->num_rows > 0) {
-                                                    while ($row = $result->fetch_assoc()) {
-                                                        echo "<tr>";
-                                                        echo "<td>" . htmlspecialchars($row['gname']) . "</td>";
-                                                        echo "<td>" . htmlspecialchars($row['mobile']) . "</td>";
-                                                        echo "<td>" . htmlspecialchars($row['goccupation']) . "</td>";
-                                                        echo "<td>" . htmlspecialchars($row['gaddress']) . "</td>";
-                                                        echo "<td>" . htmlspecialchars($row['grelationship']) . "</td>";
-                                                        echo "<td><a href='?id=" . htmlspecialchars($row['id']) . "' class='btn btn-primary btn-sm'>Register</a></td>";
-                                                        echo "</tr>";
-                                                    }
-                                                } else {
-                                                    echo "<tr><td colspan='6' class='text-center'>No parent details found in the students table.</td></tr>";
-                                                }
+                                                    while ($row = $result->fetch_assoc()) { ?>
+                                                        <tr>
+                                                            <td><?= htmlspecialchars($row['name']) ?></td>
+                                                            <td><?= htmlspecialchars($row['gname']) ?></td>
+                                                            <td><?= htmlspecialchars($row['mobile']) ?></td>
+                                                            <td><?= htmlspecialchars($row['goccupation']) ?></td>
+                                                            <td><?= htmlspecialchars($row['gaddress']) ?></td>
+                                                            <td><?= htmlspecialchars($row['grelationship']) ?></td>
+                                                            <td><a href='?id=<?= htmlspecialchars($row['id']) ?>' class='btn btn-warning btn-icon btn-round'><i class="fas fa-edit"></i></a></td>
+                                                        </tr>
+                                                    <?php  }
+                                                } else { ?>
+                                                    <tr>
+                                                        <td colspan='6' class='text-center'>No parent details found in the students table.</td>
+                                                    </tr>
+                                                <?php  }
                                                 ?>
                                             </tbody>
                                         </table>
