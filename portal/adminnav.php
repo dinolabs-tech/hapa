@@ -76,6 +76,11 @@
                     <span class="sub-item">Filter Students</span>
                   </a>
                 </li>
+                <li>
+                  <a href="deactivate_student.php">
+                    <span class="sub-item">Deactivate Student</span>
+                  </a>
+                </li>
               </ul>
             </div>
           </li>
