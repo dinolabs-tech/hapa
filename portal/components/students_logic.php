@@ -438,7 +438,7 @@ if (is_dir($notes_dir)) {
         //echo "No Notes found for your class.";
     }
 } else {
-    echo "The notes directory does not exist.";
+    // echo "The notes directory does not exist.";
 }
 
 // CURRICULUM=====================================

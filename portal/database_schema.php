@@ -969,16 +969,23 @@ $tables = [
 ",
 
     // Table: testimonial
-    "testimonial" => "
-        CREATE TABLE IF NOT EXISTS `testimonial` (
-            `id` varchar(222) NOT NULL,
-            `name` varchar(222) NOT NULL,
-            `subject` varchar(222) NOT NULL,
-            `class` varchar(222) NOT NULL,
-            `arm` varchar(222) NOT NULL,
-            `remark` varchar(222) NOT NULL,
-            `session` varchar(222) NOT NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+   "testimonial" => "
+        CREATE TABLE `testimonial` (
+        `id` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        `student_id` VARCHAR(255) NOT NULL,
+        `session` VARCHAR(20) NOT NULL,
+        `subjects_offered` TEXT DEFAULT NULL, 
+        `academic_ability` TEXT DEFAULT NULL,
+        `prizes_won` TEXT DEFAULT NULL,
+        `character_assessment` TEXT DEFAULT NULL,
+        `leadership_position` VARCHAR(255) DEFAULT NULL, 
+        `co_curricular` TEXT DEFAULT NULL,
+        `general_remarks` TEXT DEFAULT NULL,
+        `principal_comment` TEXT DEFAULT NULL,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY `unique_student_session` (`student_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ",
 
     // Table: threads

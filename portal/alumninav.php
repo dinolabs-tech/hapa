@@ -115,7 +115,40 @@
 
 
 
-        <?php if ($_SESSION['access'] == 0) { ?>
+
+        <?php
+        // Conditional display for "Transcript" link based on user's 'access' level.
+        if ($_SESSION['access'] == 0) {
+          // Assume student_id is stored in $_SESSION['student_id'] after login
+          $loggedInStudentId = $_SESSION['user_id'] ?? null;
+          $testimonial_count = 0; // Default to 0
+
+          if ($loggedInStudentId) {
+            $testimonial_check_sql = "SELECT COUNT(*) FROM testimonial WHERE student_id = ?";
+            $stmt_testimonial = $conn->prepare($testimonial_check_sql);
+            // Assuming student_id in testimonial table is VARCHAR, bind as string
+            $stmt_testimonial->bind_param("s", $loggedInStudentId);
+            $stmt_testimonial->execute();
+            $stmt_testimonial->bind_result($testimonial_count);
+            $stmt_testimonial->fetch();
+            $stmt_testimonial->close();
+          }
+        ?>
+          <li class="nav-item">
+            <?php if ($testimonial_count > 0): ?>
+              <a href="adminchecktestimonial.php?student_id=<?php echo htmlspecialchars($loggedInStudentId); ?>">
+                <i class="fas fa-award"></i>
+                <p>Testimonial </p>
+                <span class="badge badge-success"> Available</span>
+              </a>
+            <?php else: ?>
+              <a href="#" onclick="alert('Testimonial not available. Please contact the Admin.'); return false;">
+                <i class="fas fa-award"></i>
+                <p>Testimonial</p>
+                <span class="badge badge-danger">Unavailable</span>
+              </a>
+            <?php endif; ?>
+          </li>
           <li class="nav-item">
             <a href="transcript.php">
               <i class="fas fa-desktop"></i>
