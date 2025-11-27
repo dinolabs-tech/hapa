@@ -130,7 +130,7 @@ if (isset($_GET['student_id']) && !empty($_GET['student_id'])) {
   <main class="main">
 
     <!-- Page Title -->
-    <div class="page-title dark-background" style="background-image: url(assets/img/education/showcase-1.webp);">
+    <div class="page-title dark-background position-relative" style="background-image: url(assets/img/pg-header.jpg);">
       <div class="container position-relative">
         <h1>Testimonial Verification</h1>
         <nav class="breadcrumbs">
