@@ -181,7 +181,7 @@ if (isset($_REQUEST['student_id']) && !empty($_REQUEST['student_id'])) {
 
     // main narrative
     $statement  = "$student_name_bold, {$student['gender']}, born on {$student['dob']}, ";
-    $statement .= "and a native of {$student['state']}, {$student['lga']}, was a student of Dinolabs Academy ";
+    $statement .= "and a native of {$student['state']}, {$student['lga']}, was a student of HAPA COLLEGE ";
     $statement .= "from {$start_session}/{$end_session} to {$student['session']} academic session. During this period, {$pronoun} maintained an excellent academic and moral record.\n\n";
     $pdf->MultiCell(0, 9, $statement);
     $pdf->Ln(2);
