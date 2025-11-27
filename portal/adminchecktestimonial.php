@@ -103,7 +103,7 @@ if (isset($_REQUEST['student_id']) && !empty($_REQUEST['student_id'])) {
             $this->MultiCell(
                 $this->GetPageWidth() - 120,
                 6,
-                "KM 3, Akure Owo Express Road, Oba Ile\n,Akure, Ondo State, Nigeria. \n +234-803-504-2727, +234-803-883-8583\nadmin@hapacollege.com",
+                "KM 3, Akure Owo Express Road, Oba Ile,\nAkure, Ondo State, Nigeria. \n +234-803-504-2727, +234-803-883-8583\nhapacollege2013@yahoo.com",
                 0,
                 'C'
             );
