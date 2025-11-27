@@ -48,7 +48,7 @@ $selected_date = isset($_GET['attendance_date']) ? $_GET['attendance_date'] : da
 
 // Fetch students based on selected class and arm
 $students = array();
-$sql_students = "SELECT id, name FROM students WHERE 1=1"; // Start with a neutral condition
+$sql_students = "SELECT id, name FROM students WHERE status=0 1=1"; // Start with a neutral condition
 if (!empty($selected_class)) {
   $sql_students .= " AND class = '$selected_class'";
 }
