@@ -2,7 +2,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-include 'backend/db_connection.php';
+include 'portal/db_connection.php';
 
 $verification_status = '';
 $student_name = 'N/A';
