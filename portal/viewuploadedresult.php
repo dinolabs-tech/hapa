@@ -44,9 +44,15 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_records') {
   $term = $_GET['term'];
   $subject = $_GET['subject'];
 
+  // Get current session
+  $current_session_query = "SELECT csession FROM currentsession WHERE id = 1 LIMIT 1";
+  $current_session_result = $conn->query($current_session_query);
+  $current_session_row = $current_session_result->fetch_assoc();
+  $current_session = $current_session_row['csession'];
+
   // Query to fetch records from the mastersheet table
   //$sql = "SELECT * FROM mastersheet WHERE class = '$class' AND arm = '$arm' AND term = '$term' AND subject = '$subject'";
-  $sql = "SELECT * FROM mastersheet WHERE class = '$class' AND subject = '$subject' AND arm = '$arm' AND term = '$term'";
+  $sql = "SELECT * FROM mastersheet WHERE class = '$class' AND subject = '$subject' AND arm = '$arm' AND term = '$term' AND csession = '$current_session'";
   $result = $conn->query($sql);
 
   $records = [];
