@@ -93,14 +93,14 @@ function generateStudentListPDF($class, $arm, $studentData)
 
   // Table Header
   $pdf->SetFont('Arial', 'B', 10);
-  $pdf->Cell(30, 10, 'Student ID', 1, 0, 'C');
-  $pdf->Cell(140, 10, 'Student Name', 1, 1, 'C'); // Changed 0 to 1 to move to next line
+  $pdf->Cell(40, 10, 'Student ID', 1, 0, 'C');
+  $pdf->Cell(130, 10, 'Student Name', 1, 1, 'C'); // Changed 0 to 1 to move to next line
   $pdf->SetFont('Arial', '', 10);
 
   // Table Content
   foreach ($studentData as $student) {
-    $pdf->Cell(30, 10, $student['id'], 1, 0, 'C');
-    $pdf->Cell(140, 10, $student['name'], 1, 1, 'L');
+    $pdf->Cell(40, 10, $student['id'], 1, 0, 'C');
+    $pdf->Cell(130, 10, $student['name'], 1, 1, 'L');
   }
 
   // Output the PDF
