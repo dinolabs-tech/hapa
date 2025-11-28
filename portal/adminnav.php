@@ -72,6 +72,11 @@
                   </a>
                 </li>
                 <li>
+                  <a href="download_data.php">
+                    <span class="sub-item">Download Student Data</span>
+                  </a>
+                </li>
+                <li>
                   <a href="filter_students.php">
                     <span class="sub-item">Filter Students</span>
                   </a>
