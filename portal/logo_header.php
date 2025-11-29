@@ -10,7 +10,7 @@
      </button>
    </div>
    <button class="topbar-toggler more">
-     <i class="gg-more-vertical-alt"></i>
+     <i class="far fa-user-circle"></i>
    </button>
  </div>
  <!-- End Logo Header -->
