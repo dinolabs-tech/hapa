@@ -1,7 +1,11 @@
 <head>
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>EDUHIVE</title>
-  <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
+  <meta 
+  name="viewport" 
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
   <link rel="icon" href="assets/img/kaiadmin/d-icon.ico" type="image/x-icon" />
 
   <!-- Fonts and icons -->
