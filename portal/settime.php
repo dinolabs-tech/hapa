@@ -247,7 +247,6 @@ if (isset($_POST['action'])) {
                   }
                   ?>
 
-                   </div>
                  </div>
                </div>
              </div>
