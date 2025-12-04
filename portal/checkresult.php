@@ -332,13 +332,13 @@ for ($i = 0; $i < $maxRows; $i++) {
 // --- QR Code ---
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 $base_url = $protocol . '://' . $_SERVER['HTTP_HOST'];
-$qr_code_text = "This result is an authenticated academic document issued to " . $student['name'] . ". Its authenticity and legal status can be verified through " . $base_url . "/eduhive/verify.php?student_id=" . $user_id . "&type=result";
+$qr_code_text = "This result is an authenticated academic document issued to " . $student_details['name'] . ". Its authenticity and legal status can be verified through " . $base_url . "/eduhive/verify.php?student_id=" . $student_id . "&type=result";
 $qr_file_path = 'temp_qr_' . md5($qr_code_text) . '.png';
 QRcode::png($qr_code_text, $qr_file_path, QR_ECLEVEL_L, 4, 2);
 $qr_w = 25;
 $qr_h = 25;
-$qr_x = $secondX + 95; // Position it to the right of the skills table
-$qr_y = $currentY - (count($skills) * 6) - 15 + 15;
+$qr_x = $secondTableX + 95; // Position it to the right of the skills table
+$qr_y = $startY - (count($second_table_data) * 6) - 15 + 15;
 $pdf->Image($qr_file_path, $qr_x, $qr_y, $qr_w, $qr_h, 'PNG');
 if (file_exists($qr_file_path)) {
     unlink($qr_file_path);
