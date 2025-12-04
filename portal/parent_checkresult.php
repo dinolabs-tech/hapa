@@ -336,7 +336,7 @@ QRcode::png($qr_code_text, $qr_file_path, QR_ECLEVEL_L, 4, 2);
 $qr_w = 25;
 $qr_h = 25;
 $qr_x = $secondTableX + 95; // Position it to the right of the skills table
-$qr_y = $startY - (count($second_table_data) * 6) - 15 + 18;
+$qr_y = $startY - (count($second_table_data) * 6) - 15 + 20;
 $pdf->Image($qr_file_path, $qr_x, $qr_y, $qr_w, $qr_h, 'PNG');
 if (file_exists($qr_file_path)) {
     unlink($qr_file_path);
