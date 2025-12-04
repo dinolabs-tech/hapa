@@ -1,6 +1,7 @@
 <!-- Sidebar -->
 <div class="sidebar" data-background-color="dark">
   <div class="sidebar-logo">
+    <?php include('db_connection.php'); ?>
     <?php include('logo_header.php'); ?>
   </div>
   <div class="sidebar-wrapper scrollbar scrollbar-inner">
