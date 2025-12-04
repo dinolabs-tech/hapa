@@ -131,7 +131,7 @@ if (isset($_REQUEST['student_id']) && !empty($_REQUEST['student_id'])) {
             // QR Code at bottom left, on the same line as the seal
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
             $base_url = $protocol . '://' . $_SERVER['HTTP_HOST'];
-            $qr_code_text = "This testimonial is an authenticated academic document issued to " . $this->studentNameBold . ". Its authenticity and legal status can be verified through " . $base_url . "/verify.php?student_id=" . $this->studentId;
+            $qr_code_text = "This testimonial is an authenticated academic document issued to " . $this->studentNameBold . ". Its authenticity and legal status can be verified through " . $base_url . "/verify.php?student_id=" . $this->studentId . "&type=testimonial";
 
             $qr_file_path = 'temp_qr_' . md5($qr_code_text) . '.png'; // Temporary file name
 

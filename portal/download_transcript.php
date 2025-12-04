@@ -1,6 +1,7 @@
 <?php
 session_start();
 require('includes/fpdf.php');
+include 'includes/phpqrcode/qrlib.php'; // Corrected path to the QR code library
 
 // Check if the student is logged in.
 if (!isset($_SESSION['user_id'])) {
@@ -113,6 +114,31 @@ foreach ($transcriptData as $csession => $terms) {
     }
     $pdf->Ln(5);
 }
+
+
+// --- Principal's Signature ---
+$pdf->Ln(10); // Line break
+$pdf->SetX(-40); // Position for signature image.
+$pdf->Image('assets/img/signature.jpg', $pdf->GetX(), $pdf->GetY(), 30); // Embed signature image.
+$pdf->Ln(1); // Line break
+$pdf->SetX(-30); // Position for signature label.
+$pdf->Cell(10, -5, "Principal's Signature", 0, 1, 'C'); // Label for principal's signature.
+
+// --- QR Code ---
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$base_url = $protocol . '://' . $_SERVER['HTTP_HOST'];
+$qr_code_text = "This transcript is an authenticated academic document issued to " . $studentName . ". Its authenticity and legal status can be verified through " . $base_url . "/verify.php?student_id=" . $student_id . "&type=transcript";
+$qr_file_path = 'temp_qr_' . md5($qr_code_text) . '.png';
+QRcode::png($qr_code_text, $qr_file_path, QR_ECLEVEL_L, 4, 2);
+$qr_w = 25;
+$qr_h = 25;
+$qr_x = 10; // Position it to the left
+$qr_y = $pdf->GetY() - 15 + 10;
+$pdf->Image($qr_file_path, $qr_x, $qr_y, $qr_w, $qr_h, 'PNG');
+if (file_exists($qr_file_path)) {
+    unlink($qr_file_path);
+}
+
 
 $pdf->Output('D', 'transcript.pdf');
 ?>
