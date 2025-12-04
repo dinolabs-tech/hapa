@@ -330,12 +330,12 @@ $endY = $startY;
 // --- QR Code ---
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 $base_url = $protocol . '://' . $_SERVER['HTTP_HOST'];
-$qr_code_text = "This result is an authenticated academic document issued to " . $sd['name'] . ". Its authenticity and legal status can be verified through " . $base_url . "/verify.php?student_id=" . $student_id . "&type=result";
+$qr_code_text = "This result is an authenticated academic document issued to " . $student_details['name'] . ". Its authenticity and legal status can be verified through " . $base_url . "/verify.php?student_id=" . $student_id . "&type=result";
 $qr_file_path = 'temp_qr_' . md5($qr_code_text) . '.png';
 QRcode::png($qr_code_text, $qr_file_path, QR_ECLEVEL_L, 4, 2);
 $qr_w = 25;
 $qr_h = 25;
-$qr_x = $secondX + 95; // Position it to the right of the skills table
+$qr_x = $secondTableX + 95; // Position it to the right of the skills table
 $qr_y = $endY - (count($skills) * 6) - 15 + 15; // Adjust Y position to align with the tables
 $pdf->Image($qr_file_path, $qr_x, $qr_y, $qr_w, $qr_h, 'PNG');
 if (file_exists($qr_file_path)) {
