@@ -105,7 +105,7 @@
             <h4 class="text-section">Teacher</h4>
           </li>
 
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <a data-bs-toggle="collapse" href="#attendance">
               <i class="fas fa-user-check"></i>
               <p>Attendance</p>
@@ -130,7 +130,7 @@
                 </li>
               </ul>
             </div>
-          </li>
+          </li> -->
 
           <li class="nav-item">
             <a data-bs-toggle="collapse" href="#result">
