@@ -95,12 +95,12 @@ $conn->close();
 <?php include('head.php'); ?>
 
 <script>
-  $(function () {
+  $(function() {
     // Set default date from PHP
     var selectedDate = "<?php echo $selected_date; ?>";
     $("#datepicker").datepicker({
       dateFormat: 'yy-mm-dd',
-      onSelect: function (dateText) {
+      onSelect: function(dateText) {
         $("#attendance_date").val(dateText);
         $("#attendanceForm").submit();
       }
@@ -139,13 +139,9 @@ $conn->close();
                   <li class="breadcrumb-item active">Mark Attendance</li>
                 </ol>
             </div>
-
           </div>
 
-          <!-- BULK UPLOAD ============================ -->
-
           <div class="row">
-
             <div class="col-md-12">
               <div class="card card-round">
                 <div class="card-header">
@@ -156,7 +152,6 @@ $conn->close();
                 <div class="card-body pb-0">
                   <div class="mb-4 mt-2">
 
-                    <p>
                     <form id="attendanceForm" method="get">
                       <div class="row g-3 mb-3">
                         <div class="col-md-4">
@@ -164,7 +159,7 @@ $conn->close();
                             <option value="">All Classes</option>
                             <?php foreach ($classes as $class_name): ?>
                               <option value="<?php echo $class_name; ?>" <?php if ($selected_class == $class_name)
-                                   echo "selected"; ?>>
+                                                                            echo "selected"; ?>>
                                 <?php echo $class_name; ?>
                               </option>
                             <?php endforeach; ?>
@@ -176,7 +171,7 @@ $conn->close();
                             <option value="">All Arms</option>
                             <?php foreach ($arms as $arm_name): ?>
                               <option value="<?php echo $arm_name; ?>" <?php if ($selected_arm == $arm_name)
-                                   echo "selected"; ?>>
+                                                                          echo "selected"; ?>>
                                 <?php echo $arm_name; ?>
                               </option>
                             <?php endforeach; ?>
@@ -189,10 +184,7 @@ $conn->close();
                             onchange="document.getElementById('attendanceForm').submit();">
                         </div>
                       </div>
-
-
                     </form>
-                    </p>
 
                   </div>
                 </div>
@@ -200,10 +192,7 @@ $conn->close();
             </div>
           </div>
 
-
-
           <div class="row">
-
             <div class="col-md-12">
               <div class="card card-round">
                 <div class="card-header">
@@ -221,11 +210,8 @@ $conn->close();
 
                       <?php if (empty($students)): ?>
                         <p>No students found for the selected class and arm.</p>
-
+                      <?php else: ?>
                         <div class="table-responsive">
-                        <?php else: ?>
-
-
                           <table class="table table-bordered" id="basic-datatables">
                             <thead>
                               <tr>
@@ -244,22 +230,20 @@ $conn->close();
                                   <td><input type="radio"
                                       name="attendance[<?php echo $student_id; ?>][<?php echo $student_name; ?>][<?php echo $selected_class; ?>][<?php echo $selected_arm; ?>]"
                                       value="1" <?php if (isset($attendance_data[$student_key]) && $attendance_data[$student_key] == 1)
-                                        echo "checked"; ?>></td>
+                                                  echo "checked"; ?>></td>
                                   <td><input type="radio"
                                       name="attendance[<?php echo $student_id; ?>][<?php echo $student_name; ?>][<?php echo $selected_class; ?>][<?php echo $selected_arm; ?>]"
                                       value="0" <?php if (isset($attendance_data[$student_key]) && $attendance_data[$student_key] == 0)
-                                        echo "checked"; ?>></td>
+                                                  echo "checked"; ?>></td>
                                 </tr>
                               <?php endforeach; ?>
                             </tbody>
                           </table>
 
-
                           <button type="button" class="btn btn-primary" onclick="saveAttendance()">Save
                             Attendance</button>
-                        <?php endif; ?>
-
-                      </div>
+                        </div>
+                      <?php endif; ?>
                     </form>
 
                   </div>
@@ -268,12 +252,9 @@ $conn->close();
             </div>
           </div>
 
-
-
         </div>
       </div>
 
-      </script>
       <?php include('footer.php'); ?>
     </div>
 
@@ -287,16 +268,15 @@ $conn->close();
       var formData = new FormData(document.querySelector('form[action="mark_attendance_process.php"]'));
 
       fetch('mark_attendance_process.php', {
-        method: 'POST',
-        body: formData
-      })
+          method: 'POST',
+          body: formData
+        })
         .then(response => response.json())
         .then(data => {
           alert(data.message);
         })
     }
   </script>
-
 
 </body>
 

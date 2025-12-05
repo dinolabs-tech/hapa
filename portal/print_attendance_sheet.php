@@ -184,7 +184,7 @@ function generateDetailedAttendancePDF($records, $class, $arm)
   $pdf->AddPage();
 
   // Header
- $pdf->Image('assets/img/logo.png', 10, 8, 20);
+  $pdf->Image('assets/img/logo.png', 10, 8, 20);
   // Header
   $pdf->SetFont('Arial', 'B', 14);
   $pdf->Cell(0, 10, "HAPA COLLEGE", 0, 1, 'C');
@@ -381,13 +381,9 @@ $conn->close();
                   <li class="breadcrumb-item active">Print Attendance Sheet</li>
                 </ol>
             </div>
-
           </div>
 
-          <!-- BULK UPLOAD ============================ -->
-
           <div class="row">
-
             <div class="col-md-12">
               <div class="card card-round">
                 <div class="card-header">
@@ -398,49 +394,40 @@ $conn->close();
                 <div class="card-body pb-0">
                   <div class="mb-4 mt-2">
 
-                  <form method="get" class="form-inline mb-3">
-                    <div class="row g-3 mb-3">
-                      <div class="col-md-5">
-                        <select name="class" class="form-select" onchange="this.form.submit()">
-                          <option value="">Select Class</option>
-                          <?php foreach ($classes as $c): ?>
-                            <option value="<?= $c ?>" <?= $c == $selected_class ? 'selected' : '' ?>><?= $c ?></option>
-                          <?php endforeach; ?>
-                        </select>
+                    <form method="get" class="form-inline mb-3">
+                      <div class="row g-3 mb-3">
+                        <div class="col-md-5">
+                          <select name="class" class="form-select" onchange="this.form.submit()">
+                            <option value="">Select Class</option>
+                            <?php foreach ($classes as $c): ?>
+                              <option value="<?= $c ?>" <?= $c == $selected_class ? 'selected' : '' ?>><?= $c ?></option>
+                            <?php endforeach; ?>
+                          </select>
+                        </div>
+
+                        <div class="col-md-5">
+                          <select name="arm" class="form-select" onchange="this.form.submit()">
+                            <option value="">Select Arm</option>
+                            <?php foreach ($arms as $a): ?>
+                              <option value="<?= $a ?>" <?= $a == $selected_arm ? 'selected' : '' ?>><?= $a ?></option>
+                            <?php endforeach; ?>
+                          </select>
+                        </div>
                       </div>
-
-                      <div class="col-md-5">
-                        <select name="arm" class="form-select" onchange="this.form.submit()">
-                          <option value="">Select Arm</option>
-                          <?php foreach ($arms as $a): ?>
-                            <option value="<?= $a ?>" <?= $a == $selected_arm ? 'selected' : '' ?>><?= $a ?></option>
-                          <?php endforeach; ?>
-                        </select>
-                      </div>
-
-                    
-                   
-                    </div>
-
-                    </div>
-                      
                     </form>
-                    
+
                     <button class="btn btn-secondary"
                       onclick="window.location.href='?class=<?= $selected_class ?>&arm=<?= $selected_arm ?>&download=1'">
                       Print Detailed Sheet
                     </button>
-                    <p></p>
+
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-
-
           <div class="row">
-
             <div class="col-md-12">
               <div class="card card-round">
                 <div class="card-header">
@@ -454,31 +441,31 @@ $conn->close();
                   <div class="mb-4 mt-2">
 
                     <?php if ($selected_class && $selected_arm): ?>
-                      <div id="table-responsive"> 
-                      <table class="table table-bordered" id="basic-datatables">
-                        <thead>
-                          <tr>
-                            <th>Student Name</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <?php if (empty($attendance_records)): ?>
+                      <div id="table-responsive">
+                        <table class="table table-bordered" id="basic-datatables">
+                          <thead>
                             <tr>
-                              <td colspan="3">No attendance records found for the selected class and arm.</td>
+                              <th>Student Name</th>
+                              <th>Date</th>
+                              <th>Status</th>
                             </tr>
-                          <?php else: ?>
-                            <?php foreach ($attendance_records as $record): ?>
+                          </thead>
+                          <tbody>
+                            <?php if (empty($attendance_records)): ?>
                               <tr>
-                                <td><?php echo $record['name']; ?></td>
-                                <td><?php echo $record['date']; ?></td>
-                                <td><?php echo $record['status'] == 1 ? 'Present' : 'Absent'; ?></td>
+                                <td colspan="3">No attendance records found for the selected class and arm.</td>
                               </tr>
-                            <?php endforeach; ?>
-                          <?php endif; ?>
-                        </tbody>
-                      </table>
+                            <?php else: ?>
+                              <?php foreach ($attendance_records as $record): ?>
+                                <tr>
+                                  <td><?php echo $record['name']; ?></td>
+                                  <td><?php echo $record['date']; ?></td>
+                                  <td><?php echo $record['status'] == 1 ? 'Present' : 'Absent'; ?></td>
+                                </tr>
+                              <?php endforeach; ?>
+                            <?php endif; ?>
+                          </tbody>
+                        </table>
                       </div>
                     <?php endif; ?>
 
@@ -488,12 +475,9 @@ $conn->close();
             </div>
           </div>
 
-
-
         </div>
       </div>
 
-      </script>
       <?php include('footer.php'); ?>
     </div>
 
@@ -502,7 +486,6 @@ $conn->close();
     <!-- End Custom template -->
   </div>
   <?php include('scripts.php'); ?>
-
 
 </body>
 
