@@ -60,11 +60,11 @@ $stmt->close(); // Close the prepared statement.
 
             <div class="container">
                 <div class="page-inner">
-                    <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+                    <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4 d-none d-lg-block">
                         <div>
                             <h3 class="fw-bold mb-3">Alumni</h3>
                             <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="students.php">Home</a></li>
+                                <li class="breadcrumb-item active">Home</li>
                                 <li class="breadcrumb-item active">Alumni</li>
                             </ol>
                         </div>

@@ -200,8 +200,6 @@ $conn->close();
  
 <?php include('head.php'); ?>
  
-
-  
   <body>
     <div class="wrapper">
       <!-- Sidebar -->
@@ -248,12 +246,12 @@ $conn->close();
 
         <div class="container">
           <div class="page-inner">
-            <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+            <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4 d-none d-lg-block">
               <div>
                 <h3 class="fw-bold mb-3">View Message</h3>
                 <ol class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="students.php">Home</a></li>
-                  <li class="breadcrumb-item"><a href="inbox.php">Inbox</a></li>
+                  <li class="breadcrumb-item active">Home</li>
+                  <li class="breadcrumb-item active">Inbox</li>
                   <li class="breadcrumb-item active">View Message</li>
                 </ol>
               </div>

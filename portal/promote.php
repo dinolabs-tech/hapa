@@ -216,11 +216,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST['initiate'])) {
             </div>
             <div class="container">
                 <div class="page-inner">
-                    <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+                    <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4 d-none d-lg-block">
                         <div>
                             <h3 class="fw-bold mb-3">Promote Students</h3>
                             <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
+                                <li class="breadcrumb-item active">Home</li>
                                 <li class="breadcrumb-item active">Settings</li>
                                 <li class="breadcrumb-item active">Promote Students</li>
                             </ol>

@@ -130,11 +130,11 @@ if ($result->num_rows > 0) {
 
       <div class="container" id="content-container">
         <div class="page-inner">
-          <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+          <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4 d-none d-lg-block">
             <div>
               <h3 class="fw-bold mb-3">Dashboard</h3>
               <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="parent_dashboard.php">Home</a></li>
+                <li class="breadcrumb-item active">Home</li>
                 <li class="breadcrumb-item active">Dashboard</li>
               </ol>
             </div>
@@ -538,10 +538,10 @@ if ($result->num_rows > 0) {
                   <p class="card-category">
                   <div class="calendar-container">
                     <div class="header1">
-                      <button id="prev-month" class="btn btn-warning"><span class="btn-label">
+                      <button id="prev-month" class="btn btn-warning btn-icon btn-round"><span class="btn-label">
                           <i class="fa fa-fast-backward"></i> </button>
                       <h2 id="month-year"></h2>
-                      <button id="next-month" class="btn btn-success"><span class="btn-label">
+                      <button id="next-month" class="btn btn-success btn-icon btn-round"><span class="btn-label">
                           <i class="fa fa-fast-forward"></i> </button>
                     </div>
                     <div class="calendar calendar-body"></div>

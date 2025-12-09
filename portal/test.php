@@ -22,8 +22,6 @@ if ($conn->connect_error) {
 }
 
 
-
-
 $parentId = $_SESSION['user_id'];
 // Fetch student_id string from parent table
 $stmt = $conn->prepare("SELECT student_id FROM parent WHERE id = ?");

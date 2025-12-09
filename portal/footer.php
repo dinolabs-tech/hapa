@@ -1,4 +1,4 @@
-<footer class="footer">
+<footer class="footer d-none d-lg-block">
           <div class="container-fluid d-flex justify-content-between">
           
             <div class="copyright">
