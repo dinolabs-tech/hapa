@@ -103,12 +103,12 @@ if (isset($_POST['run_process'])) {
         $conn->query("SET @rank := 0"); // Not strictly needed with RANK()
         $sql = " UPDATE mastersheet m
             JOIN (
-                SELECT id, subject, class, term, name,
-                       RANK() OVER (PARTITION BY subject, class, term ORDER BY average DESC) AS position
+                SELECT id, subject, class, arm, term, name,
+                       RANK() OVER (PARTITION BY subject, class, arm, term ORDER BY average DESC) AS position
                 FROM mastersheet
                 WHERE term = '$term' AND csession = '$session'
             ) ranks
-            ON m.id = ranks.id AND m.subject = ranks.subject AND m.class = ranks.class AND m.term = ranks.term AND m.name = ranks.name
+            ON m.id = ranks.id AND m.subject = ranks.subject AND m.class = ranks.class AND m.arm = ranks.arm AND m.term = ranks.term AND m.name = ranks.name
             SET m.position = ranks.position
                 ";
         $conn->query($sql);
