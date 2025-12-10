@@ -290,7 +290,7 @@ $grading_data = [
 $second_table_data = [
     ['Attentiveness', $class_comments['attentiveness'], 'Relationship', $class_comments['relationship']],
     ['Neatness', $class_comments['neatness'], 'Handwriting', $class_comments['handwriting']],
-    ['Politeness', $class_comments['politeness'], 'Music', $class_comments['music']],
+    ['Politeness', $class_comments['politeness'], 'Entrepreneurship', $class_comments['music']],
     ['Self-Control', $class_comments['selfcontrol'], 'Club/Society', $class_comments['club']],
     ['Punctuality', $class_comments['punctuality'], 'Sport', $class_comments['sport']],
 ];
