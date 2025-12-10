@@ -86,21 +86,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($average >= 70 && $average <= 100) {
               $grade = 'A';
               $remark = 'EXCELLENT';
-            } elseif ($average >= 65 && $average <= 74) {
+            } elseif ($average >= 60 && $average <= 69) {
               $grade = 'B';
-              $remark = 'VERY GOOD';
-            } elseif ($average >= 50 && $average <= 64) {
-              $grade = 'C';
               $remark = 'GOOD';
+            } elseif ($average >= 50 && $average <= 59) {
+              $grade = 'C';
+              $remark = 'AVERAGE';
             } elseif ($average >= 45 && $average <= 49) {
               $grade = 'D';
-              $remark = 'FAIR';
+              $remark = 'BELOW AVERAGE';
             } elseif ($average >= 40 && $average <= 44) {
               $grade = 'E';
               $remark = 'POOR';
             } else { // For averages below 40
               $grade = 'F';
-              $remark = 'VERY POOR';
+              $remark = 'FAIL';
             }
 
 
