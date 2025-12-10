@@ -83,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Determine grade and remark - old
             //list($grade, $remark) = calculate_grade_remark($average);
             // Determine grade and remark
-            if ($average >= 75 && $average <= 100) {
+            if ($average >= 70 && $average <= 100) {
               $grade = 'A';
               $remark = 'EXCELLENT';
             } elseif ($average >= 65 && $average <= 74) {

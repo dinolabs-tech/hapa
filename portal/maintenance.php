@@ -60,7 +60,7 @@ if (isset($_POST['run_process'])) {
         // Step 5: Grade assignment
         $conn->query("UPDATE mastersheet SET grade = 
             CASE 
-                WHEN average >= 75 THEN 'A'
+                WHEN average >= 70 THEN 'A'
                 WHEN average >= 65 THEN 'B'
                 WHEN average >= 50 THEN 'C'
                 WHEN average >= 45 THEN 'D'
@@ -71,7 +71,7 @@ if (isset($_POST['run_process'])) {
         // Step 6: Remark assignment
         $conn->query("UPDATE mastersheet SET remark = 
             CASE 
-                WHEN average >= 75 THEN 'EXCELLENT'
+                WHEN average >= 70 THEN 'EXCELLENT'
                 WHEN average >= 65 THEN 'VERY GOOD'
                 WHEN average >= 50 THEN 'GOOD'
                 WHEN average >= 45 THEN 'FAIR'

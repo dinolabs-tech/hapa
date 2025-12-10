@@ -184,7 +184,7 @@ $pdf->Cell(80, 25, 'SUBJECT', 1, 0, 'C', true);
 // Rotated headers for remaining columns
 $x_start = $pdf->GetX();
 $y_start = $pdf->GetY();
-$rotated_headers = ['CA1', 'CA2', 'EXAM', 'LAST CUM', 'TOTAL', 'AVERAGE', 'GRADE', 'CLASS AVG.', 'POSITION'];
+$rotated_headers = ['CA1', 'CA2', 'EXAM', 'LAST CUM', 'TOTAL', 'AVERAGE', 'GRADE', 'POSITION'];
 $header_width = 8;
 
 foreach ($rotated_headers as $index => $header) {
@@ -193,7 +193,7 @@ foreach ($rotated_headers as $index => $header) {
     $pdf->RotatedText($x_pos + 6, $y_start + 23, $header, 90);
 }
 
-$pdf->Cell(40, 25, 'REMARK', 1, 0, 'C', true);
+$pdf->Cell(48, 25, 'REMARK', 1, 0, 'C', true);
 $pdf->Ln();
 
 // Add student results data
@@ -213,6 +213,27 @@ while ($avg_row = $subject_averages_result->fetch_assoc()) {
     $subject_averages[$avg_row['subject']] = ceil($avg_row['avg_score']);
 }
 
+$pos_query = $conn->query("
+    SELECT *
+    FROM (
+        SELECT 
+            id,
+            SUM(total) AS overall_total,
+            RANK() OVER (ORDER BY SUM(total) DESC) AS position
+        FROM mastersheet
+        WHERE class = '{$student_details['class']}'
+        AND arm = '{$student_details['arm']}'
+          AND term = '$term'
+          AND csession = '$curr_session'
+        GROUP BY id
+    ) AS ranked
+    WHERE id = '$student_id'
+");
+
+$position_row = $pos_query->fetch_assoc();
+$overall_position = $position_row['position'];
+
+
 $total_average = 0;
 $num_subjects = 0;
 
@@ -230,7 +251,7 @@ while ($row = $results_result->fetch_assoc()) {
     $pdf->Cell(8, 5, $row['grade'], 1, 0, 'C');
     $pdf->Cell(8, 5, $avg_score, 1, 0, 'C');
     $pdf->Cell(8, 5, ordinal((int)$row['position']), 1, 0, 'C');
-    $pdf->Cell(40, 5, $row['remark'], 1, 1, 'C');
+    $pdf->Cell(48, 5, $row['remark'], 1, 1, 'C');
 
     $total_average += $row['average'];
     $num_subjects++;
@@ -242,9 +263,15 @@ if ($num_subjects > 0) {
     $overall_average = '0.0';
 }
 
+// Output overall average
 $pdf->Ln(5);
 $pdf->SetFont('Arial', 'B', 10);
-$pdf->Cell(190, 7, "Overall Average: $overall_average", 1, 1, 'C');
+
+// Left cell (Overall Average)
+$pdf->Cell(95, 7, "Overall Average: {$overall_average}%", 1, 0, 'L');
+
+// Right cell (Overall Position)
+$pdf->Cell(95, 7, "Overall Position: " . ordinal((int)$overall_position), 1, 1, 'R');
 
 $pdf->Ln(2);
 $pdf->SetFont('Arial', 'I', 10);
@@ -294,7 +321,7 @@ $grading_data = [
 $second_table_data = [
     ['Attentiveness', $class_comments['attentiveness'], 'Relationship', $class_comments['relationship']],
     ['Neatness', $class_comments['neatness'], 'Handwriting', $class_comments['handwriting']],
-    ['Politeness', $class_comments['politeness'], 'Music', $class_comments['music']],
+    ['Politeness', $class_comments['politeness'], 'Entrepreneurship', $class_comments['music']],
     ['Self-Control', $class_comments['selfcontrol'], 'Club/Society', $class_comments['club']],
     ['Punctuality', $class_comments['punctuality'], 'Sport', $class_comments['sport']],
 ];
