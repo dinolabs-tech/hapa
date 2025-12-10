@@ -29,7 +29,7 @@ if ($term === "2nd Term") {
 if (isset($_POST['run_process'])) {
     try {
 
-          // Step 1: Calculate average considering lastcum
+        // Step 1: Calculate average considering lastcum
         $conn->query("UPDATE mastersheet SET total = ca1 + ca2 + exam  WHERE term = '$term' AND csession = '$session'");
 
 
@@ -81,16 +81,21 @@ if (isset($_POST['run_process'])) {
 
         // Step 7: Position ranking
         $conn->query("SET @rank := 0"); // Not strictly needed with RANK()
-        $sql = "
-            UPDATE mastersheet m
-            JOIN (
-                SELECT id, subject, class, arm, term, name,
-                       RANK() OVER (PARTITION BY subject, class, arm, term ORDER BY average DESC) AS position
-                FROM mastersheet
-                WHERE term = '$term' AND csession = '$session'
-            ) ranks
-            ON m.id = ranks.id AND m.subject = ranks.subject AND m.class = ranks.class AND m.term = ranks.term AND m.name = ranks.name
-            SET m.position = ranks.position";
+        $sql = "UPDATE mastersheet m
+                JOIN (
+                    SELECT id, subject, class, arm, term, name,
+                        RANK() OVER (PARTITION BY subject, class, arm, term ORDER BY average DESC) AS position
+                    FROM mastersheet
+                    WHERE term = '$term' AND csession = '$session'
+                ) ranks
+                ON m.id = ranks.id
+                AND m.subject = ranks.subject
+                AND m.class = ranks.class
+                AND m.arm = ranks.arm
+                AND m.term = ranks.term
+                AND m.name = ranks.name
+                SET m.position = ranks.position;
+                ";
         $conn->query($sql);
 
         $message = "<div style='color: green;'>Result processing for <b>$term</b> - <b>$session</b> completed successfully.</div>";
@@ -142,7 +147,7 @@ if (isset($_POST['run_process'])) {
 
                         <div class="col-md-4">
                             <div class="card card-round">
-                              
+
                                 <div class="card-body pb-0">
                                     <div class="mb-4 mt-2">
 
