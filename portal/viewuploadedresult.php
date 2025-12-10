@@ -166,7 +166,7 @@ $stmt->close();
 
                       <div class="form-group">
                         <select class="form-control form-select" id="term" name="term">
-                          <option value="">Select Term</option>
+                          <option value="" selected disabled>Select Term</option>
                           <option value="1st Term">1st Term</option>
                           <option value="2nd Term">2nd Term</option>
                           <option value="3rd Term">3rd Term</option>
@@ -175,11 +175,11 @@ $stmt->close();
 
                       <div class="form-group">
                         <select class="form-control form-select" id="subject" name="subject">
-                          <option value="">Select Subject</option>
+                          <option value="" selected disabled>Select Subject</option>
                         </select>
                       </div>
 
-                      <button type="submit" class="btn btn-success"><span class="btn-label">
+                      <button type="submit" class="btn btn-success rounded-5"><span class="btn-label">
                           <i class="fa fa-check-circle"></i>Submit</button>
                     </form>
 
