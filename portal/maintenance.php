@@ -84,8 +84,8 @@ if (isset($_POST['run_process'])) {
         $sql = "
             UPDATE mastersheet m
             JOIN (
-                SELECT id, subject, class, term, name,
-                       RANK() OVER (PARTITION BY subject, class, term ORDER BY average DESC) AS position
+                SELECT id, subject, class, arm, term, name,
+                       RANK() OVER (PARTITION BY subject, class, arm, term ORDER BY average DESC) AS position
                 FROM mastersheet
                 WHERE term = '$term' AND csession = '$session'
             ) ranks
