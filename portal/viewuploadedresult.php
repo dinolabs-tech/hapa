@@ -178,9 +178,10 @@ $stmt->close();
                           <option value="" selected disabled>Select Subject</option>
                         </select>
                       </div>
-
-                      <button type="submit" class="btn btn-success rounded-5"><span class="btn-label">
-                          <i class="fa fa-check-circle"></i>Submit</button>
+                      <div class="col-md-12 text-center">
+                        <button type="submit" class="btn btn-success rounded-5"><span class="btn-label">
+                            <i class="fa fa-check-circle"></i>Submit</button>
+                      </div>
                     </form>
 
                     </p>
