@@ -109,7 +109,7 @@ if (isset($_POST['run_process'])) {
                    arm,
                    term,
                    Name,
-                   RANK() OVER (PARTITION BY subject, class, arn, term ORDER BY average DESC) AS position
+                   RANK() OVER (PARTITION BY subject, class, arm, term ORDER BY average DESC) AS position
                FROM mastersheet
            ) AS ranks
            ON m.subject = ranks.subject AND m.class = ranks.class AND m.arm = ranks.arm AND m.term = ranks.term AND m.name = ranks.name
