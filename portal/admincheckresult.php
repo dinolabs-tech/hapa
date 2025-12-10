@@ -244,7 +244,7 @@ while ($row = $results_result->fetch_assoc()) {
     $pdf->Cell(8, 5, ceil($row['lastcum']), 1, 0, 'C');
     $pdf->Cell(8, 5, ceil($row['average']), 1, 0, 'C');
     $pdf->Cell(8, 5, $row['grade'], 1, 0, 'C');
-  //  $pdf->Cell(8, 5, $avg_score, 1, 0, 'C');
+    //  $pdf->Cell(8, 5, $avg_score, 1, 0, 'C');
     $pdf->Cell(8, 5, ordinal((int)$row['position']), 1, 0, 'C');
     $pdf->Cell(48, 5, $row['remark'], 1, 1, 'C');
     $total_average += $row['average'];
@@ -252,7 +252,8 @@ while ($row = $results_result->fetch_assoc()) {
 }
 
 // Calculate overall average
-$overall_average = $num_subjects > 0 ? number_format($total_average / $num_subjects, 1) : '0.0';
+// $overall_average = $num_subjects > 0 ? number_format($total_average / $num_subjects, 1) : '0.0';
+$overall_average=$num_subjects;
 
 // Output overall average
 $pdf->Ln(5);
@@ -339,8 +340,8 @@ for ($i = 0; $i < $maxRows; $i++) {
     }
 
     // Skills Assessment Table
-       // Skills Assessment Table
-       if (isset($second_table_data[$i])) {
+    // Skills Assessment Table
+    if (isset($second_table_data[$i])) {
         $pdf->SetXY($secondTableX, $startY);
         $pdf->Cell(30, 6, $second_table_data[$i][0], 1, 0, 'C');
         $pdf->Cell(15, 6, $second_table_data[$i][1], 1, 0, 'C');
@@ -370,10 +371,9 @@ if (file_exists($qr_file_path)) {
 }
 
 
-$pdf->SetFont('Arial','B',10);
-$pdf->Cell(95,7,"Promotional Status: {$promotec}", 'B',0, 'C');
+$pdf->SetFont('Arial', 'B', 10);
+$pdf->Cell(95, 7, "Promotional Status: {$promotec}", 'B', 0, 'C');
 
 // Output the PDF
 $pdf->Output();
 ob_end_flush();
-?>
