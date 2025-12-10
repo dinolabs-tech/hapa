@@ -58,7 +58,24 @@ if (isset($_POST['run_process'])) {
         $conn->query("UPDATE mastersheet SET average = CASE WHEN lastcum = 0 THEN total ELSE (total + lastcum) / 2 END WHERE term = '$term' AND csession = '$session'");
 
         // Step 5: Grade assignment
+        // Step 5: Grade assignment (JSS uses old grading, SSS uses WAEC grading)
         $conn->query("UPDATE mastersheet SET grade = 
+    CASE 
+        -- WAEC grading for SSS 1/2/3
+        WHEN class IN ('SSS 1', 'SSS 2', 'SSS 3') THEN
+            CASE
+                WHEN average >= 75 THEN 'A1'
+                WHEN average >= 70 THEN 'B2'
+                WHEN average >= 65 THEN 'B3'
+                WHEN average >= 60 THEN 'C4'
+                WHEN average >= 55 THEN 'C5'
+                WHEN average >= 50 THEN 'C6'
+                WHEN average >= 45 THEN 'D7'
+                WHEN average >= 40 THEN 'E8'
+                ELSE 'F9'
+            END
+        -- JSS uses your existing grading values
+        ELSE 
             CASE 
                 WHEN average >= 70 THEN 'A'
                 WHEN average >= 65 THEN 'B'
@@ -66,17 +83,20 @@ if (isset($_POST['run_process'])) {
                 WHEN average >= 45 THEN 'D'
                 WHEN average >= 40 THEN 'E'
                 ELSE 'F'
-            END");
+            END
+    END
+");
+
 
         // Step 6: Remark assignment
         $conn->query("UPDATE mastersheet SET remark = 
             CASE 
                 WHEN average >= 70 THEN 'EXCELLENT'
-                WHEN average >= 65 THEN 'VERY GOOD'
-                WHEN average >= 50 THEN 'GOOD'
-                WHEN average >= 45 THEN 'FAIR'
+                WHEN average >= 65 THEN 'GOOD'
+                WHEN average >= 50 THEN 'AVERAGE'
+                WHEN average >= 45 THEN 'BELOW AVERAGE'
                 WHEN average >= 40 THEN 'POOR'
-                ELSE 'VERY POOR'
+                ELSE 'FAIL'
             END");
 
         // Step 7: Position ranking

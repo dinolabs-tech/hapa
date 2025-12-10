@@ -305,15 +305,29 @@ $pdf->Cell(90, 7, 'Skills Assessment', 1, 1, 'C', true);
 $startY += 7;
 $pdf->SetFont('Arial', '', 10);
 
-// Data for Grading Table
-$grading_data = [
-    ['A', '70 - 100', 'Excellent'],
-    ['B', '60 - 69', 'Good'],
-    ['C', '50 - 59', 'Average'],
-    ['D', '45 - 49', 'Below Average'],
-    ['E', '40 - 44', 'Poor'],
-    ['F', '0 - 39', 'Fail']
-];
+// Data for Grading Table based on class
+if (in_array($student_details['class'], ['SSS 1', 'SSS 2', 'SSS 3'])) {
+    $grading_data = [
+       ['A1', '75 - 100', 'Excellent'],
+        ['B2', '70 - 74', 'Very Good'],
+        ['b3', '65 - 69', 'Good'],
+        ['C4', '60 - 64', 'Good'],
+        ['C5', '55 - 59', 'Average'],
+        ['C6', '50 - 54', 'Average'],
+        ['D7', '45 - 49', 'Pass'],
+        ['E8', '40 - 44', 'Pass'],
+        ['F9', '0 - 39', 'Fail']
+    ];
+} else {
+    $grading_data = [
+        ['A', '70 - 100', 'Excellent'],
+        ['B', '65 - 69', 'Good'],
+        ['C', '50 - 64', 'Average'],
+        ['D', '45 - 49', 'Below Average'],
+        ['E', '40 - 44', 'Poor'],
+        ['F', '0 - 39', 'Fail']
+    ];
+}
 
 // Data for Skills Assessment
 $second_table_data = [

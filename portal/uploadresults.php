@@ -80,27 +80,58 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               $average = ceil(($total + $lastcum) / 2);
             }
 
-            // Determine grade and remark - old
-            //list($grade, $remark) = calculate_grade_remark($average);
-            // Determine grade and remark
-            if ($average >= 70 && $average <= 100) {
-              $grade = 'A';
-              $remark = 'EXCELLENT';
-            } elseif ($average >= 60 && $average <= 69) {
-              $grade = 'B';
-              $remark = 'GOOD';
-            } elseif ($average >= 50 && $average <= 59) {
-              $grade = 'C';
-              $remark = 'AVERAGE';
-            } elseif ($average >= 45 && $average <= 49) {
-              $grade = 'D';
-              $remark = 'BELOW AVERAGE';
-            } elseif ($average >= 40 && $average <= 44) {
-              $grade = 'E';
-              $remark = 'POOR';
-            } else { // For averages below 40
-              $grade = 'F';
-              $remark = 'FAIL';
+            // Determine grade and remark based on class
+            if (in_array($selected_class, ['SSS 1', 'SSS 2', 'SSS 3'])) {
+              // SSS grading
+              if ($average >= 75) {
+                $grade = 'A1';
+                $remark = 'EXCELLENT';
+              } elseif ($average >= 70) {
+                $grade = 'B2';
+                $remark = 'VERY GOOD';
+              } elseif ($average >= 65) {
+                $grade = 'B3';
+                $remark = 'GOOD';
+              } elseif ($average >= 60) {
+                $grade = 'C4';
+                $remark = 'GOOD';
+              } elseif ($average >= 55) {
+                $grade = 'C5';
+                $remark = 'AVERAGE';
+              } elseif ($average >= 50) {
+                $grade = 'C6';
+                $remark = 'AVERAGE';
+              } elseif ($average >= 45) {
+                $grade = 'D7';
+                $remark = 'PASS';
+              } elseif ($average >= 40) {
+                $grade = 'E8';
+                $remark = 'POOR';
+              } else {
+                $grade = 'F9';
+                $remark = 'FAIL';
+              }
+            } else {
+              // JSS grading
+              if ($average >= 70) {
+                $grade = 'A';
+                $remark = 'EXCELLENT';
+              } elseif ($average >= 65) {
+                $grade = 'B';
+                $remark = 'GOOD';
+              } elseif ($average >= 50) {
+                $grade = 'C';
+                $remark = 'AVERAGE';
+              } elseif ($average >= 45) {
+                $grade = 'D';
+                $remark = 'BELOW AVERAGE';
+              } elseif ($average >= 40) {
+                $grade = 'E';
+                $remark = 'POOR';
+              } else {
+                $grade = 'F';
+                $remark = 'FAIL';
+              }
             }
 
 
