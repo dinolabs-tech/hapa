@@ -252,8 +252,8 @@ while ($row = $results_result->fetch_assoc()) {
 }
 
 // Calculate overall average
-// $overall_average = $num_subjects > 0 ? number_format($total_average / $num_subjects, 1) : '0.0';
-$overall_average=$total_average;
+$overall_average = $num_subjects > 0 ? number_format($total_average / $num_subjects, 1) : '0.0';
+// $overall_average=$total_average;
 
 // Output overall average
 $pdf->Ln(5);
