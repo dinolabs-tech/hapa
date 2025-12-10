@@ -208,6 +208,28 @@ while ($avg_row = $subject_averages_result->fetch_assoc()) {
     $subject_averages[$avg_row['subject']] = ceil($avg_row['avg_score']);
 }
 
+
+
+$pos_query = $conn->query("
+    SELECT *
+    FROM (
+        SELECT 
+            id,
+            SUM(total) AS overall_total,
+            RANK() OVER (ORDER BY SUM(total) DESC) AS position
+        FROM mastersheet
+        WHERE class = '{$student_details['class']}'
+          AND term = '$term'
+          AND csession = '$curr_session'
+        GROUP BY id
+    ) AS ranked
+    WHERE id = '$student_id'
+");
+
+$position_row = $pos_query->fetch_assoc();
+$overall_position = $position_row['position'];
+
+
 $total_average = 0;
 $num_subjects = 0;
 
@@ -240,7 +262,7 @@ $pdf->SetFont('Arial', 'B', 10);
 $pdf->Cell(95, 7, "Overall Average: {$overall_average}%", 1, 0, 'L');
 
 // Right cell (Overall Position)
-$pdf->Cell(95, 7, "Overall Position: ", 1, 1, 'R');
+$pdf->Cell(95, 7, "Overall Position: " . ordinal((int)$overall_position), 1, 1, 'R');
 
 // Add comments
 $pdf->Ln(2);
