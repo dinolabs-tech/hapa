@@ -160,20 +160,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // >>> After CSV upload is done, now update the ranks automatically <<<
         $calculaterankQuery = "
-           UPDATE mastersheet m
-            JOIN (
-                SELECT id, subject, class, arm, term, name,
-                      RANK() OVER (PARTITION BY subject, class, arm, term ORDER BY average DESC) AS position
-                FROM mastersheet
-                WHERE term = '$current_term' AND csession = '$current_session'
-            ) ranks
-            ON m.id = ranks.id
-              AND m.subject = ranks.subject
-              AND m.class = ranks.class
-              AND m.arm = ranks.arm
-              AND m.term = ranks.term
-              AND m.name = ranks.name
-            SET m.position = ranks.position;
+          UPDATE mastersheet m
+        JOIN (
+            SELECT 
+                id, subject, class, arm, term, csession,
+                RANK() OVER (
+                    PARTITION BY subject, class, arm, term, csession
+                    ORDER BY average DESC
+                ) AS position
+            FROM mastersheet
+            WHERE term = '$current_term' 
+            AND csession = '$current_session'
+        ) ranks
+        ON m.id = ranks.id
+        AND m.subject = ranks.subject
+        AND m.class = ranks.class
+        AND m.arm = ranks.arm
+        AND m.term = ranks.term
+        AND m.csession = ranks.csession
+        SET m.position = ranks.position;
          ";
 
         if ($conn->query($calculaterankQuery) === TRUE) {

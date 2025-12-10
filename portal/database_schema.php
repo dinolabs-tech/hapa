@@ -359,7 +359,7 @@ $tables = [
             `exam` varchar(11) NOT NULL,
             `lastcum` int(11) NOT NULL,
             `total` varchar(11) NOT NULL,
-            `average` varchar(111) NOT NULL,
+            `average` int(11) NOT NULL,
             `grade` varchar(222) NOT NULL,
             `subject` varchar(222) NOT NULL,
             `csession` varchar(222) NOT NULL,
