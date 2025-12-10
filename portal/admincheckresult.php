@@ -235,7 +235,12 @@ $overall_average = $num_subjects > 0 ? number_format($total_average / $num_subje
 // Output overall average
 $pdf->Ln(5);
 $pdf->SetFont('Arial', 'B', 10);
-$pdf->Cell(190, 7, "Overall Average: {$overall_average}%", 1, 1, 'C');
+
+// Left cell (Overall Average)
+$pdf->Cell(95, 7, "Overall Average: {$overall_average}%", 1, 0, 'L');
+
+// Right cell (Overall Position)
+$pdf->Cell(95, 7, "Overall Position: ", 1, 1, 'R');
 
 // Add comments
 $pdf->Ln(2);
