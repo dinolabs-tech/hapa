@@ -106,16 +106,17 @@ JOIN (
     SELECT 
         id, subject, class, arm, term, csession,
         RANK() OVER (
-            PARTITION BY subject, class, arm, term, csession 
+            PARTITION BY subject, class, arm, term, csession
             ORDER BY average DESC
         ) AS position
     FROM mastersheet
-    WHERE term = '$term' AND csession = '$session'
+    WHERE term = '$term' 
+      AND csession = '$session'
 ) ranks
-ON m.id = ranks.id 
-AND m.subject = ranks.subject 
-AND m.class = ranks.class 
-AND m.arm = ranks.arm 
+ON m.id = ranks.id
+AND m.subject = ranks.subject
+AND m.class = ranks.class
+AND m.arm = ranks.arm
 AND m.term = ranks.term
 AND m.csession = ranks.csession
 SET m.position = ranks.position;
