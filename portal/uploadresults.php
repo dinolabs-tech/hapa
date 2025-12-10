@@ -153,7 +153,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
       }
     }
-
   } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
   }
@@ -373,8 +372,8 @@ $conn->close();
                       </select>
 
                       <!-- DOWNLOAD Button -->
-                      <div class="text-end mt-3">
-                        <button type="submit" name="bulk_upload" class="btn btn-primary">
+                      <div class="text-center mt-3">
+                        <button type="submit" name="bulk_upload" class="btn btn-primary rounded-5">
                           <span class="btn-label">
                             <i class="fa fa-cloud-download-alt"></i>
                           </span>
@@ -433,10 +432,12 @@ $conn->close();
                       <br>
                       <input type="file" name="csv_file" id="csv_file" accept=".csv" class="form-control" required>
                       <br>
-                      <button type="submit" name="bulk_submit" class="btn btn-success">
-                        <span class="btn-label">
-                          <i class="fa fa-cloud-upload-alt"></i>
-                          Upload CSV</button>
+                      <div class="col-md-12 text-center">
+                        <button type="submit" name="bulk_submit" class="btn btn-success rounded-5">
+                          <span class="btn-label">
+                            <i class="fa fa-cloud-upload-alt"></i>
+                            Upload CSV</button>
+                      </div>
                       <br>
                     </form>
 
@@ -472,10 +473,12 @@ $conn->close();
                         <?php endforeach; ?>
                       </select>
                       <br>
-                      <button type="submit" class="btn btn-secondary">
-                        <span class="btn-label">
-                          <i class="fa fa-filter"></i>
-                          Filter</button>
+                      <div class="col-md-12 text-center">
+                        <button type="submit" class="btn btn-secondary rounded-5">
+                          <span class="btn-label">
+                            <i class="fa fa-filter"></i>
+                            Filter</button>
+                      </div>
                     </form>
 
                   </div>
@@ -563,7 +566,7 @@ $conn->close();
   </div>
   <?php include('scripts.php'); ?>
   <script>
-    document.querySelector('form[action="download_result_template.php"]').addEventListener('submit', function (e) {
+    document.querySelector('form[action="download_result_template.php"]').addEventListener('submit', function(e) {
       document.getElementById('selected_class').value = document.getElementById('class').value;
       document.getElementById('selected_arm').value = document.getElementById('arm').value;
     });
