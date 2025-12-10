@@ -208,7 +208,12 @@ while ($avg_row = $subject_averages_result->fetch_assoc()) {
     $subject_averages[$avg_row['subject']] = ceil($avg_row['avg_score']);
 }
 
-
+$class_num_subjects = count($subject_averages);
+$class_total_average = 0;
+foreach ($subject_averages as $class_avg) {
+    $class_total_average += $class_avg;
+}
+$overall_average = $class_num_subjects > 0 ? number_format($class_total_average / $class_num_subjects, 1) : '0.0';
 
 $pos_query = $conn->query("
     SELECT *
@@ -229,10 +234,6 @@ $pos_query = $conn->query("
 $position_row = $pos_query->fetch_assoc();
 $overall_position = $position_row['position'];
 
-
-$total_average = 0;
-$num_subjects = 0;
-
 while ($row = $results_result->fetch_assoc()) {
     $subject = $row['subject'];
     $avg_score = isset($subject_averages[$subject]) ? $subject_averages[$subject] : '-';
@@ -246,13 +247,8 @@ while ($row = $results_result->fetch_assoc()) {
     $pdf->Cell(8, 5, $row['grade'], 1, 0, 'C');
   //  $pdf->Cell(8, 5, $avg_score, 1, 0, 'C');
     $pdf->Cell(8, 5, ordinal((int)$row['position']), 1, 0, 'C');
-    $pdf->Cell(40, 5, $row['remark'], 1, 1, 'C');
-    $total_average += isset($subject_averages[$row['subject']]) ? $subject_averages[$row['subject']] : 0;
-    $num_subjects++;
+    $pdf->Cell(48, 5, $row['remark'], 1, 1, 'C');
 }
-
-// Calculate overall average
-$overall_average = $num_subjects > 0 ? number_format($total_average / $num_subjects, 1) : '0.0';
 
 // Output overall average
 $pdf->Ln(5);
