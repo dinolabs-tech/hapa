@@ -8,7 +8,6 @@ $current_term = $term_result->fetch_assoc()['cterm'];
 $session_result = $conn->query("SELECT csession FROM currentsession WHERE id=1");
 $current_session = $session_result->fetch_assoc()['csession'];
 
-
 // Initialize filter variables
 $selected_subject = isset($_POST['subject']) ? $_POST['subject'] : '';
 $selected_class = isset($_POST['class']) ? $_POST['class'] : '';
@@ -166,7 +165,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 SELECT id, subject, class, arm, term, name,
                       RANK() OVER (PARTITION BY subject, class, arm, term ORDER BY average DESC) AS position
                 FROM mastersheet
-                ) ranks
+                WHERE term = '$current_term' AND csession = '$current_session'
+            ) ranks
             ON m.id = ranks.id
               AND m.subject = ranks.subject
               AND m.class = ranks.class
