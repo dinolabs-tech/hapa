@@ -180,7 +180,7 @@ $pdf->Cell(80, 25, 'SUBJECT', 1, 0, 'C', true);
 
 $x_start = $pdf->GetX();
 $y_start = $pdf->GetY();
-$rotated_headers = ['CA1', 'CA2', 'EXAM', 'TOTAL', 'LAST CUM',  'AVERAGE', 'GRADE', 'CLASS AVG.', 'POSITION'];
+$rotated_headers = ['CA1', 'CA2', 'EXAM', 'TOTAL', 'LAST CUM', 'AVERAGE', 'GRADE', 'POSITION'];
 $header_width = 8;
 
 foreach ($rotated_headers as $index => $header) {
@@ -222,7 +222,7 @@ while ($row = $results_result->fetch_assoc()) {
     $pdf->Cell(8, 5, ceil($row['lastcum']), 1, 0, 'C');
     $pdf->Cell(8, 5, ceil($row['average']), 1, 0, 'C');
     $pdf->Cell(8, 5, $row['grade'], 1, 0, 'C');
-    $pdf->Cell(8, 5, $avg_score, 1, 0, 'C');
+  //  $pdf->Cell(8, 5, $avg_score, 1, 0, 'C');
     $pdf->Cell(8, 5, ordinal((int)$row['position']), 1, 0, 'C');
     $pdf->Cell(40, 5, $row['remark'], 1, 1, 'C');
     $total_average += $row['average'];
