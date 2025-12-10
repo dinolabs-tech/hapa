@@ -247,7 +247,7 @@ while ($row = $results_result->fetch_assoc()) {
   //  $pdf->Cell(8, 5, $avg_score, 1, 0, 'C');
     $pdf->Cell(8, 5, ordinal((int)$row['position']), 1, 0, 'C');
     $pdf->Cell(40, 5, $row['remark'], 1, 1, 'C');
-    $total_average += $row['average'];
+    $total_average += isset($subject_averages[$row['subject']]) ? $subject_averages[$row['subject']] : 0;
     $num_subjects++;
 }
 
