@@ -166,8 +166,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 SELECT id, subject, class, arm, term, name,
                       RANK() OVER (PARTITION BY subject, class, arm, term ORDER BY average DESC) AS position
                 FROM mastersheet
-                WHERE term = '$term' AND csession = '$session'
-            ) ranks
+                ) ranks
             ON m.id = ranks.id
               AND m.subject = ranks.subject
               AND m.class = ranks.class

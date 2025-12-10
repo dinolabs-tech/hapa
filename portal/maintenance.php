@@ -109,8 +109,7 @@ if (isset($_POST['run_process'])) {
                 WHERE term = '$term' AND csession = '$session'
             ) ranks
             ON m.id = ranks.id AND m.subject = ranks.subject AND m.class = ranks.class AND m.arm = ranks.arm AND m.term = ranks.term AND m.name = ranks.name
-            SET m.position = ranks.position
-                ";
+            SET m.position = ranks.position";
         $conn->query($sql);
 
         $message = "<div style='color: green;'>Result processing for <b>$term</b> - <b>$session</b> completed successfully.</div>";
