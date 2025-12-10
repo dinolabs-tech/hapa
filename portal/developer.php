@@ -32,7 +32,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_log' && isset($_GET['lo
 
 // Handle backup download
 if (isset($_GET['action']) && $_GET['action'] === 'download_backup') {
-    $file = 'backup_dinolabs_eduhive.sql'; // The name of the SQL backup file
+    $file = 'backup_hapacoll_eduhive.sql'; // The name of the SQL backup file
 
     if (file_exists($file)) {
         header('Content-Description: File Transfer');

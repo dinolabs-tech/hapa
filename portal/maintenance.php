@@ -101,7 +101,7 @@ if (isset($_POST['run_process'])) {
 
         // Step 7: Position ranking
         $conn->query("SET @rank := 0"); // Not strictly needed with RANK()
-        $sql = " UPDATE mastersheet m
+        $sql = "UPDATE mastersheet m
             JOIN (
                 SELECT id, subject, class, arm, term, name,
                        RANK() OVER (PARTITION BY subject, class, arm, term ORDER BY average DESC) AS position
