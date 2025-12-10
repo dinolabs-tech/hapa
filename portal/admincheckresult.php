@@ -219,6 +219,7 @@ $pos_query = $conn->query("
             RANK() OVER (ORDER BY SUM(total) DESC) AS position
         FROM mastersheet
         WHERE class = '{$student_details['class']}'
+        AND arm = '{$student_details['arm']}'
           AND term = '$term'
           AND csession = '$curr_session'
         GROUP BY id
