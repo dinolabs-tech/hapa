@@ -320,12 +320,12 @@ $pdf->SetFont('Arial', '', 10);
 
 // Your data arrays
 $grading_data = [
-    ['A', '75 - 100', 'Excellent'],
-    ['B', '65 - 74', 'Very Good'],
-    ['C', '50 - 64', 'Good'],
-    ['D', '45 - 49', 'Fair'],
+    ['A', '70 - 100', 'Excellent'],
+    ['B', '60 - 69', 'Good'],
+    ['C', '50 - 59', 'Average'],
+    ['D', '45 - 49', 'Below Average'],
     ['E', '40 - 44', 'Poor'],
-    ['F', '0 - 39', 'Very Poor']
+    ['F', '0 - 39', 'Fail']
 ];
 
 $second_table_data = [
