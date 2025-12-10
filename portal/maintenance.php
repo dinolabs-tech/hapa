@@ -105,7 +105,7 @@ if (isset($_POST['run_process'])) {
 JOIN (
     SELECT 
         id, subject, class, arm, term, csession,
-        DENSE_RANK() OVER (
+        RANK() OVER (
             PARTITION BY subject, class, arm, term, csession 
             ORDER BY average DESC
         ) AS position
