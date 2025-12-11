@@ -227,7 +227,7 @@ $pos_query = $conn->query("
           AND csession = '$curr_session'
         GROUP BY id
     ) AS ranked
-    WHERE id = '$student_id'
+    WHERE id = '$user_id'
 ");
 
 $position_row = $pos_query->fetch_assoc();

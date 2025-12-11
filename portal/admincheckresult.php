@@ -212,21 +212,20 @@ while ($avg_row = $subject_averages_result->fetch_assoc()) {
 
 
 $pos_query = $conn->query("
-  SELECT *
-FROM (
-    SELECT
-        TRIM(id) AS id,
-        SUM(total) AS overall_total,
-        RANK() OVER (ORDER BY SUM(total) DESC) AS position
-    FROM mastersheet
-    WHERE TRIM(class) = TRIM('{$student_details['class']}')
-      AND TRIM(arm) = TRIM('{$student_details['arm']}')
-      AND TRIM(term) = TRIM('$term')
-      AND TRIM(csession) = TRIM('$curr_session')
-    GROUP BY id
-) AS ranked
-WHERE id = TRIM('$student_id')
-
+    SELECT *
+    FROM (
+        SELECT
+            id,
+            SUM(total) AS overall_total,
+            RANK() OVER (ORDER BY SUM(total) DESC) AS position
+        FROM mastersheet
+        WHERE class = '{$student_details['class']}'
+        AND arm = '{$student_details['arm']}'
+          AND term = '$term'
+          AND csession = '$curr_session'
+        GROUP BY id
+    ) AS ranked
+    WHERE id = '$student_id'
 ");
 
 $position_row = $pos_query->fetch_assoc();
