@@ -210,7 +210,7 @@ while ($avg_row = $subject_averages_result->fetch_assoc()) {
 }
 
 
-$student_id = trim($_GET['student_id']);
+
 $pos_query = $conn->query("
     SELECT *
     FROM (
@@ -227,21 +227,6 @@ $pos_query = $conn->query("
     ) AS ranked
     WHERE id = '$student_id'
 ");
-
-// SELECT *
-// FROM (
-//     SELECT
-//         id,
-//         SUM(CAST(TRIM(total) AS UNSIGNED)) AS overall_total,
-//         RANK() OVER (ORDER BY SUM(CAST(TRIM(total) AS UNSIGNED)) DESC) AS position
-//     FROM mastersheet
-//     WHERE class = '{$student_details['class']}'
-//       AND arm = '{$student_details['arm']}'
-//       AND term = '$term'
-//       AND csession = '$curr_session'
-//     GROUP BY id
-// ) AS ranked
-// WHERE id = '$student_id';
 
 
 $position_row = $pos_query->fetch_assoc();
