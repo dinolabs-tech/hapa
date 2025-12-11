@@ -90,15 +90,7 @@ if (isset($_POST['run_process'])) {
 
         // Step 6: Remark assignment
         $conn->query("UPDATE mastersheet SET remark = 
-            CASE 
-                WHEN average >= 70 THEN 'EXCELLENT'
-                WHEN average >= 65 THEN 'GOOD'
-                WHEN average >= 50 THEN 'AVERAGE'
-                WHEN average >= 45 THEN 'BELOW AVERAGE'
-                WHEN average >= 40 THEN 'POOR'
-                ELSE 'FAIL'
-            END
-            
+                       
             CASE 
         -- WAEC grading for SSS 1/2/3
         WHEN class IN ('SSS 1', 'SSS 2', 'SSS 3') THEN
