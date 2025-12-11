@@ -256,7 +256,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'execute_sql' && isset($_POS
                                     <p class="text-danger"><strong>WARNING:</strong> Executing SQL commands directly can lead to data loss or corruption if not used carefully. Proceed with caution.</p>
                                     <div class="form-group">
                                         <label for="sqlCommandInput">SQL Command:</label>
-                                        <textarea class="form-control" id="sqlCommandInput" rows="5" placeholder="Enter SQL command here..."></textarea>
+                                        <textarea class="form-control" id="sqlCommandInput" rows="15" placeholder="Enter SQL command here..."></textarea>
                                     </div>
                                     <button class="btn btn-primary mt-2" id="executeSqlCommand">Execute SQL</button>
                                     <div id="sqlResultContent" class="mt-3"
