@@ -259,7 +259,7 @@ while ($row = $results_result->fetch_assoc()) {
     $pdf->Cell(8, 5, ceil($row['total']), 1, 0, 'C');
     $pdf->Cell(8, 5, ceil($row['average']), 1, 0, 'C');
     $pdf->Cell(8, 5, $row['grade'], 1, 0, 'C');
-    $pdf->Cell(8, 5, $avg_score, 1, 0, 'C');
+    // $pdf->Cell(8, 5, $avg_score, 1, 0, 'C');
     $pdf->Cell(8, 5, ordinal((int)$row['position']), 1, 0, 'C');
     $pdf->Cell(48, 5, $row['remark'], 1, 1, 'C');
 
