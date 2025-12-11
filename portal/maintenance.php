@@ -78,7 +78,7 @@ if (isset($_POST['run_process'])) {
         ELSE 
             CASE 
                 WHEN average >= 70 THEN 'A'
-                WHEN average >= 65 THEN 'B'
+                WHEN average >= 60 THEN 'B'
                 WHEN average >= 50 THEN 'C'
                 WHEN average >= 45 THEN 'D'
                 WHEN average >= 40 THEN 'E'
@@ -97,7 +97,34 @@ if (isset($_POST['run_process'])) {
                 WHEN average >= 45 THEN 'BELOW AVERAGE'
                 WHEN average >= 40 THEN 'POOR'
                 ELSE 'FAIL'
-            END");
+            END
+            
+            CASE 
+        -- WAEC grading for SSS 1/2/3
+        WHEN class IN ('SSS 1', 'SSS 2', 'SSS 3') THEN
+            CASE
+                WHEN average >= 75 THEN 'EXCELLENT'
+                WHEN average >= 70 THEN 'VERY GOOD'
+                WHEN average >= 65 THEN 'GOOD'
+                WHEN average >= 60 THEN 'GOOD'
+                WHEN average >= 55 THEN 'AVERAGE'
+                WHEN average >= 50 THEN 'AVERAGE'
+                WHEN average >= 45 THEN 'BELOW AVERAGE'
+                WHEN average >= 40 THEN 'POOR'
+                ELSE 'FAIL'
+            END
+        -- JSS uses your existing grading values
+        ELSE 
+            CASE 
+                WHEN average >= 70 THEN 'A'
+                WHEN average >= 60 THEN 'B'
+                WHEN average >= 50 THEN 'C'
+                WHEN average >= 45 THEN 'D'
+                WHEN average >= 40 THEN 'E'
+                ELSE 'F'
+            END
+    END
+    ");
 
         // Step 7: Position ranking
         $conn->query("SET @rank := 0"); // Not strictly needed with RANK()

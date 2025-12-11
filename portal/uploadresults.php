@@ -115,7 +115,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               if ($average >= 70) {
                 $grade = 'A';
                 $remark = 'EXCELLENT';
-              } elseif ($average >= 65) {
+              } elseif ($average >= 60) {
                 $grade = 'B';
                 $remark = 'GOOD';
               } elseif ($average >= 50) {
