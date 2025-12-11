@@ -213,21 +213,21 @@ while ($avg_row = $subject_averages_result->fetch_assoc()) {
 
 $pos_query = $conn->query("
     SELECT *
-FROM (
-    SELECT
-        id,
-        SUM(CAST(TRIM(total) AS UNSIGNED)) AS overall_total,
-        RANK() OVER (ORDER BY SUM(CAST(TRIM(total) AS UNSIGNED)) DESC) AS position
-    FROM mastersheet
-    WHERE class = 'JSS 2'
-      AND arm = 'A'
-      AND term = '1st Term'
-      AND csession = '2025/2026'
-    GROUP BY id
-) AS ranked
-WHERE id = '25/JS/014';
-
+    FROM (
+        SELECT
+            id,
+            SUM(CAST(TRIM(total) AS UNSIGNED)) AS overall_total,
+            RANK() OVER (ORDER BY SUM(CAST(TRIM(total) AS UNSIGNED)) DESC) AS position
+        FROM mastersheet
+        WHERE class = '{$student_details['class']}'
+        AND arm = '{$student_details['arm']}'
+          AND term = '$term'
+          AND csession = '$curr_session'
+        GROUP BY id
+    ) AS ranked
+    WHERE id = '$student_id'
 ");
+
 
 $position_row = $pos_query->fetch_assoc();
 $overall_position = $position_row ? $position_row['position'] : 'N/A';
