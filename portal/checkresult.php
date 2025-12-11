@@ -221,7 +221,6 @@ while ($avg_row = $subject_averages_result->fetch_assoc()) {
 }
 
 
-
 $pos_query = $conn->query("
     SELECT *
     FROM (
@@ -241,7 +240,6 @@ $pos_query = $conn->query("
 
 $position_row = $pos_query->fetch_assoc();
 $overall_position = $position_row['position'];
-
 
 
 $total_average = 0;
