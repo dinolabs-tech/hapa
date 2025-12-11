@@ -90,7 +90,7 @@ if (isset($_POST['run_process'])) {
 
         // Step 6: Remark assignment
         $conn->query("UPDATE mastersheet SET remark = 
-                       
+          
             CASE 
         -- WAEC grading for SSS 1/2/3
         WHEN class IN ('SSS 1', 'SSS 2', 'SSS 3') THEN
@@ -108,12 +108,12 @@ if (isset($_POST['run_process'])) {
         -- JSS uses your existing grading values
         ELSE 
             CASE 
-                WHEN average >= 70 THEN 'A'
-                WHEN average >= 60 THEN 'B'
-                WHEN average >= 50 THEN 'C'
-                WHEN average >= 45 THEN 'D'
-                WHEN average >= 40 THEN 'E'
-                ELSE 'F'
+                WHEN average >= 70 THEN 'EXCELLENT'
+                WHEN average >= 60 THEN 'GOOD'
+                WHEN average >= 50 THEN 'AVERAGE'
+                WHEN average >= 45 THEN 'BELOW AVERAGE'
+                WHEN average >= 40 THEN 'POOR'
+                ELSE 'FAIL'
             END
     END
     ");
