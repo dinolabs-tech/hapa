@@ -230,10 +230,10 @@ $pos_query = $conn->query("
             SUM(total) AS overall_total,
             RANK() OVER (ORDER BY SUM(total) DESC) AS position
         FROM mastersheet
-        WHERE class = '{$student_details['class']}'
-        AND arm = '{$student_details['arm']}'
+        WHERE class = '{$student_photo['class']}'
+        AND arm = '{$student_photo['arm']}'
           AND term = '$term'
-          AND csession = '$curr_session'
+          AND csession = '$csession'
         GROUP BY id
     ) AS ranked
     WHERE id = '$user_id'
