@@ -216,8 +216,8 @@ $pos_query = $conn->query("
     FROM (
         SELECT
             id,
-            SUM(total) AS overall_total,
-            RANK() OVER (ORDER BY SUM(total) DESC) AS position
+            SUM(average) AS overall_total,
+            RANK() OVER (ORDER BY SUM(average) DESC) AS position
         FROM mastersheet
         WHERE class = '{$student_details['class']}'
         AND arm = '{$student_details['arm']}'
