@@ -101,8 +101,8 @@ if (isset($_POST['run_process'])) {
                 WHEN average >= 60 THEN 'GOOD'
                 WHEN average >= 55 THEN 'AVERAGE'
                 WHEN average >= 50 THEN 'AVERAGE'
-                WHEN average >= 45 THEN 'BELOW AVERAGE'
-                WHEN average >= 40 THEN 'POOR'
+                WHEN average >= 45 THEN 'PASS'
+                WHEN average >= 40 THEN 'PASS'
                 ELSE 'FAIL'
             END
         -- JSS uses your existing grading values
