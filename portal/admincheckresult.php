@@ -157,7 +157,8 @@ $principal_comment = $principal_comments_result->num_rows > 0 ? $principal_comme
 
 // Fetch next term
 $next_term_result = $conn->query("SELECT Next FROM nextterm WHERE id = 1");
-$next_term = $next_term_result->fetch_assoc()['Next'];
+$next_term_row = $next_term_result->fetch_assoc();
+$next_term = $next_term_row ? $next_term_row['Next'] : 'N/A';
 
 $promotec = $conn->query("SELECT comment FROM promote WHERE id='$student_id' AND term='$term' AND csession='$curr_session'")->fetch_assoc()['comment'] ?? 'N/A';
 
@@ -213,7 +214,7 @@ while ($avg_row = $subject_averages_result->fetch_assoc()) {
 $pos_query = $conn->query("
     SELECT *
     FROM (
-        SELECT 
+        SELECT
             id,
             SUM(total) AS overall_total,
             RANK() OVER (ORDER BY SUM(total) DESC) AS position
@@ -228,7 +229,7 @@ $pos_query = $conn->query("
 ");
 
 $position_row = $pos_query->fetch_assoc();
-$overall_position = $position_row['position'];
+$overall_position = $position_row ? $position_row['position'] : 'N/A';
 
 
 $total_average = 0;
@@ -264,7 +265,8 @@ $pdf->SetFont('Arial', 'B', 10);
 $pdf->Cell(95, 7, "Overall Average: {$overall_average}%", 1, 0, 'L');
 
 // Right cell (Overall Position)
-$pdf->Cell(95, 7, "Overall Position: " . ordinal((int)$overall_position), 1, 1, 'R');
+$overall_position_display = is_numeric($overall_position) ? ordinal((int)$overall_position) : $overall_position;
+$pdf->Cell(95, 7, "Overall Position: " . $overall_position_display, 1, 1, 'R');
 
 // Add comments
 $pdf->Ln(2);
