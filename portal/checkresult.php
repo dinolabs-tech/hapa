@@ -200,7 +200,7 @@ foreach ($rotated_headers as $index => $header) {
     $pdf->RotatedText($x_pos + 6, $y_start + 23, $header, 90);
 }
 
-$pdf->Cell(40, 25, 'REMARK', 1, 0, 'C', true);
+$pdf->Cell(48, 25, 'REMARK', 1, 0, 'C', true);
 $pdf->Ln();
 
 // Add student results data
