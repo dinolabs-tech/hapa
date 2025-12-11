@@ -322,7 +322,7 @@ if (in_array($student_details['class'], ['SSS 1', 'SSS 2', 'SSS 3'])) {
     $grading_data = [
         ['A', '70 - 100', 'Excellent'],
         ['B', '60 - 69', 'Good'],
-        ['C', '50 - 64', 'Average'],
+        ['C', '50 - 59', 'Average'],
         ['D', '45 - 49', 'Below Average'],
         ['E', '40 - 44', 'Poor'],
         ['F', '0 - 39', 'Fail']
