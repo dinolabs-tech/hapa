@@ -171,6 +171,35 @@ if (isset($_POST['action']) && $_POST['action'] === 'execute_sql' && isset($_POS
     exit();
 }
 
+// Handle executing custom git commands
+if (isset($_POST['action']) && $_POST['action'] === 'execute_git' && isset($_POST['git_command'])) {
+    $git_command = trim($_POST['git_command']);
+    $output = '';
+
+    if (!empty($git_command)) {
+        // Change to project root directory (parent of portal)
+        $project_root = dirname(__DIR__);
+        chdir($project_root);
+
+        // Execute the git command
+        $full_command = 'git ' . $git_command . ' 2>&1'; // Redirect stderr to stdout
+        exec($full_command, $output_lines, $return_var);
+
+        if ($return_var === 0) {
+            $output .= "Git command executed successfully.\n\n";
+        } else {
+            $output .= "Git command failed with exit code $return_var.\n\n";
+        }
+
+        $output .= "Output:\n" . implode("\n", $output_lines);
+    } else {
+        $output .= "No git command provided.";
+    }
+
+    echo $output;
+    exit();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -260,6 +289,23 @@ if (isset($_POST['action']) && $_POST['action'] === 'execute_sql' && isset($_POS
                                     </div>
                                     <button class="btn btn-primary mt-2" id="executeSqlCommand">Execute SQL</button>
                                     <div id="sqlResultContent" class="mt-3"
+                                        style="white-space: pre-wrap; background-color: #f8f9fa; padding: 15px; border-radius: 5px; max-height: 500px; overflow-y: scroll;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    Execute Custom Git Commands
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-danger"><strong>WARNING:</strong> Executing git commands directly can modify your repository, potentially leading to data loss or corruption if not used carefully. Proceed with caution.</p>
+                                    <div class="form-group">
+                                        <label for="gitCommandInput">Git Command:</label>
+                                        <textarea class="form-control" id="gitCommandInput" rows="5" placeholder="Enter git command here (without 'git' prefix)..."></textarea>
+                                    </div>
+                                    <button class="btn btn-primary mt-2" id="executeGitCommand">Execute Git Command</button>
+                                    <div id="gitResultContent" class="mt-3"
                                         style="white-space: pre-wrap; background-color: #f8f9fa; padding: 15px; border-radius: 5px; max-height: 500px; overflow-y: scroll;">
                                     </div>
                                 </div>
@@ -470,6 +516,31 @@ if (isset($_POST['action']) && $_POST['action'] === 'execute_sql' && isset($_POS
                             },
                             error: function() {
                                 $('#sqlResultContent').text('Error executing SQL command.');
+                            }
+                        });
+                    }
+                });
+
+                $('#executeGitCommand').click(function() {
+                    const gitCommand = $('#gitCommandInput').val();
+                    if (gitCommand.trim() === '') {
+                        alert('Please enter a git command to execute.');
+                        return;
+                    }
+
+                    if (confirm('WARNING: Are you sure you want to execute this git command? This action can be destructive and irreversible.')) {
+                        $.ajax({
+                            url: 'developer.php',
+                            type: 'POST',
+                            data: {
+                                action: 'execute_git',
+                                git_command: gitCommand
+                            },
+                            success: function(response) {
+                                $('#gitResultContent').text(response);
+                            },
+                            error: function() {
+                                $('#gitResultContent').text('Error executing git command.');
                             }
                         });
                     }
