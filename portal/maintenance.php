@@ -57,7 +57,7 @@ if (isset($_POST['run_process'])) {
         // Step 4: Calculate average considering lastcum
         $conn->query("UPDATE mastersheet SET average = CASE WHEN lastcum = 0 THEN total ELSE (total + lastcum) / 2 END WHERE term = '$term' AND csession = '$session'");
 
-        // Step 5: Grade assignment
+      
         // Step 5: Grade assignment (JSS uses old grading, SSS uses WAEC grading)
         $conn->query("UPDATE mastersheet SET grade = 
     CASE 
