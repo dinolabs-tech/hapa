@@ -228,10 +228,8 @@ $pos_query = $conn->query("
     WHERE id = '$student_id'
 ");
 
-
 $position_row = $pos_query->fetch_assoc();
 $overall_position = $position_row ? $position_row['position'] : 'N/A';
-
 
 $total_average = 0;
 $num_subjects = 0;
@@ -311,7 +309,7 @@ $pdf->SetFont('Arial', '', 10);
 // Data for Grading Table based on class
 if (in_array($student_details['class'], ['SSS 1', 'SSS 2', 'SSS 3'])) {
     $grading_data = [
-       ['A1', '75 - 100', 'Excellent'],
+        ['A1', '75 - 100', 'Excellent'],
         ['B2', '70 - 74', 'Very Good'],
         ['B3', '65 - 69', 'Good'],
         ['C4', '60 - 64', 'Good'],

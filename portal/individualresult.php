@@ -37,7 +37,53 @@
 
           </div>
 
-          <!-- BULK UPLOAD ============================ -->
+          <!-- BULK DOWNLOAD ============================ -->
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card card-round">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Bulk Download Results</div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <?php
+                  // Fetch classes and arms for dropdowns
+                  $classes = $conn->query("SELECT DISTINCT class FROM class ORDER BY class");
+                  $arms = $conn->query("SELECT DISTINCT arm FROM arm ORDER BY arm");
+                  ?>
+                  <form action="bulk_result_download.php" method="get">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label for="class_select">Class:</label>
+                        <select name="class" id="class_select" class="form-control form-select" required>
+                          <option value="" selected disabled>Select Class</option>
+                          <?php while($c = $classes->fetch_assoc()): ?>
+                            <option value="<?php echo htmlspecialchars($c['class']); ?>"><?php echo htmlspecialchars($c['class']); ?></option>
+                          <?php endwhile; ?>
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <label for="arm_select">Arm:</label>
+                        <select name="arm" id="arm_select" class="form-control form-select" required>
+                          <option value="" selected disabled>Select Arm</option>
+                          <?php while($a = $arms->fetch_assoc()): ?>
+                            <option value="<?php echo htmlspecialchars($a['arm']); ?>"><?php echo htmlspecialchars($a['arm']); ?></option>
+                          <?php endwhile; ?>
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <label>&nbsp;</label><br>
+                        <button type="submit" class="btn btn-primary rounded-5">Download PDF</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- INDIVIDUAL RESULTS ============================ -->
           <div class="row">
 
             <div class="col-md-12">
