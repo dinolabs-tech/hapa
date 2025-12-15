@@ -48,11 +48,13 @@ class MyPDF extends FPDF
     {
         $this->SetFont('Arial', 'B', 10);
         $this->Image('assets/img/logo.png', 10, 8, 20);
+
+        // Student photo in the top-right corner
         if (!empty($this->studentImage) && file_exists($this->studentImage)) {
-            $x = $this->GetPageWidth() - 30;
+            $x = $this->GetPageWidth() - 10 - 20; // Right margin (10mm) + image width (20mm)
             $this->Image($this->studentImage, $x, 8, 20);
         }
-        $this->Ln(5);
+
         $this->SetFont('Arial', 'B', 18);
         $this->Cell(0, 5, 'HAPA COLLEGE', 0, 1, 'C');
         $this->SetFont('Arial', 'B', 11);
@@ -60,6 +62,12 @@ class MyPDF extends FPDF
         $this->Cell(0, 5, 'Akure, Ondo State, Nigeria.', 0, 1, 'C');
         $this->Cell(0, 5, 'hapacollege2013@yahoo.com', 0, 1, 'C');
         $this->Cell(0, 5, '+234-803-504-2727, +234-803-883-8583', 0, 1, 'C');
+        $this->Ln(5);
+
+        $x1 = 10;
+        $x2 = $this->GetPageWidth() - 10;
+        $y = $this->GetY();
+        $this->Line($x1, $y, $x2, $y);
         $this->Ln(5);
     }
 
@@ -149,25 +157,41 @@ foreach ($students as $student_id) {
     $pdf->studentImage = $photo_path;
     $pdf->AddPage();
 
-    // Fetch comments
-    $cc = $conn->query("SELECT * FROM classcomments WHERE id='$student_id' AND term='$term' AND csession='$session'")->fetch_assoc() ?: [];
-    $pc = $conn->query("SELECT comment FROM principalcomments WHERE id='$student_id' AND term='$term' AND csession='$session'")->fetch_assoc()['comment'] ?? 'No comment';
-    $next = $conn->query("SELECT Next FROM nextterm WHERE id=1")->fetch_assoc()['Next'];
+    // Fetch class comments
+    $cc = $conn->query("SELECT * FROM classcomments WHERE id='$student_id' AND term='$term' AND csession='$session'")->fetch_assoc() ?: [
+        'schlopen' => 'N/A',
+        'daysabsent' => 'N/A',
+        'dayspresent' => 'N/A',
+        'comment' => 'No comment available',
+        'attentiveness' => 'N/A',
+        'neatness' => 'N/A',
+        'politeness' => 'N/A',
+        'selfcontrol' => 'N/A',
+        'punctuality' => 'N/A',
+        'relationship' => 'N/A',
+        'handwriting' => 'N/A',
+        'music' => 'N/A',
+        'club' => 'N/A',
+        'sport' => 'N/A'
+    ];
 
-    // Attendance
-    $open = $conn->query("SELECT COUNT(DISTINCT date) AS op FROM attendance WHERE class='{$sd['class']}' AND arm='{$sd['arm']}' AND term_id='$term' AND session_id='$session'")->fetch_assoc()['op'];
-    $att = $conn->query("SELECT SUM(status) AS pres, COUNT(DISTINCT date)-SUM(status) AS abs FROM attendance WHERE student_id='$student_id' AND term_id='$term' AND session_id='$session'")->fetch_assoc();
-    $pres = $att['pres'] ?: 0;
-    $abs = $att['abs'] ?: 0;
+    // Fetch principal comment
+    $pc = $conn->query("SELECT comment FROM principalcomments WHERE id='$student_id' AND term='$term' AND csession='$session'")->fetch_assoc()['comment'] ?? 'No comment available';
 
-    // Header info
+    // Fetch next term
+    $next = $conn->query("SELECT Next FROM nextterm WHERE id=1")->fetch_assoc()['Next'] ?? 'N/A';
+
+    // Fetch promote comment
+    $promotec = $conn->query("SELECT comment FROM promote WHERE id='$student_id' AND term='$term' AND csession='$session'")->fetch_assoc()['comment'] ?? 'N/A';
+
+    // Add student info to PDF
     $pdf->SetFont('Arial', '', 10);
     $pdf->Cell(95, 7, "Name: {$sd['name']}", 'B', 0);
-    $pdf->Cell(95, 7, "SchlOpen: $open", 'B', 1);
+    $pdf->Cell(95, 7, "School Opened: {$cc['schlopen']}", 'B', 1);
     $pdf->Cell(95, 7, "Class: {$sd['class']} {$sd['arm']}", 'B', 0);
-    $pdf->Cell(95, 7, "Days Absent: $abs", 'B', 1);
+    $pdf->Cell(95, 7, "Days Absent: {$cc['daysabsent']}", 'B', 1);
     $pdf->Cell(95, 7, "Term: $term", 'B', 0);
-    $pdf->Cell(95, 7, "Days Present: $pres", 'B', 1);
+    $pdf->Cell(95, 7, "Days Present: {$cc['dayspresent']}", 'B', 1);
     $pdf->Cell(95, 7, "Session: $session", 'B', 0);
     $pdf->Cell(95, 7, "Next Term: $next", 'B', 1);
     $pdf->Ln(5);
@@ -176,39 +200,53 @@ foreach ($students as $student_id) {
     $pdf->SetFillColor(90, 174, 255);
     $pdf->SetFont('Arial', 'B', 9);
     $pdf->Cell(80, 25, 'SUBJECT', 1, 0, 'C', true);
-    $x0 = $pdf->GetX();
-    $y0 = $pdf->GetY();
-    $cols = ['CA1', 'CA2', 'EXAM', 'LAST CUM', 'TOTAL', 'AVERAGE', 'GRADE', 'CLASS AVG.', 'POSITION'];
-    foreach ($cols as $i => $h) {
-        $pdf->Cell(8, 25, '', 1, 0, 'C', true);
-        $pdf->RotatedText($x0 + $i * 8 + 6, $y0 + 23, $h, 90);
+
+    $x_start = $pdf->GetX();
+    $y_start = $pdf->GetY();
+    $rotated_headers = ['CA1', 'CA2', 'EXAM', 'TOTAL', 'LAST CUM', 'AVERAGE', 'GRADE', 'POSITION'];
+    $header_width = 8;
+
+    foreach ($rotated_headers as $index => $header) {
+        $x_pos = $x_start + ($index * $header_width);
+        $pdf->Cell($header_width, 25, '', 1, 0, 'C', true);
+        $pdf->RotatedText($x_pos + 6, $y_start + 23, $header, 90);
     }
-    $pdf->Cell(40, 25, 'REMARK', 1, 1, 'C', true);
 
-    // Fetch & render results
+    $pdf->Cell(48, 25, 'REMARK', 1, 0, 'C', true);
+    $pdf->Ln();
+
+    // Add student results data
     $pdf->SetFont('Arial', '', 8);
-    $res = $conn->query("SELECT * FROM mastersheet WHERE id='$student_id' AND term='$term' AND csession='$session'");
-    $avg = $conn->query("SELECT subject,AVG(total) AS avg_score FROM mastersheet WHERE class='{$sd['class']}' AND term='$term' AND csession='$session' GROUP BY subject");
-    $avgC = [];
-    while ($r = $avg->fetch_assoc()) $avgC[$r['subject']] = ceil($r['avg_score']);
+    $results_result = $conn->query("SELECT * FROM mastersheet WHERE id = '$student_id' AND term = '$term' AND csession = '$session'");
 
+    $subject_averages_result = $conn->query("
+        SELECT subject, AVG(total) AS avg_score 
+        FROM mastersheet 
+        WHERE class = '{$sd['class']}' AND term = '$term' AND csession = '$session'
+        GROUP BY subject
+    ");
+
+    $subject_averages = [];
+    while ($avg_row = $subject_averages_result->fetch_assoc()) {
+        $subject_averages[$avg_row['subject']] = ceil($avg_row['avg_score']);
+    }
 
     $pos_query = $conn->query("
-    SELECT *
-    FROM (
-        SELECT
-            id,
-            SUM(total) AS overall_total,
-            RANK() OVER (ORDER BY SUM(total) DESC) AS position
-        FROM mastersheet
-        WHERE class = '{$sd['class']}'
-        AND arm = '{$sd['arm']}'
-          AND term = '$term'
-          AND csession = '$session'
-        GROUP BY id
-    ) AS ranked
-    WHERE id = '$student_id'
-");
+        SELECT *
+        FROM (
+            SELECT
+                id,
+                SUM(total) AS overall_total,
+                RANK() OVER (ORDER BY SUM(total) DESC) AS position
+            FROM mastersheet
+            WHERE class = '{$sd['class']}'
+            AND arm = '{$sd['arm']}'
+              AND term = '$term'
+              AND csession = '$session'
+            GROUP BY id
+        ) AS ranked
+        WHERE id = '$student_id'
+    ");
 
     $position_row = $pos_query->fetch_assoc();
     $overall_position = $position_row ? $position_row['position'] : 'N/A';
@@ -216,39 +254,43 @@ foreach ($students as $student_id) {
     $total_average = 0;
     $num_subjects = 0;
 
-
-    $sum = 0;
-    $cnt = 0;
-    while ($r = $res->fetch_assoc()) {
-        $pdf->Cell(80, 5, $r['subject'], 1, 0);
-        foreach (['ca1', 'ca2', 'exam', 'lastcum', 'total', 'average', 'grade'] as $c) {
-            $pdf->Cell(8, 5, $r[$c], 1, 0, 'C');
-        }
-        $pdf->Cell(8, 5, $avgC[$r['subject']] ?: '-', 1, 0, 'C');
-        $pdf->Cell(8, 5, ordinal((int)$r['position']), 1, 0, 'C');
-        $pdf->Cell(40, 5, $r['remark'], 1, 1, 'C');
-        $sum += $r['average'];
-        $cnt++;
+    while ($row = $results_result->fetch_assoc()) {
+        $subject = $row['subject'];
+        $avg_score = isset($subject_averages[$subject]) ? $subject_averages[$subject] : '-';
+        $pdf->Cell(80, 5, $subject, 1, 0);
+        $pdf->Cell(8, 5, $row['ca1'], 1, 0, 'C');
+        $pdf->Cell(8, 5, $row['ca2'], 1, 0, 'C');
+        $pdf->Cell(8, 5, $row['exam'], 1, 0, 'C');
+        $pdf->Cell(8, 5, ceil($row['total']), 1, 0, 'C');
+        $pdf->Cell(8, 5, ceil($row['lastcum']), 1, 0, 'C');
+        $pdf->Cell(8, 5, ceil($row['average']), 1, 0, 'C');
+        $pdf->Cell(8, 5, $row['grade'], 1, 0, 'C');
+        $pdf->Cell(8, 5, ordinal((int)$row['position']), 1, 0, 'C');
+        $pdf->Cell(48, 5, $row['remark'], 1, 1, 'C');
+        $total_average += $row['average'];
+        $num_subjects++;
     }
 
-    // Overall average
-    $overall = $cnt ? number_format($sum / $cnt, 2) : '0.00';
+    // Calculate overall average
+    $overall_average = $num_subjects > 0 ? number_format($total_average / $num_subjects, 1) : '0.0';
+    // $overall_average=$total_average;
+
+    // Output overall average
     $pdf->Ln(5);
     $pdf->SetFont('Arial', 'B', 10);
-    $pdf->Cell(95, 7, "Overall Average: $overall", 1, 1, 'C');
+
+    // Left cell (Overall Average)
+    $pdf->Cell(95, 7, "Overall Average: {$overall_average}%", 1, 0, 'L');
 
     // Right cell (Overall Position)
     $overall_position_display = is_numeric($overall_position) ? ordinal((int)$overall_position) : $overall_position;
     $pdf->Cell(95, 7, "Overall Position: " . $overall_position_display, 1, 1, 'R');
 
-    // Comments
+    // Add comments
     $pdf->Ln(2);
     $pdf->SetFont('Arial', 'I', 10);
-    $pdf->Cell(0, 5, $cc['comment'] ?? '', 'B', 1, 'C');
+    $pdf->Cell(0, 5, $cc['comment'], 'B', 1, 'C');
     $pdf->Cell(0, 5, "Class Teacher's Comment", 0, 1, 'C');
-    $pdf->Ln(2);
-    $pdf->Cell(0, 5, $pc, 'B', 1, 'C');
-    $pdf->Cell(0, 5, "Principal's Comment", 0, 1, 'C');
 
     // Principal's signature
     $pdf->Ln(3);
@@ -298,7 +340,7 @@ foreach ($students as $student_id) {
     $skills = [
         ['Attentiveness', $cc['attentiveness'] ?? 'N/A', 'Relationship', $cc['relationship'] ?? 'N/A'],
         ['Neatness', $cc['neatness'] ?? 'N/A', 'Handwriting', $cc['handwriting'] ?? 'N/A'],
-        ['Politeness', $cc['politeness'] ?? 'N/A', 'Music', $cc['music'] ?? 'N/A'],
+        ['Politeness', $cc['politeness'] ?? 'N/A', 'Entrepreneurship', $cc['music'] ?? 'N/A'],
         ['Self-Control', $cc['selfcontrol'] ?? 'N/A', 'Club/Society', $cc['club'] ?? 'N/A'],
         ['Punctuality', $cc['punctuality'] ?? 'N/A', 'Sport', $cc['sport'] ?? 'N/A']
     ];
@@ -330,7 +372,7 @@ foreach ($students as $student_id) {
     // QR Code
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
     $base_url = $protocol . '://' . $_SERVER['HTTP_HOST'];
-    $qr_code_text = "This result is an authenticated academic document issued to " . $sd['name'] . ". Its authenticity and legal status can be verified through " . $base_url . "/eduhive/verify.php?student_id=" . $student_id . "&type=result";
+    $qr_code_text = "This result is an authenticated academic document issued to " . $sd['name'] . ". Its authenticity and legal status can be verified through " . $base_url . "/verify.php?student_id=" . $student_id . "&type=result";
     $qr_file_path = 'temp_qr_' . md5($qr_code_text) . '.png';
     QRcode::png($qr_code_text, $qr_file_path, QR_ECLEVEL_L, 4, 2);
     $qr_w = 25;
@@ -341,6 +383,9 @@ foreach ($students as $student_id) {
         $pdf->Image($qr_file_path, $qr_x, $qr_y, $qr_w, $qr_h, 'PNG');
         unlink($qr_file_path);
     }
+
+    $pdf->SetFont('Arial', 'B', 10);
+    $pdf->Cell(95, 7, "Promotional Status: {$promotec}", 'B', 0, 'C');
 }
 
 // Output the PDF
