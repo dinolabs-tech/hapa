@@ -70,9 +70,9 @@ if (isset($_GET['student_id']) && !empty($_GET['student_id'])) {
             'Arm' => $student['arm'],
             'Session' => $document['csession'],
             'Term' => $document['term'],
-            'Overall Average' => $document['average'],
-            'Grade' => $document['grade'],
-            'Remark' => $document['remark']
+            // 'Overall Average' => $document['average'],
+            // 'Grade' => $document['grade'],
+            // 'Remark' => $document['remark']
           ];
         }
         break;
