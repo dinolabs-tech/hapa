@@ -91,12 +91,12 @@ while ($row = $breakdown_result->fetch_assoc()) {
 }
 
 // Attendance Overview
-$attendance_query = "SELECT AVG(CASE WHEN status = 1 THEN 1 ELSE 0 END) * 100 as rate FROM classcomments WHERE session_id = '$selected_session' AND term_id = '$selected_term'";
+$attendance_query = "SELECT AVG(dayspresent / (dayspresent + daysabsent)) * 100 as rate FROM classcomments WHERE csession = '$selected_session' AND term = '$selected_term'";
 $attendance_result = $conn->query($attendance_query);
 $attendance_rate = round($attendance_result->fetch_assoc()['rate'] ?? 0, 2);
 
 // Chronic Absenteeism (students with attendance < 70%)
-$chronic_query = "SELECT student_id, name, class, arm, (SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100 as rate FROM classcomments WHERE session_id = '$selected_session' AND term_id = '$selected_term' GROUP BY student_id, name, class, arm HAVING rate < 70 ORDER BY rate ASC LIMIT 10";
+$chronic_query = "SELECT id as student_id, name, class, arm, (dayspresent / (dayspresent + daysabsent)) * 100 as rate FROM classcomments WHERE csession = '$selected_session' AND term = '$selected_term' HAVING rate < 70 ORDER BY rate ASC LIMIT 10";
 $chronic_result = $conn->query($chronic_query);
 $chronic_data = [];
 while ($row = $chronic_result->fetch_assoc()) {
