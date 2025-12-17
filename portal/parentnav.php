@@ -18,14 +18,9 @@
             <p>Notices</p>
           </a>
         </li>
-        <!-- <li class="nav-item">
-          <a href="logout.php">
-            <i class="fas fa-sign-out-alt"></i>
-            <p>Logout</p>
-          </a>
-        </li> -->
+ 
 
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a data-bs-toggle="collapse" href="#bursary">
             <i class="fas fa-hand-holding-usd"></i>
             <p>Bursary</p>
@@ -45,28 +40,7 @@
               </li>
             </ul>
           </div>
-        </li>
-
-
-
-
-
-        <!-- <li class="nav-item">
-                <a href="viewtimetable.php">
-                  <i class="fas fa-th-list"></i>
-                  <p>Class Schedule</p>
-                </a>
-              </li> -->
-
-        <!-- <li class="nav-item">
-                <a href="idcard.php">
-                  <i class="fas fa-id-card"></i>
-                  <p>Download ID Card</p>
-                </a>
-              </li> -->
-
-
-
+        </li> -->
 
       </ul>
     </div>

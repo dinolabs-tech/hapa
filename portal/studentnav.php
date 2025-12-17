@@ -13,7 +13,6 @@
           </a>
         </li>
 
-
         <?php if ($_SESSION['access'] == 0) { ?>
           <li class="nav-item">
             <a data-bs-toggle="collapse" href="#" onclick="showPopup()">
@@ -76,7 +75,7 @@
             </ul>
           </div>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a data-bs-toggle="collapse" href="#bursary">
             <i class="fas fa-hand-holding-usd"></i>
             <p>Bursary</p>
@@ -96,7 +95,7 @@
               </li>
             </ul>
           </div>
-        </li>
+        </li> -->
 
         <!-- Result Popup Overlay -->
         <div id="overlay" class="overlay" onclick="closePopup()"></div>

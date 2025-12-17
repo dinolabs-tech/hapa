@@ -385,7 +385,7 @@
             </span>
             <h4 class="text-section">Bursary</h4>
           </li>
-
+<!-- 
           <li class="nav-item">
             <a data-bs-toggle="collapse" href="#bursary">
               <i class="fas fa-hand-holding-usd"></i>
@@ -406,7 +406,7 @@
                 </li>
               </ul>
             </div>
-          </li>
+          </li> -->
           <!-- End Icons Nav -->
         <?php
         }
