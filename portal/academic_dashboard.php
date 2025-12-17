@@ -2,7 +2,7 @@
 include 'components/admin_logic.php';
 error_reporting(E_ALL);
 ini_set('display_error', 1);
-
+session_start();
 include('db_connection.php');
 
 // Sanitize filter inputs
@@ -95,6 +95,7 @@ WHERE csession = '$selected_session'
 GROUP BY subject
 ORDER BY subject;";
 
+
 $breakdown_result = $conn->query($breakdown_query);
 $breakdown_data = [];
 while ($row = $breakdown_result->fetch_assoc()) {
@@ -102,12 +103,12 @@ while ($row = $breakdown_result->fetch_assoc()) {
 }
 
 // Attendance Overview
-$attendance_query = "SELECT AVG(dayspresent / (dayspresent + daysabsent)) * 100 as rate FROM classcomments WHERE csession = '$selected_session' AND term = '$selected_term'";
+$attendance_query = "SELECT AVG(CASE WHEN status = 1 THEN 1 ELSE 0 END) * 100 as rate FROM attendance WHERE session_id = '$selected_session' AND term_id = '$selected_term'";
 $attendance_result = $conn->query($attendance_query);
 $attendance_rate = round($attendance_result->fetch_assoc()['rate'] ?? 0, 2);
 
 // Chronic Absenteeism (students with attendance < 70%)
-$chronic_query = "SELECT id as student_id, name, class, arm, (dayspresent / (dayspresent + daysabsent)) * 100 as rate FROM classcomments WHERE csession = '$selected_session' AND term = '$selected_term' HAVING rate < 70 ORDER BY rate ASC LIMIT 10";
+$chronic_query = "SELECT student_id, name, class, arm, (SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100 as rate FROM attendance WHERE session_id = '$selected_session' AND term_id = '$selected_term' GROUP BY student_id, name, class, arm HAVING rate < 70 ORDER BY rate ASC LIMIT 10";
 $chronic_result = $conn->query($chronic_query);
 $chronic_data = [];
 while ($row = $chronic_result->fetch_assoc()) {
@@ -163,8 +164,7 @@ while ($row = $bottom_students_result->fetch_assoc()) {
 
             <div class="container">
                 <div class="page-inner">
-                    <div
-                        class="d-flex d-none d-lg-block align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+                    <div class="d-flex d-none d-lg-block align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
                         <div>
                             <h3 class="fw-bold mb-3">Academic Dashboard</h3>
                             <ol class="breadcrumb">
@@ -344,8 +344,7 @@ while ($row = $bottom_students_result->fetch_assoc()) {
                                             </thead>
                                             <tbody>
                                                 <?php foreach ($breakdown_data as $data): ?>
-                                                    <tr
-                                                        class="<?php echo $data['avg_score'] < 40 ? 'table-danger' : ''; ?>">
+                                                    <tr class="<?php echo $data['avg_score'] < 40 ? 'table-danger' : ''; ?>">
                                                         <td><?php echo $data['subject']; ?></td>
                                                         <td><?php echo round($data['avg_score'], 2); ?>%</td>
                                                         <td><?php echo round($data['pass_rate'], 2); ?>%</td>
@@ -372,19 +371,13 @@ while ($row = $bottom_students_result->fetch_assoc()) {
                                 </div>
                                 <div class="card-body">
                                     <div class="progress mb-3">
-                                        <div class="progress-bar bg-success" role="progressbar"
-                                            style="width: <?php echo $attendance_rate; ?>%"
-                                            aria-valuenow="<?php echo $attendance_rate; ?>" aria-valuemin="0"
-                                            aria-valuemax="100"><?php echo $attendance_rate; ?>%</div>
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $attendance_rate; ?>%" aria-valuenow="<?php echo $attendance_rate; ?>" aria-valuemin="0" aria-valuemax="100"><?php echo $attendance_rate; ?>%</div>
                                     </div>
                                     <p>Overall Attendance Rate: <?php echo $attendance_rate; ?>%</p>
                                     <h5>Chronic Absenteeism</h5>
                                     <ul class="list-group">
                                         <?php foreach ($chronic_data as $student): ?>
-                                            <li class="list-group-item"><?php echo $student['name']; ?>
-                                                (<?php echo $student['class']; ?><?php echo $student['arm']; ?>) -
-                                                <?php echo round($student['rate'], 2); ?>%
-                                            </li>
+                                            <li class="list-group-item"><?php echo $student['name']; ?> (<?php echo $student['class']; ?><?php echo $student['arm']; ?>) - <?php echo round($student['rate'], 2); ?>%</li>
                                         <?php endforeach; ?>
                                     </ul>
                                 </div>
@@ -399,8 +392,7 @@ while ($row = $bottom_students_result->fetch_assoc()) {
                                 </div>
                                 <div class="card-body">
                                     <div class="alert alert-warning">
-                                        <strong>Alert!</strong> <?php echo count($risk_data); ?> students below pass
-                                        mark.
+                                        <strong>Alert!</strong> <?php echo count($risk_data); ?> students below pass mark.
                                     </div>
                                     <div class="table-responsive">
                                         <table class="table table-sm">
@@ -415,8 +407,7 @@ while ($row = $bottom_students_result->fetch_assoc()) {
                                                 <?php foreach ($risk_data as $student): ?>
                                                     <tr>
                                                         <td><?php echo $student['name']; ?></td>
-                                                        <td><?php echo $student['class']; ?><?php echo $student['arm']; ?>
-                                                        </td>
+                                                        <td><?php echo $student['class']; ?><?php echo $student['arm']; ?></td>
                                                         <td><?php echo $student['average']; ?>%</td>
                                                     </tr>
                                                 <?php endforeach; ?>
@@ -425,170 +416,169 @@ while ($row = $bottom_students_result->fetch_assoc()) {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            <!-- Top & Bottom Students -->
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="card card-round">
-                                        <div class="card-header">
-                                            <div class="card-head-row">
-                                                <div class="card-title">Top Performing Students</div>
-                                            </div>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="table-responsive">
-                                                <table class="table table-sm">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Rank</th>
-                                                            <th>Name</th>
-                                                            <th>Class</th>
-                                                            <th>Score</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <?php $rank = 1;
-                                                        foreach ($top_students as $student): ?>
-                                                            <tr>
-                                                                <td><?php echo $rank++; ?></td>
-                                                                <td><?php echo $student['name']; ?></td>
-                                                                <td><?php echo $student['class']; ?><?php echo $student['arm']; ?>
-                                                                </td>
-                                                                <td><?php echo $student['average']; ?>%</td>
-                                                            </tr>
-                                                        <?php endforeach; ?>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-
+                    <!-- Top & Bottom Students -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card card-round">
+                                <div class="card-header">
+                                    <div class="card-head-row">
+                                        <div class="card-title">Top Performing Students</div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="card card-round">
-                                        <div class="card-header">
-                                            <div class="card-head-row">
-                                                <div class="card-title">At-Risk Students</div>
-                                            </div>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="table-responsive">
-                                                <table class="table table-sm">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Rank</th>
-                                                            <th>Name</th>
-                                                            <th>Class</th>
-                                                            <th>Score</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <?php $rank = 1;
-                                                        foreach ($bottom_students as $student): ?>
-                                                            <tr>
-                                                                <td><?php echo $rank++; ?></td>
-                                                                <td><?php echo $student['name']; ?></td>
-                                                                <td><?php echo $student['class']; ?><?php echo $student['arm']; ?>
-                                                                </td>
-                                                                <td><?php echo $student['average']; ?>%</td>
-                                                            </tr>
-                                                        <?php endforeach; ?>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Rank</th>
+                                                    <th>Name</th>
+                                                    <th>Class</th>
+                                                    <th>Score</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php $rank = 1;
+                                                foreach ($top_students as $student): ?>
+                                                    <tr>
+                                                        <td><?php echo $rank++; ?></td>
+                                                        <td><?php echo $student['name']; ?></td>
+                                                        <td><?php echo $student['class']; ?><?php echo $student['arm']; ?></td>
+                                                        <td><?php echo $student['average']; ?>%</td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card card-round">
+                                <div class="card-header">
+                                    <div class="card-head-row">
+                                        <div class="card-title">At-Risk Students</div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Rank</th>
+                                                    <th>Name</th>
+                                                    <th>Class</th>
+                                                    <th>Score</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php $rank = 1;
+                                                foreach ($bottom_students as $student): ?>
+                                                    <tr>
+                                                        <td><?php echo $rank++; ?></td>
+                                                        <td><?php echo $student['name']; ?></td>
+                                                        <td><?php echo $student['class']; ?><?php echo $student['arm']; ?></td>
+                                                        <td><?php echo $student['average']; ?>%</td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <?php include('footer.php'); ?>
                 </div>
-
-                <!-- Custom template | don't include it in your project! -->
-                <?php include('cust-color.php'); ?>
-                <!-- End Custom template -->
             </div>
-            <?php include('scripts.php'); ?>
 
-            <!-- Chart.js Scripts -->
-            <script>
-                // Grade Distribution Chart
-                var gradeCtx = document.getElementById('gradeChart').getContext('2d');
-                var gradeChart = new Chart(gradeCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: <?php echo json_encode($grade_labels); ?>,
-                        datasets: [{
-                            label: 'Number of Students',
-                            data: <?php echo json_encode($grade_data); ?>,
-                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
+            <?php include('footer.php'); ?>
+        </div>
 
-                // Subject Performance Chart
-                var subjectCtx = document.getElementById('subjectChart').getContext('2d');
-                var subjectChart = new Chart(subjectCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: <?php echo json_encode($subject_labels); ?>,
-                        datasets: [{
-                            label: 'Average Score (%)',
-                            data: <?php echo json_encode($subject_data); ?>,
-                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 100
-                            }
-                        }
-                    }
-                });
+        <!-- Custom template | don't include it in your project! -->
+        <?php include('cust-color.php'); ?>
+        <!-- End Custom template -->
+    </div>
+    <?php include('scripts.php'); ?>
 
-                // Performance Trend Chart
-                var trendCtx = document.getElementById('trendChart').getContext('2d');
-                var trendChart = new Chart(trendCtx, {
-                    type: 'line',
-                    data: {
-                        labels: <?php echo json_encode($trend_labels); ?>,
-                        datasets: [{
-                            label: 'Average Score (%)',
-                            data: <?php echo json_encode($trend_data); ?>,
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                            borderWidth: 2,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 100
-                            }
-                        }
+    <!-- Chart.js Scripts -->
+    <script>
+        // Grade Distribution Chart
+        var gradeCtx = document.getElementById('gradeChart').getContext('2d');
+        var gradeChart = new Chart(gradeCtx, {
+            type: 'bar',
+            data: {
+                labels: <?php echo json_encode($grade_labels); ?>,
+                datasets: [{
+                    label: 'Number of Students',
+                    data: <?php echo json_encode($grade_data); ?>,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
-                });
-            </script>
+                }
+            }
+        });
+
+        // Subject Performance Chart
+        var subjectCtx = document.getElementById('subjectChart').getContext('2d');
+        var subjectChart = new Chart(subjectCtx, {
+            type: 'bar',
+            data: {
+                labels: <?php echo json_encode($subject_labels); ?>,
+                datasets: [{
+                    label: 'Average Score (%)',
+                    data: <?php echo json_encode($subject_data); ?>,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Performance Trend Chart
+        var trendCtx = document.getElementById('trendChart').getContext('2d');
+        var trendChart = new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: <?php echo json_encode($trend_labels); ?>,
+                datasets: [{
+                    label: 'Average Score (%)',
+                    data: <?php echo json_encode($trend_data); ?>,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>
