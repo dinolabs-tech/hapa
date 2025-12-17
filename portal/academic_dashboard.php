@@ -166,7 +166,6 @@ while ($row = $bottom_students_result->fetch_assoc()) {
                     <!-- Filters -->
                     <form method="GET" class="row mb-4 g-3">
                         <div class="col-md-3">
-                            <label for="session">Academic Session</label>
                             <select name="session" id="session" class="form-select">
                                 <?php foreach ($sessions as $session): ?>
                                     <option value="<?php echo $session; ?>" <?php echo $session == $selected_session ? 'selected' : ''; ?>><?php echo $session; ?></option>
@@ -174,7 +173,6 @@ while ($row = $bottom_students_result->fetch_assoc()) {
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label for="term">Academic Term</label>
                             <select name="term" id="term" class="form-select">
                                 <?php foreach ($terms as $term): ?>
                                     <option value="<?php echo $term; ?>" <?php echo $term == $selected_term ? 'selected' : ''; ?>><?php echo $term; ?></option>
