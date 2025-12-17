@@ -148,7 +148,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'execute_sql' && isset($_POS
                                 $output .= implode("\t| ", $row_values) . "\n";
                             }
                         } else {
-                             $output .= "No rows returned for this statement.\n";
+                            $output .= "No rows returned for this statement.\n";
                         }
                         $result->free();
                     }
@@ -263,9 +263,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'execute_git' && isset($_POS
                                             <button class="btn btn-danger" id="clearDeployLog">Clear deploy.log</button>
                                             <a href="database_schema.php" class="btn btn-primary">Run DB Schema</a>
                                             <a href="developer.php?action=download_backup" class="btn btn-success">
-                                            Download SQL Backup
-                                        </a>
-                                        <button class="btn btn-danger" id="dropAllTablesButton">Drop All Tables</button>
+                                                Download SQL Backup
+                                            </a>
+                                            <button class="btn btn-danger" id="dropAllTablesButton">Drop All Tables</button>
                                         </div>
                                     </div>
 
@@ -300,6 +300,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'execute_git' && isset($_POS
                                 </div>
                                 <div class="card-body">
                                     <p class="text-danger"><strong>WARNING:</strong> Executing git commands directly can modify your repository, potentially leading to data loss or corruption if not used carefully. Proceed with caution.</p>
+                                    <p>git reset --hard HEAD <br>
+                                        git pull</p>
                                     <div class="form-group">
                                         <label for="gitCommandInput">Git Command:</label>
                                         <textarea class="form-control" id="gitCommandInput" rows="5" placeholder="Enter git command here (without 'git' prefix)..."></textarea>
