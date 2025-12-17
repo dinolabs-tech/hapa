@@ -53,7 +53,7 @@ $at_risk_result = $conn->query($at_risk_query);
 $at_risk = $at_risk_result->fetch_assoc()['count'] ?? 0;
 
 // Grade Distribution
-$grade_dist_query = "SELECT grade, COUNT(*) as count FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' GROUP BY grade ORDER BY grade";
+$grade_dist_query = "SELECT grade, COUNT(DISTINCT id) AS count FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' GROUP BY grade ORDER BY grade";
 $grade_dist_result = $conn->query($grade_dist_query);
 $grade_labels = [];
 $grade_data = [];
