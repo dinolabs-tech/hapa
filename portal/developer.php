@@ -308,7 +308,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'execute_git' && isset($_POS
                                     </div>
                                     <button class="btn btn-primary mt-2" id="executeGitCommand">Execute Git Command</button>
                                     <div id="gitResultContent" class="mt-3"
-                                        style="white-space: pre-wrap; background-color: #f8f9fa; padding: 15px; border-radius: 5px; max-height: 500px; overflow-y: scroll;">
+                                        style="white-space: pre-wrap; background-color: #b5b7b8ff; padding: 15px; border-radius: 5px; max-height: 500px; overflow-y: scroll;">
                                     </div>
                                 </div>
                             </div>
