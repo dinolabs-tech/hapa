@@ -969,7 +969,7 @@ $tables = [
 ",
 
     // Table: testimonial
-   "testimonial" => "
+    "testimonial" => "
         CREATE TABLE `testimonial` (
         `id` INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
         `student_id` VARCHAR(255) NOT NULL,
@@ -1080,6 +1080,162 @@ $tables = [
             KEY `thread_id` (`thread_id`),
             CONSTRAINT `posts_ibfk_1` FOREIGN KEY (`thread_id`) REFERENCES `threads` (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+    ",
+
+
+    // Table: fee_items
+    "fee_items" => "
+        CREATE TABLE IF NOT EXISTS fee_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(128) NOT NULL,
+        description TEXT,
+        mandatory TINYINT(1) NOT NULL DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NULL DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+    ",
+
+    // Table: fee_structures
+    "fee_structures" => "
+        CREATE TABLE IF NOT EXISTS fee_structures (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(128) NOT NULL,
+        class VARCHAR(32) NOT NULL,
+        arm VARCHAR(32) NOT NULL,
+        term VARCHAR(32) NOT NULL,
+        session VARCHAR(32) NOT NULL,
+        hostel_type VARCHAR(32) DEFAULT NULL,
+        total_amount BIGINT NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NULL DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+    ",
+
+    // Table: fee_structure_items
+    "fee_structure_items" => "
+        CREATE TABLE IF NOT EXISTS fee_structure_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        fee_structure_id INT NOT NULL,
+        fee_item_id INT NOT NULL,
+        amount BIGINT NOT NULL DEFAULT 0,
+        mandatory TINYINT(1) NOT NULL DEFAULT 1
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+    ",
+
+    // Table: student_fees
+    "student_fees" => "
+        CREATE TABLE IF NOT EXISTS student_fees (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        student_id VARCHAR(64) NOT NULL,
+        fee_structure_id INT NOT NULL,
+        term VARCHAR(32) NOT NULL,
+        session VARCHAR(32) NOT NULL,
+        assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        unassigned_at TIMESTAMP NULL DEFAULT NULL,
+        status VARCHAR(16) NOT NULL DEFAULT 'active',
+        UNIQUE KEY `unique_exam` (`student_id`, `fee_structure_id`, `term`, `session`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+    ",
+
+    // Table: student_fee_items
+    "student_fee_items" => "
+        CREATE TABLE IF NOT EXISTS student_fee_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        student_fee_id INT NOT NULL,
+        fee_item_id INT NOT NULL,
+        amount BIGINT NOT NULL DEFAULT 0,
+        paid_amount BIGINT NOT NULL DEFAULT 0,
+        carryover_flag TINYINT(1) NOT NULL DEFAULT 0,
+        mandatory TINYINT(1) NOT NULL DEFAULT 0,
+        rolled_over TINYINT(1) NOT NULL DEFAULT 0
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+    ",
+
+    // Table: carryovers
+    "carryovers" => "
+        CREATE TABLE IF NOT EXISTS carryovers (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        student_id VARCHAR(64) NOT NULL,
+        session VARCHAR(32) NOT NULL,
+        term VARCHAR(32) NOT NULL,
+        amount BIGINT NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY `unique_exam` (`student_id`, `session`, `term`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+    ",
+
+    // Table: payments
+    "payments" => "
+        CREATE TABLE IF NOT EXISTS payments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        student_id VARCHAR(64) NOT NULL,
+        amount BIGINT NOT NULL,
+        payment_method ENUM('cash','bank','pos','refund') NOT NULL,
+        payment_date DATETIME NOT NULL,
+        reference VARCHAR(64) NOT NULL,
+        receipt_number VARCHAR(64) NOT NULL UNIQUE,
+        created_by INT NOT NULL,
+        paid_by VARCHAR(128),
+        bank_from VARCHAR(128),
+        bank_to VARCHAR(128),
+        transfer_mode VARCHAR(32),
+        transfer_id VARCHAR(128),
+        paid_for TEXT,
+        discount BIGINT DEFAULT 0,
+        total_paid_term BIGINT,
+        balance_term BIGINT,
+        tuckshop_deposit BIGINT DEFAULT 0,
+        term VARCHAR(32) NOT NULL,
+        session VARCHAR(32) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY `unique_exam` (`student_id`, `payment_date`, `term`, `session`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+    ",
+
+    // Table: payment_allocations
+    "payment_allocations" => "
+        CREATE TABLE IF NOT EXISTS payment_allocations (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        payment_id INT NOT NULL,
+        student_fee_item_id INT NOT NULL,
+        allocated_amount BIGINT NOT NULL,
+        manual_override TINYINT(1) NOT NULL DEFAULT 0,
+        term VARCHAR(32) NOT NULL,
+        session VARCHAR(32) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY `unique_exam` (`payment_id`, `term`, `session`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+    ",
+
+    // Table: transactions
+    "transactions" => "
+        CREATE TABLE IF NOT EXISTS transactions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        student_id VARCHAR(64) NOT NULL,
+        type ENUM('payment','refund','carryover','adjustment') NOT NULL,
+        amount BIGINT NOT NULL,
+        reference VARCHAR(64),
+        related_id INT,
+        term VARCHAR(32) NOT NULL,
+        session VARCHAR(32) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY `unique_exam` (`student_id`, `term`, `session`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+    ",
+
+    // Table: audit_logs
+    "audit_logs" => "
+        CREATE TABLE IF NOT EXISTS audit_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        action VARCHAR(64) NOT NULL,
+        object_type VARCHAR(64) NOT NULL,
+        object_id INT NOT NULL,
+        before_state JSON,
+        after_state JSON,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        ip VARCHAR(64) NOT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
     ",
 
     // Table: parent_student
