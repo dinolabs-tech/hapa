@@ -385,7 +385,8 @@
             </span>
             <h4 class="text-section">Bursary</h4>
           </li>
-<!-- 
+
+
           <li class="nav-item">
             <a data-bs-toggle="collapse" href="#bursary">
               <i class="fas fa-hand-holding-usd"></i>
@@ -394,20 +395,68 @@
             </a>
             <div class="collapse" id="bursary">
               <ul class="nav nav-collapse">
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'Ceo' || $_SESSION['role'] == 'Superuser') { ?>
+                  <li>
+                    <a href="fee_items.php">
+                      <span class="sub-item">Fee Items</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="fee_structures.php">
+                      <span class="sub-item">Fee Structures</span>
+                    </a>
+                  </li>
+                <?php } ?>
                 <li>
-                  <a href="./account">
-                    <span class="sub-item">Account Management</span>
+                  <a href="assign_fees.php">
+                    <span class="sub-item">Assign Fees</span>
                   </a>
                 </li>
                 <li>
-                  <a href="approvepayments.php">
-                    <span class="sub-item">Approve Payments</span>
+                  <a href="students_assigned_fees.php">
+                    <span class="sub-item">Students with Fees</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="students_for_payments.php">
+                    <span class="sub-item">Students for Payment</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="payments_list.php">
+                    <span class="sub-item">Payment Lists</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="reports_owing.php">
+                    <span class="sub-item">Owing Reports</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="reports_paid.php">
+                    <span class="sub-item">Paid Reports</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="reports_transactions.php">
+                    <span class="sub-item">Transaction Reports</span>
+                  </a>
+                </li>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'Ceo' || $_SESSION['role'] == 'Superuser') { ?>
+                  <li>
+                    <a href="audit_logs.php">
+                      <span class="sub-item">Audit Logs</span>
+                    </a>
+                  </li>
+                <?php } ?>
+                <li>
+                  <a href="session_rollover.php">
+                    <span class="sub-item">Term Rollover</span>
                   </a>
                 </li>
               </ul>
             </div>
-          </li> -->
-          <!-- End Icons Nav -->
+          </li>
         <?php
         }
         ?>
