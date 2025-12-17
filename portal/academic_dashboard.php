@@ -78,7 +78,7 @@ $trend_result = $conn->query($trend_query);
 $trend_labels = [];
 $trend_data = [];
 while ($row = $trend_result->fetch_assoc()) {
-    $trend_labels[] = $row['term'] . ' Term';
+    $trend_labels[] = $row['term'];
     $trend_data[] = round($row['avg'], 2);
 }
 
