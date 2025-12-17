@@ -1,4 +1,12 @@
 <?php include('components/superuser_logic.php');
+include('helpers/money.php');
+
+// Fetch stats
+$total_students = $conn->query("SELECT COUNT(*) as count FROM students where status = 0")->fetch_assoc()['count'];
+$total_fee_structures = $conn->query("SELECT COUNT(*) as count FROM fee_structures")->fetch_assoc()['count'];
+$total_payments = $conn->query("SELECT COUNT(*) as count FROM payments")->fetch_assoc()['count'];
+$total_outstanding = $conn->query("SELECT SUM(sfi.amount - sfi.paid_amount) as total FROM student_fee_items sfi JOIN student_fees sf ON sfi.student_fee_id = sf.id WHERE sf.status='active' AND sfi.amount > sfi.paid_amount")->fetch_assoc()['total'] ?? 0;
+$total_paid = $conn->query("SELECT SUM(amount) as total FROM payments")->fetch_assoc()['total'] ?? 0;
 
 
 // Check if the form is submitted for Next Term
@@ -88,14 +96,10 @@ if (isset($_POST['expirydate_submit'])) {
                 </div>
                 <div class="card-body pb-0">
                   <div class="mb-4 mt-2">
-
                     <p id="message" data-message="<?php echo htmlspecialchars($message); ?>"></p>
-
                   </div>
-
                 </div>
               </div>
-
             </div>
           </div>
 
@@ -115,7 +119,6 @@ if (isset($_POST['expirydate_submit'])) {
                       <div class="numbers">
                         <p class="card-category">Total Amount Due</p>
                         <h4 class="card-title"><?php echo $total_students * 2000; ?></h4>
-
                       </div>
                     </div>
                   </div>
@@ -136,7 +139,6 @@ if (isset($_POST['expirydate_submit'])) {
                       <div class="numbers">
                         <p class="card-category">Licence Expiry Date</p>
                         <h4 class="card-title"><?php echo $expirydate; ?></h4>
-
                       </div>
                     </div>
                   </div>
@@ -186,9 +188,7 @@ if (isset($_POST['expirydate_submit'])) {
                 </div>
               </a>
             </div>
-
           </div>
-
 
           <!-- ================ STUDENT ENROLLED PANEL =================== -->
           <div class="row">
@@ -275,11 +275,86 @@ if (isset($_POST['expirydate_submit'])) {
                 </div>
               </div>
             </div>
-
           </div>
-
           <!-- ===================== ADMIN WIDGETS PANEL ENDS HERE ======================= -->
 
+
+          <!-- ===================== BURSARY WIDGETS PANEL STARTS HERE ======================= -->
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card card-round">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Bursary Management</div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="row mb-4">
+                    <div class="col-md-3">
+                      <div class="card text-white bg-primary">
+                        <div class="card-body">
+                          <h5 class="card-title">Total Students</h5>
+                          <h2><?= number_format($total_students) ?></h2>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="card text-white bg-success">
+                        <div class="card-body">
+                          <h5 class="card-title">Fee Structures</h5>
+                          <h2><?= number_format($total_fee_structures) ?></h2>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="card text-white bg-info">
+                        <div class="card-body">
+                          <h5 class="card-title">Total Paid</h5>
+                          <h2><?= money_format_naira($total_paid ?? 0) ?></h2>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="card text-white bg-warning">
+                        <div class="card-body">
+                          <h5 class="card-title">Outstanding</h5>
+                          <h2><?= money_format_naira($total_outstanding ?? 0) ?></h2>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="card">
+                        <div class="card-header">Quick Actions</div>
+                        <div class="card-body">
+                          <a href="fee_items.php" class="btn btn-outline-primary btn-sm me-2">Manage Fee Items</a>
+                          <a href="fee_structures.php" class="btn btn-outline-primary btn-sm me-2">Manage Structures</a>
+                          <a href="assign_fees.php" class="btn btn-outline-primary btn-sm me-2">Assign Fees</a>
+                          <a href="session_rollover.php" class="btn btn-outline-warning btn-sm">Session Rollover</a>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="card">
+                        <div class="card-header">Reports</div>
+                        <div class="card-body">
+                          <a href="reports_owing.php" class="btn btn-outline-secondary btn-sm me-2">Owing Report</a>
+                          <a href="reports_paid.php" class="btn btn-outline-secondary btn-sm me-2">Paid Report</a>
+                          <a href="reports_transactions.php" class="btn btn-outline-secondary btn-sm me-2">Transactions</a>
+                          <a href="payments_list.php" class="btn btn-outline-secondary btn-sm me-2">Payments List</a>
+                          <a href="audit_logs.php" class="btn btn-outline-danger btn-sm">Audit Logs</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- ===================== BURSARY WIDGETS PANEL ENDS HERE ======================= -->
 
           <div class="row">
             <div class="col-md-12">
@@ -297,7 +372,6 @@ if (isset($_POST['expirydate_submit'])) {
                 </div>
               </div>
             </div>
-
           </div>
 
           <div class="row">
@@ -507,9 +581,6 @@ if (isset($_POST['expirydate_submit'])) {
               </div>
             </div>
           </div>
-
-
-
         </div>
       </div>
 
