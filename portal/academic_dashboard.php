@@ -267,7 +267,7 @@ while ($row = $bottom_students_result->fetch_assoc()) {
 
                     <!-- Charts Row -->
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-12">
                             <div class="card card-round">
                                 <div class="card-header">
                                     <div class="card-head-row">
@@ -281,7 +281,7 @@ while ($row = $bottom_students_result->fetch_assoc()) {
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-12">
                             <div class="card card-round">
                                 <div class="card-header">
                                     <div class="card-head-row">
@@ -295,7 +295,7 @@ while ($row = $bottom_students_result->fetch_assoc()) {
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-12">
                             <div class="card card-round">
                                 <div class="card-header">
                                     <div class="card-head-row">
@@ -427,7 +427,8 @@ while ($row = $bottom_students_result->fetch_assoc()) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php $rank = 1; foreach ($top_students as $student): ?>
+                                            <?php $rank = 1;
+                                            foreach ($top_students as $student): ?>
                                                 <tr>
                                                     <td><?php echo $rank++; ?></td>
                                                     <td><?php echo $student['name']; ?></td>
@@ -458,7 +459,8 @@ while ($row = $bottom_students_result->fetch_assoc()) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php $rank = 1; foreach ($bottom_students as $student): ?>
+                                            <?php $rank = 1;
+                                            foreach ($bottom_students as $student): ?>
                                                 <tr>
                                                     <td><?php echo $rank++; ?></td>
                                                     <td><?php echo $student['name']; ?></td>
