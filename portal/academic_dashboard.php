@@ -83,7 +83,18 @@ while ($row = $trend_result->fetch_assoc()) {
 }
 
 // Class & Subject Breakdown
-$breakdown_query = "SELECT subject, AVG(average) as avg_score, (SUM(CASE WHEN average >= 40 THEN 1 ELSE 0 END) / COUNT(*)) * 100 as pass_rate, MAX(total) as highest, MIN(total) as lowest FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' GROUP BY subject ORDER BY subject";
+$breakdown_query = "SELECT 
+  subject,
+  ROUND(AVG(average), 2) AS avg_score,
+  ROUND(SUM(CASE WHEN average >= 40 THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS pass_rate,
+  MAX(average) AS highest,
+  MIN(average) AS lowest
+FROM mastersheet
+WHERE csession = '$selected_session'
+  AND term = '$selected_term'
+GROUP BY subject
+ORDER BY subject;";
+
 $breakdown_result = $conn->query($breakdown_query);
 $breakdown_data = [];
 while ($row = $breakdown_result->fetch_assoc()) {
