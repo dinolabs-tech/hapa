@@ -164,7 +164,7 @@ while ($row = $bottom_students_result->fetch_assoc()) {
                     </div>
 
                     <!-- Filters -->
-                    <form method="GET" class="row mb-4">
+                    <form method="GET" class="row mb-4 g-3">
                         <div class="col-md-3">
                             <label for="session">Academic Session</label>
                             <select name="session" id="session" class="form-select">
@@ -181,8 +181,8 @@ while ($row = $bottom_students_result->fetch_assoc()) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-md-3 align-self-end">
-                            <button type="submit" class="btn btn-primary">Filter</button>
+                        <div class="col-md-3 text-center">
+                            <button type="submit" class="btn btn-primary btn-icon btn-round"><i class="fas fa-filter"></i></button>
                         </div>
                     </form>
 
