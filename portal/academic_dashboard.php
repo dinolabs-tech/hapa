@@ -179,7 +179,7 @@ while ($row = $bottom_students_result->fetch_assoc()) {
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-md-3 text-center">
+                        <div class="col-md-1 text-center">
                             <button type="submit" class="btn btn-primary btn-icon btn-round"><i class="fas fa-filter"></i></button>
                         </div>
                     </form>
