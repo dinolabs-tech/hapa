@@ -296,7 +296,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'execute_git' && isset($_POS
 
                             <div class="card mt-4">
                                 <div class="card-header">
-                                    Execute Custom Git Commands111
+                                    Execute Custom Git Commands
                                 </div>
                                 <div class="card-body">
                                     <p class="text-danger"><strong>WARNING:</strong> Executing git commands directly can modify your repository, potentially leading to data loss or corruption if not used carefully. Proceed with caution.</p>
