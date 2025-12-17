@@ -46,7 +46,7 @@ $difference = $diff->days;
 
       <div class="container">
         <div class="page-inner">
-             <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4 d-none d-lg-block">
+          <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4 d-none d-lg-block">
             <div class="col-md-4">
               <h3 class="fw-bold mb-3">Dashboard</h3>
               <ol class="breadcrumb">
@@ -82,19 +82,12 @@ $difference = $diff->days;
                 </div>
                 <div class="card-body pb-0">
                   <div class="mb-4 mt-2">
-
                     <p id="message" data-message="<?php echo htmlspecialchars($message); ?>"></p>
-
                   </div>
-
                 </div>
               </div>
-
             </div>
           </div>
-
-
-
 
           <!-- ================ STUDENT ENROLLED PANEL =================== -->
           <div class="row">
@@ -183,9 +176,87 @@ $difference = $diff->days;
             </div>
 
           </div>
-
           <!-- ===================== ADMIN WIDGETS PANEL ENDS HERE ======================= -->
 
+          <!-- ===================== BURSARY WIDGETS PANEL STARTS HERE ======================= -->
+          <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Bursary') { ?>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card card-round">
+                  <div class="card-header">
+                    <div class="card-head-row">
+                      <div class="card-title">Bursary Management</div>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="row mb-4">
+                      <div class="col-md-3">
+                        <div class="card text-white bg-primary">
+                          <div class="card-body">
+                            <h5 class="card-title">Total Students</h5>
+                            <h2><?= number_format($total_students) ?></h2>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="card text-white bg-success">
+                          <div class="card-body">
+                            <h5 class="card-title">Fee Structures</h5>
+                            <h2><?= number_format($total_fee_structures) ?></h2>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="card text-white bg-info">
+                          <div class="card-body">
+                            <h5 class="card-title">Total Paid</h5>
+                            <h2><?= money_format_naira($total_paid ?? 0) ?></h2>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="card text-white bg-warning">
+                          <div class="card-body">
+                            <h5 class="card-title">Outstanding</h5>
+                            <h2><?= money_format_naira($total_outstanding ?? 0) ?></h2>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="card">
+                          <div class="card-header">Quick Actions</div>
+                          <div class="card-body">
+                            <a href="fee_items.php" class="btn btn-outline-primary btn-sm me-2">Manage Fee Items</a>
+                            <a href="fee_structures.php" class="btn btn-outline-primary btn-sm me-2">Manage Structures</a>
+                            <a href="assign_fees.php" class="btn btn-outline-primary btn-sm me-2">Assign Fees</a>
+                            <a href="session_rollover.php" class="btn btn-outline-warning btn-sm">Session Rollover</a>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="card">
+                          <div class="card-header">Reports</div>
+                          <div class="card-body">
+                            <a href="reports_owing.php" class="btn btn-outline-secondary btn-sm me-2">Owing Report</a>
+                            <a href="reports_paid.php" class="btn btn-outline-secondary btn-sm me-2">Paid Report</a>
+                            <a href="reports_transactions.php" class="btn btn-outline-secondary btn-sm me-2">Transactions</a>
+                            <a href="payments_list.php" class="btn btn-outline-secondary btn-sm me-2">Payments List</a>
+                            <a href="audit_logs.php" class="btn btn-outline-danger btn-sm">Audit Logs</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          <?php } ?>
+          <!-- ===================== BURSARY WIDGETS PANEL ENDS HERE ======================= -->
 
           <div class="row">
             <div class="col-md-12">
@@ -203,7 +274,6 @@ $difference = $diff->days;
                 </div>
               </div>
             </div>
-
           </div>
 
 
@@ -354,67 +424,67 @@ $difference = $diff->days;
               </div>
             </div>
           </div>
-<!-- ACADEMIC CALENDAR ENDS HERE -->
+          <!-- ACADEMIC CALENDAR ENDS HERE -->
 
-         
-<?php
-// Birthday celebrants logic
-include 'db_connection.php';
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+          <?php
+          // Birthday celebrants logic
+          include 'db_connection.php';
 
-$currentMonth = date('m');
-$sql = "SELECT * FROM students WHERE MONTH(STR_TO_DATE(dob, '%d/%m/%y')) = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $currentMonth);
-$stmt->execute();
-$result = $stmt->get_result();
+          if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+          }
 
-$conn->close();
-?>
+          $currentMonth = date('m');
+          $sql = "SELECT * FROM students WHERE MONTH(STR_TO_DATE(dob, '%d/%m/%y')) = ?";
+          $stmt = $conn->prepare($sql);
+          $stmt->bind_param("s", $currentMonth);
+          $stmt->execute();
+          $result = $stmt->get_result();
 
-<!-- 🎂 Birthday Celebrants Section -->
-<div class="row mt-5">
-  <div class="col-md-12">
-    <div class="card card-round">
-      <div class="card-header">
-        <div class="card-head-row">
-          <h4 class="card-title text-danger">🎉🎂🎊 Happy Birthday to Our Stars in <?php echo date('F'); ?>! 🎊🎂🎉</h4>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="row justify-content-center g-4">
-          <?php if ($result->num_rows > 0): ?>
-            <?php while($row = $result->fetch_assoc()): ?>
-              <?php
-                $dobObj = DateTime::createFromFormat('d/m/y', $row['dob']) ?: DateTime::createFromFormat('d/m/Y', $row['dob']);
-                $formattedDob = $dobObj ? $dobObj->format('d F') : $row['dob'];
-              ?>
-              <div class="col-md-4 col-sm-6">
-                <div class="card shadow border-3 border-warning text-center">
-                  <div class="card-body">
-                    <div class="fs-1 mb-2">🎉</div>
-                    <h6 class="card-title text-primary"><?php echo htmlspecialchars($row['name']); ?></h6>
-                    <p class="card-text text-muted">🎂 Born on: <?php echo $formattedDob; ?></p>
-                    <p><?php echo htmlspecialchars($row['class']); ?> <?php echo htmlspecialchars($row['arm']); ?></p>
+          $conn->close();
+          ?>
+
+          <!-- 🎂 Birthday Celebrants Section -->
+          <div class="row mt-5">
+            <div class="col-md-12">
+              <div class="card card-round">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <h4 class="card-title text-danger">🎉🎂🎊 Happy Birthday to Our Stars in <?php echo date('F'); ?>! 🎊🎂🎉</h4>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="row justify-content-center g-4">
+                    <?php if ($result->num_rows > 0): ?>
+                      <?php while ($row = $result->fetch_assoc()): ?>
+                        <?php
+                        $dobObj = DateTime::createFromFormat('d/m/y', $row['dob']) ?: DateTime::createFromFormat('d/m/Y', $row['dob']);
+                        $formattedDob = $dobObj ? $dobObj->format('d F') : $row['dob'];
+                        ?>
+                        <div class="col-md-4 col-sm-6">
+                          <div class="card shadow border-3 border-warning text-center">
+                            <div class="card-body">
+                              <div class="fs-1 mb-2">🎉</div>
+                              <h6 class="card-title text-primary"><?php echo htmlspecialchars($row['name']); ?></h6>
+                              <p class="card-text text-muted">🎂 Born on: <?php echo $formattedDob; ?></p>
+                              <p><?php echo htmlspecialchars($row['class']); ?> <?php echo htmlspecialchars($row['arm']); ?></p>
+                            </div>
+                          </div>
+                        </div>
+                      <?php endwhile; ?>
+                    <?php else: ?>
+                      <div class="col-12">
+                        <div class="alert alert-secondary text-center fs-5 mt-4">
+                          🥹 No birthday celebrants this month.<br>Stay tuned for next month's celebration!
+                        </div>
+                      </div>
+                    <?php endif; ?>
                   </div>
                 </div>
               </div>
-            <?php endwhile; ?>
-          <?php else: ?>
-            <div class="col-12">
-              <div class="alert alert-secondary text-center fs-5 mt-4">
-                🥹 No birthday celebrants this month.<br>Stay tuned for next month's celebration!
-              </div>
             </div>
-          <?php endif; ?>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+          </div>
 
 
 
@@ -489,7 +559,7 @@ $conn->close();
       var xhr = new XMLHttpRequest();
       xhr.open("GET", "admin_chatbot.php?student_id=" + encodeURIComponent(studentId), true);
 
-      xhr.onload = function () {
+      xhr.onload = function() {
         console.log("Status:", xhr.status);
         console.log("Response:", xhr.responseText);
         if (xhr.status >= 200 && xhr.status < 300) {
@@ -499,7 +569,7 @@ $conn->close();
         }
       };
 
-      xhr.onerror = function () {
+      xhr.onerror = function() {
         console.error("Request failed");
         chatbotBody.innerHTML = "Error: Network error.";
       };
