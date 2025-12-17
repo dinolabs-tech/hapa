@@ -140,6 +140,11 @@
             </a>
             <div class="collapse" id="result">
               <ul class="nav nav-collapse">
+                 <li>
+                  <a href="academic_dashboard.php">
+                    <span class="sub-item">Academic Dashboard</span>
+                  </a>
+                </li>
                 <li>
                   <a href="uploadresults.php">
                     <span class="sub-item">Upload</span>
