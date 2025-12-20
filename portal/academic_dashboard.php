@@ -84,17 +84,17 @@ while ($row = $trend_result->fetch_assoc()) {
 
 // Class & Subject Breakdown
 $breakdown_query = "SELECT 
-  subject,
-  ROUND(AVG(average), 2) AS avg_score,
-  ROUND(SUM(CASE WHEN average >= 40 THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS pass_rate,
-  MAX(average) AS highest,
-  MIN(average) AS lowest
+    TRIM(UPPER(subject)) AS subject,
+    ROUND(AVG(average), 2) AS avg_score,
+    ROUND(SUM(CASE WHEN average >= 40 THEN 1 ELSE 0 END) / COUNT(*) * 100,2) AS pass_rate,
+    MAX(average) AS highest,
+    MIN(average) AS lowest
 FROM mastersheet
 WHERE csession = '$selected_session'
   AND term = '$selected_term'
-GROUP BY subject
-ORDER BY subject;";
-
+GROUP BY TRIM(UPPER(subject))
+ORDER BY subject
+";
 
 $breakdown_result = $conn->query($breakdown_query);
 $breakdown_data = [];
@@ -116,7 +116,7 @@ while ($row = $chronic_result->fetch_assoc()) {
 }
 
 // Academic Risk Indicators
-$risk_query = "SELECT id, name, class, arm, average FROM mastersheet WHERE average < 40 AND csession = '$selected_session' AND term = '$selected_term' ORDER BY average ASC LIMIT 10";
+$risk_query = "SELECT id, name, class, arm, average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' GROUP BY id, name, class, arm HAVING average < 40 ORDER BY average ASC LIMIT 10 ";
 $risk_result = $conn->query($risk_query);
 $risk_data = [];
 while ($row = $risk_result->fetch_assoc()) {
@@ -124,7 +124,7 @@ while ($row = $risk_result->fetch_assoc()) {
 }
 
 // Top 10 Performing Students
-$top_students_query = "SELECT id, name, class, arm, average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' ORDER BY average DESC LIMIT 10";
+$top_students_query = "SELECT id, name, class, arm, average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' GROUP BY id, name, class, arm HAVING average < 40 ORDER BY average DESC LIMIT 10";
 $top_students_result = $conn->query($top_students_query);
 $top_students = [];
 while ($row = $top_students_result->fetch_assoc()) {
@@ -132,7 +132,7 @@ while ($row = $top_students_result->fetch_assoc()) {
 }
 
 // Bottom 10 Students
-$bottom_students_query = "SELECT id, name, class, arm, average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' ORDER BY average ASC LIMIT 10";
+$bottom_students_query = "SELECT id, name, class, arm, average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' GROUP BY id, name, class, arm HAVING average < 40 ORDER BY average ASC LIMIT 10";
 $bottom_students_result = $conn->query($bottom_students_query);
 $bottom_students = [];
 while ($row = $bottom_students_result->fetch_assoc()) {
