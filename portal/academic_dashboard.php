@@ -47,11 +47,6 @@ $pass_rate = round($pass_rate_result->fetch_assoc()['rate'] ?? 0, 2);
 // Fail Rate
 $fail_rate = 100 - $pass_rate;
 
-// At-Risk Students (below 40)
-$at_risk_query = "SELECT COUNT(DISTINCT id) as count FROM mastersheet WHERE average < 40 AND csession = '$selected_session' AND term = '$selected_term'";
-$at_risk_result = $conn->query($at_risk_query);
-$at_risk = $at_risk_result->fetch_assoc()['count'] ?? 0;
-
 // Grade Distribution
 $grade_dist_query = "SELECT grade, COUNT(DISTINCT id) AS count FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' GROUP BY grade ORDER BY grade";
 $grade_dist_result = $conn->query($grade_dist_query);
@@ -116,7 +111,7 @@ while ($row = $chronic_result->fetch_assoc()) {
 }
 
 // Academic Risk Indicators
-$risk_query = "SELECT id, name, class, arm, average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' GROUP BY id, name, class, arm HAVING average < 40 ORDER BY average ASC LIMIT 10 ";
+$risk_query = "SELECT id, name, class, arm, ROUND(AVG(average), 2) as average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' GROUP BY id, name, class, arm HAVING AVG(average) <= 30 ORDER BY AVG(average) ASC LIMIT 10 ";
 $risk_result = $conn->query($risk_query);
 $risk_data = [];
 while ($row = $risk_result->fetch_assoc()) {
@@ -124,7 +119,7 @@ while ($row = $risk_result->fetch_assoc()) {
 }
 
 // Top 10 Performing Students
-$top_students_query = "SELECT id, name, class, arm, average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' GROUP BY id, name, class, arm HAVING average < 40 ORDER BY average DESC LIMIT 10";
+$top_students_query = "SELECT id, name, class, arm, ROUND(AVG(average), 2) as average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' GROUP BY id, name, class, arm ORDER BY AVG(average) DESC LIMIT 10";
 $top_students_result = $conn->query($top_students_query);
 $top_students = [];
 while ($row = $top_students_result->fetch_assoc()) {
@@ -132,12 +127,22 @@ while ($row = $top_students_result->fetch_assoc()) {
 }
 
 // Bottom 10 Students
-$bottom_students_query = "SELECT id, name, class, arm, average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' GROUP BY id, name, class, arm HAVING average < 40 ORDER BY average ASC LIMIT 10";
+$bottom_students_query = "SELECT id, name, class, arm, ROUND(AVG(average), 2) as average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' GROUP BY id, name, class, arm HAVING AVG(average) <= 40 ORDER BY AVG(average) ASC LIMIT 10";
 $bottom_students_result = $conn->query($bottom_students_query);
 $bottom_students = [];
 while ($row = $bottom_students_result->fetch_assoc()) {
     $bottom_students[] = $row;
 }
+
+// At-Risk Students (below 40)
+$at_risk_query = "SELECT COUNT(*) as count FROM (
+    SELECT id FROM mastersheet
+    WHERE csession = '$selected_session' AND term = '$selected_term'
+    GROUP BY id
+    HAVING AVG(average) <= 40
+) as at_risk_students";
+$at_risk_result = $conn->query($at_risk_query);
+$at_risk = $at_risk_result->fetch_assoc()['count'] ?? 0;
 ?>
 
 <!DOCTYPE html>
