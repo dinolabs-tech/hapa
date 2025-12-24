@@ -1,6 +1,17 @@
 <?php include('components/admin_logic.php');
 include('components/birthday_logic.php');
 
+include('helpers/money.php');
+
+
+// Fetch stats
+$total_students = $conn->query("SELECT COUNT(*) as count FROM students where status = 0")->fetch_assoc()['count'];
+$total_fee_structures = $conn->query("SELECT COUNT(*) as count FROM fee_structures")->fetch_assoc()['count'];
+$total_payments = $conn->query("SELECT COUNT(*) as count FROM payments")->fetch_assoc()['count'];
+$total_outstanding = $conn->query("SELECT SUM(sfi.amount - sfi.paid_amount) as total FROM student_fee_items sfi JOIN student_fees sf ON sfi.student_fee_id = sf.id WHERE sf.status='active' AND sfi.amount > sfi.paid_amount")->fetch_assoc()['total'] ?? 0;
+$total_paid = $conn->query("SELECT SUM(amount) as total FROM payments")->fetch_assoc()['total'] ?? 0;
+
+
 // 5. Get current expiry date from Sub table where id = 1
 $sql_expiry = "SELECT expdate FROM sub WHERE id = 1";
 $result = $conn->query($sql_expiry);
