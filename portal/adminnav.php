@@ -170,11 +170,13 @@
                     <span class="sub-item">Principal's Comments</span>
                   </a>
                 </li>
+                <?php if ($_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Superuser') {?>
                 <li>
                   <a href="individualresult.php">
                     <span class="sub-item">Download Student's result</span>
                   </a>
                 </li>
+                <?php }?>
                 <li>
                   <a href="viewuploadedresult.php">
                     <span class="sub-item">View Uploaded Results</span>
