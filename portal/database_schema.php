@@ -505,37 +505,6 @@ $tables = [
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ",
 
-    // Table: payments
-    "payments" => "
-        CREATE TABLE IF NOT EXISTS `payments` (
-            `id` int(30) NOT NULL AUTO_INCREMENT,
-            `ef_id` varchar(30) NOT NULL,
-            `amount` float NOT NULL,
-            `remarks` text NOT NULL,
-            `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    ",
-
-    // Table: prebursary
-    "prebursary" => "
-        CREATE TABLE IF NOT EXISTS `prebursary` (
-            `id` varchar(111) NOT NULL,
-            `name` varchar(111) NOT NULL,
-            `class` varchar(111) NOT NULL,
-            `arm` varchar(111) NOT NULL,
-            `term` varchar(111) NOT NULL,
-            `gender` varchar(111) NOT NULL,
-            `session` varchar(111) NOT NULL,
-            `date` varchar(111) NOT NULL,
-            `depositor` varchar(111) NOT NULL,
-            `mobile` varchar(111) NOT NULL,
-            `amount` varchar(111) NOT NULL,
-            `narration` varchar(111) NOT NULL,
-            `status` int(111) NOT NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    ",
-
     // Table: principalcomments
     "principalcomments" => "
         CREATE TABLE IF NOT EXISTS `principalcomments` (
@@ -740,18 +709,6 @@ $tables = [
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ",
 
-    // Table: student_ef_list
-    "student_ef_list" => "
-        CREATE TABLE IF NOT EXISTS `student_ef_list` (
-            `id` int(30) NOT NULL AUTO_INCREMENT,
-            `student_id` varchar(30) NOT NULL,
-            `ef_no` varchar(200) NOT NULL,
-            `course_id` int(30) NOT NULL,
-            `total_fee` float NOT NULL,
-            `date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    ",
 
     // Table: sub
     "sub" => "
@@ -783,141 +740,6 @@ $tables = [
             `address` varchar(222) NOT NULL,
             PRIMARY KEY (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    ",
-
-    // Table: tblbooknumber
-    "tblbooknumber" => "
-        CREATE TABLE IF NOT EXISTS `tblbooknumber` (
-            `ID` int(11) NOT NULL AUTO_INCREMENT,
-            `BOOKTITLE` varchar(255) NOT NULL,
-            `QTY` int(11) NOT NULL,
-            `Desc` varchar(90) NOT NULL,
-            `Author` varchar(90) NOT NULL,
-            `PublishDate` date NOT NULL,
-            `Publisher` varchar(90) NOT NULL,
-            PRIMARY KEY (`ID`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-    ",
-
-    // Table: tblbooks
-    "tblbooks" => "
-        CREATE TABLE IF NOT EXISTS `tblbooks` (
-            `BookID` int(11) NOT NULL AUTO_INCREMENT,
-            `AccessionNo` varchar(90) NOT NULL,
-            `BookTitle` varchar(125) NOT NULL,
-            `BookDesc` varchar(255) NOT NULL,
-            `Author` varchar(125) NOT NULL,
-            `PublishDate` date NOT NULL,
-            `BookPublisher` varchar(125) NOT NULL,
-            `CategoryId` int(11) NOT NULL,
-            `BookPrice` double NOT NULL,
-            `BookQuantity` int(11) NOT NULL,
-            `Status` varchar(30) NOT NULL,
-            `BookType` varchar(90) NOT NULL,
-            `DeweyDecimal` varchar(90) NOT NULL,
-            `OverAllQty` int(11) NOT NULL,
-            `Donate` tinyint(1) NOT NULL,
-            `Remark` varchar(90) NOT NULL,
-            PRIMARY KEY (`BookID`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-    ",
-
-    // Table: tblborrow
-    "tblborrow" => "
-        CREATE TABLE IF NOT EXISTS `tblborrow` (
-            `BorrowId` int(11) NOT NULL AUTO_INCREMENT,
-            `AccessionNo` varchar(90) NOT NULL,
-            `NoCopies` int(11) NOT NULL,
-            `DateBorrowed` datetime NOT NULL,
-            `Purpose` varchar(90) NOT NULL,
-            `Status` varchar(30) NOT NULL,
-            `DueDate` datetime NOT NULL,
-            `BorrowerId` int(11) NOT NULL,
-            `Due` tinyint(1) NOT NULL,
-            `Remarks` varchar(90) NOT NULL,
-            PRIMARY KEY (`BorrowId`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-    ",
-
-    // Table: tblborrower
-    "tblborrower" => "
-        CREATE TABLE IF NOT EXISTS `tblborrower` (
-            `IDNO` int(11) NOT NULL AUTO_INCREMENT,
-            `BorrowerId` varchar(90) NOT NULL,
-            `Firstname` varchar(125) NOT NULL,
-            `Lastname` varchar(125) NOT NULL,
-            `MiddleName` varchar(125) NOT NULL,
-            `Address` varchar(255) NOT NULL,
-            `Sex` varchar(11) NOT NULL,
-            `ContactNo` varchar(125) NOT NULL,
-            `CourseYear` varchar(125) NOT NULL,
-            `BorrowerPhoto` varchar(255) NOT NULL,
-            `BorrowerType` varchar(35) NOT NULL,
-            `Stats` varchar(36) NOT NULL,
-            `IMGBLOB` blob NOT NULL,
-            PRIMARY KEY (`IDNO`),
-            UNIQUE KEY `BorrowerId` (`BorrowerId`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-    ",
-
-    // Table: tblcategory
-    "tblcategory" => "
-        CREATE TABLE IF NOT EXISTS `tblcategory` (
-            `CategoryId` int(11) NOT NULL AUTO_INCREMENT,
-            `Category` varchar(125) NOT NULL,
-            `DDecimal` varchar(90) NOT NULL,
-            PRIMARY KEY (`CategoryId`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-    ",
-
-    // Table: tbllogs
-    "tbllogs" => "
-        CREATE TABLE IF NOT EXISTS `tbllogs` (
-            `LogId` int(11) NOT NULL AUTO_INCREMENT,
-            `UserId` int(11) NOT NULL,
-            `LogDate` datetime NOT NULL,
-            `LogMode` varchar(30) NOT NULL,
-            PRIMARY KEY (`LogId`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-    ",
-
-    // Table: tblpayment
-    "tblpayment" => "
-        CREATE TABLE IF NOT EXISTS `tblpayment` (
-            `PaymentId` int(11) NOT NULL AUTO_INCREMENT,
-            `BorrowId` int(11) NOT NULL,
-            `Payment` double NOT NULL,
-            `Change` double NOT NULL,
-            `DatePayed` date NOT NULL,
-            `BorrowerId` int(11) NOT NULL,
-            `Remarks` varchar(125) NOT NULL,
-            PRIMARY KEY (`PaymentId`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-    ",
-
-    // Table: tblreturn
-    "tblreturn" => "
-        CREATE TABLE IF NOT EXISTS `tblreturn` (
-            `ReturnId` int(11) NOT NULL AUTO_INCREMENT,
-            `BorrowId` int(11) NOT NULL,
-            `NoCopies` int(11) NOT NULL,
-            `DateReturned` datetime NOT NULL,
-            `Remarks` varchar(125) NOT NULL,
-            PRIMARY KEY (`ReturnId`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-    ",
-
-    // Table: tbluser
-    "tbluser" => "
-        CREATE TABLE IF NOT EXISTS `tbluser` (
-            `UserId` int(11) NOT NULL AUTO_INCREMENT,
-            `Fullname` varchar(124) NOT NULL,
-            `User_name` varchar(125) NOT NULL,
-            `Pass` varchar(125) NOT NULL,
-            `UserRole` varchar(125) NOT NULL,
-            `Status` varchar(11) NOT NULL,
-            PRIMARY KEY (`UserId`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
     ",
 
     // Table: tb_chat
@@ -1056,18 +878,7 @@ $tables = [
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ",
 
-    // Table: users
-    "users" => "
-        CREATE TABLE IF NOT EXISTS `users` (
-            `id` varchar(30) NOT NULL,
-            `name` text NOT NULL,
-            `username` varchar(200) NOT NULL,
-            `password` text NOT NULL,
-            `type` tinyint(1) NOT NULL DEFAULT 3 COMMENT '1=Admin,2=Staff, 3= subscriber',
-            PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    ",
-
+  
     // Table: posts (must be after threads due to foreign key)
     "posts" => "
         CREATE TABLE IF NOT EXISTS `posts` (
