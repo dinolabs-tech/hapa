@@ -143,14 +143,14 @@ include('components/birthday_logic.php');
                 <div class="table-responsive table-hover table-sales">
                   <?php
                   $hasClasses = false; // Track if there are valid classes
-                  
+
                   if (!empty($timetable) && count($timetable) > 0) {
-                    ?>
+                  ?>
                     <div class="scroll-container">
                       <?php foreach ($timetable as $entry) {
                         if (!empty($entry['subject']) && !empty($entry['time'])) {
                           $hasClasses = true; // Set flag to true
-                          ?>
+                      ?>
                           <div class="timecard">
                             <div class="subject">
                               <?php echo htmlspecialchars($entry['subject'], ENT_QUOTES, 'UTF-8'); ?>
@@ -159,12 +159,12 @@ include('components/birthday_logic.php');
                               <?php echo htmlspecialchars($entry['time'], ENT_QUOTES, 'UTF-8'); ?>
                             </div>
                           </div>
-                          <?php
+                      <?php
                         }
                       }
                       ?>
                     </div>
-                    <?php
+                  <?php
                   }
 
                   // Show "No classes scheduled for today" only if no valid classes were found
@@ -194,19 +194,16 @@ include('components/birthday_logic.php');
                     <div class="col col-stats ms-3 ms-sm-0">
                       <div class="numbers">
                         <p class="card-category">Tuck Shop Balance</p>
-
                         <h4 class="card-title">₦
                           <?php echo (isset($student_details['vbalance']) && is_numeric($student_details['vbalance']) ? number_format((float) $student_details['vbalance'], 2, '.', ',') : '0.00'); ?>
                         </h4>
-
-
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="col-sm-6 col-md-3">
+            <!-- <div class="col-sm-6 col-md-3">
               <div class="card card-stats card-info card-round">
                 <div class="card-body skew-shadow">
                   <div class="row align-items-center">
@@ -225,54 +222,54 @@ include('components/birthday_logic.php');
                           </div>
                         </div>
 
+                  </div>
+                </div>
+              </div>
+            </div> -->
+            <!-- <div class="col-sm-6 col-md-3">
+              <div class="card card-stats card-success card-round">
+                <div class="card-body bubble-shadow">
+                  <div class="row align-items-center">
+                    <div class="col-icon">
+                      <div class="icon-big text-center icon-success bubble-shadow-small">
+                        <i class="far fa-check-circle"></i>
+                      </div>
+                    </div>
+                    <div class="col col-stats ms-3 ms-sm-0">
+                      <div class="numbers">
+                        <p class="card-category">Bursary | Paid</p>
+                        <h4 class="card-title">&#8358; <?php echo number_format($row['paid'], 2); ?></h4>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-6 col-md-3">
-                  <div class="card card-stats card-success card-round">
-                    <div class="card-body bubble-shadow">
-                      <div class="row align-items-center">
-                        <div class="col-icon">
-                          <div class="icon-big text-center icon-success bubble-shadow-small">
-                            <i class="far fa-check-circle"></i>
-                          </div>
-                        </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                          <div class="numbers">
-                            <p class="card-category">Bursary | Paid</p>
-                            <h4 class="card-title">&#8358; <?php echo number_format($row['paid'], 2); ?></h4>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6 col-md-3">
-                  <div class="card card-stats card-secondary card-round">
-                    <div class="card-body skew-shadow">
-                      <div class="row align-items-center">
-                        <div class="col-icon">
-                          <div class="icon-big text-center icon-secondary bubble-shadow-small">
+              </div>
+            </div> -->
+            <!-- <div class="col-sm-6 col-md-3">
+              <div class="card card-stats card-secondary card-round">
+                <div class="card-body skew-shadow">
+                  <div class="row align-items-center">
+                    <div class="col-icon">
+                      <div class="icon-big text-center icon-secondary bubble-shadow-small">
 
-                            <i class="fas fa-luggage-cart"></i>
-                          </div>
-                        </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                          <div class="numbers">
-                            <p class="card-category">Bursary | Balance</p>
-                            <h4 class="card-title">&#8358; <?php echo number_format($row['balance'], 2); ?></h4>
-                          </div>
-                        </div>
-                      <?php endforeach; ?>
-                    <?php else: ?>
-                      <p>No fee records found for your account.</p>
-                    <?php endif; ?>
+                        <i class="fas fa-luggage-cart"></i>
+                      </div>
+                    </div>
+                    <div class="col col-stats ms-3 ms-sm-0">
+                      <div class="numbers">
+                        <p class="card-category">Bursary | Balance</p>
+                        <h4 class="card-title">&#8358; <?php echo number_format($row['balance'], 2); ?></h4>
+                      </div>
+                    </div>
+                  <?php endforeach; ?>
+                <?php else: ?>
+                  <p>No fee records found for your account.</p>
+                <?php endif; ?>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
           <div class="row">
             <div class="col-md-8">
               <div class="card card-round">
@@ -615,7 +612,7 @@ include('components/birthday_logic.php');
                               <div class="fs-1 mb-2">🎉</div>
                               <h6 class="card-title text-primary"><?php echo htmlspecialchars($row['name']); ?></h6>
                               <p class="card-text text-muted">🎂 Born on: <?php echo $formattedDob; ?></p>
-                              <p><?php echo htmlspecialchars($row['class']); ?>     <?php echo htmlspecialchars($row['arm']); ?>
+                              <p><?php echo htmlspecialchars($row['class']); ?> <?php echo htmlspecialchars($row['arm']); ?>
                               </p>
                             </div>
                           </div>
@@ -706,7 +703,7 @@ include('components/birthday_logic.php');
       var xhr = new XMLHttpRequest();
       xhr.open("GET", "chatbot.php?student_id=" + encodeURIComponent(studentId), true);
 
-      xhr.onload = function () {
+      xhr.onload = function() {
         console.log("Status:", xhr.status);
         console.log("Response:", xhr.responseText);
         if (xhr.status >= 200 && xhr.status < 300) {
@@ -716,7 +713,7 @@ include('components/birthday_logic.php');
         }
       };
 
-      xhr.onerror = function () {
+      xhr.onerror = function() {
         console.error("Request failed");
         chatbotBody.innerHTML = "Error: Network error.";
       };

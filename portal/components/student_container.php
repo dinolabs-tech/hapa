@@ -179,17 +179,14 @@ if (isset($_GET['id'])) {
                       <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
                           <p class="card-category">Tuck Shop Balance</p>
-                          
                           <h4 class="card-title">₦ <?php echo (isset($student_details['vbalance']) && is_numeric($student_details['vbalance']) ? number_format((float) $student_details['vbalance'], 2, '.', ',') : '0.00'); ?></h4>
-
-
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="col-sm-6 col-md-3">
+              <!-- <div class="col-sm-6 col-md-3">
               <div class="card card-stats card-info card-round">
                   <div class="card-body skew-shadow">
                     <div class="row align-items-center">
@@ -213,8 +210,8 @@ if (isset($_GET['id'])) {
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="col-sm-6 col-md-3">
+              </div> -->
+              <!-- <div class="col-sm-6 col-md-3">
               <div class="card card-stats card-success card-round">
                   <div class="card-body bubble-shadow">
                     <div class="row align-items-center">
@@ -234,8 +231,8 @@ if (isset($_GET['id'])) {
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="col-sm-6 col-md-3">
+              </div> -->
+              <!-- <div class="col-sm-6 col-md-3">
               <div class="card card-stats card-secondary card-round">
                   <div class="card-body skew-shadow">
                     <div class="row align-items-center">
@@ -260,7 +257,7 @@ if (isset($_GET['id'])) {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> -->
             </div>
             
             <div class="row">
