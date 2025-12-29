@@ -1,4 +1,8 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('',1);
+
 include('components/admin_logic.php');
 require_once('helpers/audit.php');
 require_once('helpers/money.php');
@@ -21,7 +25,10 @@ if ($action === 'preview' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     $alerts[] = ['danger', 'Session, current term, and new term required.'];
   } else {
     $sql = "SELECT s.id, s.name, s.class, s.arm, s.term, s.session,
-                SUM(sfi.amount - sfi.paid_amount) AS outstanding
+                SUM(sfi.amount - sfi.paid_amount) AS outstanding,
+                (SELECT SUM(fsi.amount) FROM fee_structure_items fsi
+                 JOIN fee_items fi ON fsi.fee_item_id = fi.id
+                 WHERE fsi.fee_structure_id = sf.fee_structure_id AND fi.mandatory = 1) as mandatory_sum
                 FROM students s
                 JOIN student_fees sf ON s.id = sf.student_id AND sf.status = 'active'
                 JOIN student_fee_items sfi ON sf.id = sfi.student_fee_id
@@ -34,9 +41,11 @@ if ($action === 'preview' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     $preview = [];
     $total_carryover = 0;
     while ($row = $res->fetch_assoc()) {
+      $row['combined'] = $row['outstanding'] + ($row['mandatory_sum'] ?? 0);
       $row['outstanding_display'] = money_format_naira($row['outstanding']);
+      $row['combined_display'] = money_format_naira($row['combined']);
       $preview[] = $row;
-      $total_carryover += $row['outstanding'];
+      $total_carryover += $row['combined'];
     }
     $stmt->close();
   }
@@ -66,39 +75,25 @@ if ($action === 'execute' && $_SERVER['REQUEST_METHOD'] === 'GET') {
       }
       $stmt->close();
 
-      // Ensure CARRYOVER fee item exists
-      $carryover_check = $mysqli->query("SELECT id FROM fee_items WHERE name = 'CARRYOVER' LIMIT 1");
-      if ($carryover_check->num_rows == 0) {
-        $mysqli->query("INSERT INTO fee_items (name, description, mandatory) VALUES ('CARRYOVER', 'Previous term balance', 1)");
-      }
-
       foreach ($students as $student) {
         $student_id = $student['id'];
         $outstanding = $student['outstanding'];
 
-        // Create carryover record
-        $stmt = $mysqli->prepare("INSERT INTO carryovers (student_id, session, amount) VALUES (?, ?, ?)");
-        $stmt->bind_param('ssi', $student_id, $session, $outstanding);
-        $stmt->execute();
-        $stmt->close();
-
-        // Mark existing student_fee_items as rolled over
-        $stmt = $mysqli->prepare("UPDATE student_fee_items SET rolled_over = 1 WHERE student_fee_id IN (
-                    SELECT id FROM student_fees WHERE student_id = ? AND status = 'active'
-                )");
+        // Get current fee structure id
+        $stmt = $mysqli->prepare("SELECT fee_structure_id FROM student_fees WHERE student_id = ? AND status = 'active' LIMIT 1");
         $stmt->bind_param('s', $student_id);
         $stmt->execute();
+        $fee_structure_id = $stmt->get_result()->fetch_assoc()['fee_structure_id'];
         $stmt->close();
 
-        // Create CARRYOVER student_fee_items for new term
-        $stmt = $mysqli->prepare("INSERT INTO student_fee_items (student_fee_id, fee_item_id, amount, paid_amount, carryover_flag) VALUES (
-                    (SELECT id FROM student_fees WHERE student_id = ? AND status = 'active' LIMIT 1),
-                    (SELECT id FROM fee_items WHERE name = 'CARRYOVER' LIMIT 1),
-                    ?, 0, 1
-                )");
-        $stmt->bind_param('si', $student_id, $outstanding);
+        // Get sum of mandatory fees
+        $stmt = $mysqli->prepare("SELECT SUM(fsi.amount) as mandatory_sum FROM fee_structure_items fsi JOIN fee_items fi ON fsi.fee_item_id = fi.id WHERE fsi.fee_structure_id = ? AND fi.mandatory = 1");
+        $stmt->bind_param('i', $fee_structure_id);
         $stmt->execute();
+        $mandatory_sum = $stmt->get_result()->fetch_assoc()['mandatory_sum'] ?? 0;
         $stmt->close();
+
+        $combined_amount = $outstanding + $mandatory_sum;
 
         // Update student term
         $stmt = $mysqli->prepare("UPDATE students SET term = ? WHERE id = ?");
@@ -106,10 +101,40 @@ if ($action === 'execute' && $_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt->execute();
         $stmt->close();
 
-        // Log rollover
-        audit_log('term_rollover', 'student', $student_id, ['term' => $current_term], ['term' => $new_term, 'carryover' => $outstanding]);
+        // Update existing student_fees term to new_term (reuse fee structure)
+        $stmt = $mysqli->prepare("UPDATE student_fees SET term = ? WHERE student_id = ? AND status = 'active'");
+        $stmt->bind_param('ss', $new_term, $student_id);
+        $stmt->execute();
+        $stmt->close();
 
-        // Optional: assign new fee structure (not implemented here)
+        // Zero out all current outstanding
+        $stmt = $mysqli->prepare("UPDATE student_fee_items SET paid_amount = amount WHERE student_fee_id = (SELECT id FROM student_fees WHERE student_id = ? AND status = 'active' LIMIT 1)");
+        $stmt->bind_param('s', $student_id);
+        $stmt->execute();
+        $stmt->close();
+
+        // Set mandatory fee items to combined amount (distributed proportionally), paid_amount = 0
+        if ($mandatory_sum > 0) {
+          // Update mandatory fee items with proportional amounts
+          $stmt = $mysqli->prepare("UPDATE student_fee_items sfi
+            JOIN fee_structure_items fsi ON sfi.fee_item_id = fsi.fee_item_id AND fsi.fee_structure_id = ?
+            JOIN fee_items fi ON sfi.fee_item_id = fi.id
+            SET sfi.amount = ROUND((fsi.amount / ?) * ?), sfi.paid_amount = 0
+            WHERE sfi.student_fee_id = (SELECT id FROM student_fees WHERE student_id = ? AND status = 'active' LIMIT 1)
+            AND fi.mandatory = 1");
+          $stmt->bind_param('iiis', $fee_structure_id, $mandatory_sum, $combined_amount, $student_id);
+          $stmt->execute();
+          $stmt->close();
+        }
+
+        // Insert transaction for the combined rollover amount
+        $stmt = $mysqli->prepare("INSERT INTO transactions (student_id, type, amount, term, session) VALUES (?, 'carryover', ?, ?, ?)");
+        $stmt->bind_param('siss', $student_id, $combined_amount, $new_term, $session);
+        $stmt->execute();
+        $stmt->close();
+
+        // Audit log
+        audit_log('term_rollover', 'student', $student_id, ['term' => $current_term], ['term' => $new_term, 'combined_carryover' => $combined_amount]);
       }
 
       $mysqli->commit();
@@ -196,7 +221,7 @@ if ($action === 'execute' && $_SERVER['REQUEST_METHOD'] === 'GET') {
               <div class="card-header">
                 <h4>Preview: Students with Outstanding Fees</h4>
                 <div class="mb-3">
-                  <strong>Total Carryover: <?= money_format_naira($total_carryover ?? 0) ?></strong>
+                  <strong>Total New Balance: <?= money_format_naira($total_carryover ?? 0) ?></strong>
                 </div>
               </div>
               <div class="card-body">
@@ -211,6 +236,7 @@ if ($action === 'execute' && $_SERVER['REQUEST_METHOD'] === 'GET') {
                         <th>Term</th>
                         <th>Session</th>
                         <th>Outstanding</th>
+                        <th>New Balance</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -223,6 +249,7 @@ if ($action === 'execute' && $_SERVER['REQUEST_METHOD'] === 'GET') {
                           <td><?= htmlspecialchars($p['term']) ?></td>
                           <td><?= htmlspecialchars($p['session']) ?></td>
                           <td><?= $p['outstanding_display'] ?></td>
+                          <td><?= $p['combined_display'] ?></td>
                         </tr>
                       <?php endforeach; ?>
                     </tbody>
