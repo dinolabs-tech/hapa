@@ -2918,8 +2918,712 @@ session_start();
                                         </div>
 
                                     </div>
+                            </div>
+
+                            <!-- Fees, Payments & Bursary Management -->
+                            <div class="mt-3 ms-4">
+                                <h6><strong>Fees, Payments & Bursary Management</strong></h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="accordion" id="feesManagementAccordion">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingFeeItems">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFeeItems" aria-expanded="false" aria-controls="collapseFeeItems">
+                                                    How to Create, Edit, and Delete Fee Items
+                                                </button>
+                                            </h2>
+                                            <div id="collapseFeeItems" class="accordion-collapse collapse" aria-labelledby="headingFeeItems" data-bs-parent="#feesManagementAccordion">
+                                                <div class="accordion-body">
+                                                    <div id="fee_items">
+                                                        <p>A fee item is a specific charge or cost component that contributes to the overall fees structure for students. Examples include tuition fees, examination fees, library fees, or transportation fees. Managing fee items allows administrators to define and maintain the various charges that students are required to pay.</p>
+                                                        <h5>How to Create a New Fee Item</h5>
+                                                        <ol>
+                                                            <li><strong>Navigate to the Fee Items Page:</strong>
+                                                                <ul>
+                                                                    <li>From the sidebar menu, go to <strong>Administrator > Fees > Fee Items</strong>.</li>
+                                                                    <li>This will take you to the Fee Items page, which displays a list of existing fee items and provides options for management.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Initiate Fee Item Creation:</strong>
+                                                                <ul>
+                                                                    <li>On the Fee Items page, locate and click the "Add New Fee Item" or "Create Fee Item" button.</li>
+                                                                    <li>This will open a form for entering the new fee item details.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Enter Fee Item Details:</strong>
+                                                                <ul>
+                                                                    <li><strong>Fee Item Name:</strong> Provide a clear and descriptive name for the fee item (e.g., "Tuition Fee," "Examination Fee").</li>
+                                                                    <li><strong>Description:</strong> Add any additional details or notes about the fee item.</li>
+                                                                    <li><strong>Amount:</strong> Specify the monetary value of the fee item.</li>
+                                                                    <li><strong>Category:</strong> Select an appropriate category for the fee item (e.g., Academic, Administrative, Optional).</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Save the Fee Item:</strong>
+                                                                <ul>
+                                                                    <li>After entering all required details, click the "Save" or "Create" button.</li>
+                                                                    <li>The system will validate the information and add the new fee item to the database.</li>
+                                                                    <li><strong>Result:</strong> The new fee item will appear in the list of fee items and can be used when creating fee structures.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                        <h5>How to Edit an Existing Fee Item</h5>
+                                                        <ol>
+                                                            <li><strong>Access the Fee Items List:</strong>
+                                                                <ul>
+                                                                    <li>Navigate to <strong>Administrator > Fees > Fee Items</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Select the Fee Item to Edit:</strong>
+                                                                <ul>
+                                                                    <li>From the list of fee items, locate the item you wish to modify.</li>
+                                                                    <li>Click the "Edit" button or icon associated with that fee item.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Modify Fee Item Details:</strong>
+                                                                <ul>
+                                                                    <li>Update any of the editable fields such as name, description, amount, or category.</li>
+                                                                    <li><strong>Important Validation:</strong> The system will prevent changes that could affect existing fee structures or student assignments. If the fee item is currently in use, you may be prompted to confirm the impact of changes.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Save Changes:</strong>
+                                                                <ul>
+                                                                    <li>Click the "Update" or "Save Changes" button.</li>
+                                                                    <li><strong>Result:</strong> The fee item details will be updated, and any associated fee structures will reflect the changes where applicable.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                        <h5>How to Delete or Disable a Fee Item</h5>
+                                                        <ol>
+                                                            <li><strong>Access the Fee Items List:</strong>
+                                                                <ul>
+                                                                    <li>Navigate to <strong>Administrator > Fees > Fee Items</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Select the Fee Item to Delete:</strong>
+                                                                <ul>
+                                                                    <li>From the list of fee items, locate the item you wish to remove.</li>
+                                                                    <li>Click the "Delete" button or icon associated with that fee item.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Confirm Deletion:</strong>
+                                                                <ul>
+                                                                    <li>The system will display a confirmation dialog warning about the potential impact.</li>
+                                                                    <li><strong>Important Validation:</strong> If the fee item is currently assigned to students or used in active fee structures, the system will prevent deletion and suggest disabling instead. You may need to unassign the fee item from all students and remove it from fee structures before deletion is allowed.</li>
+                                                                    <li>If deletion is allowed, confirm the action.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Alternative: Disable the Fee Item:</strong>
+                                                                <ul>
+                                                                    <li>If deletion is not possible, use the "Disable" option instead.</li>
+                                                                    <li>Disabled fee items remain in the system but cannot be assigned to new students or used in new fee structures.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Result:</strong>
+                                                                <ul>
+                                                                    <li>Upon successful deletion or disabling, the fee item will no longer be available for new assignments.</li>
+                                                                    <li>Existing assignments will be unaffected, but the fee item will be marked as inactive.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingFeeStructures">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFeeStructures" aria-expanded="false" aria-controls="collapseFeeStructures">
+                                                    How to Create, Edit, and Delete Fee Structures
+                                                </button>
+                                            </h2>
+                                            <div id="collapseFeeStructures" class="accordion-collapse collapse" aria-labelledby="headingFeeStructures" data-bs-parent="#feesManagementAccordion">
+                                                <div class="accordion-body">
+                                                    <div id="fee_structures">
+                                                        <p>A fee structure is a collection of fee items that define the total fees payable by students in a specific class, term, or academic session. Fee structures allow schools to organize and apply different fee combinations to various student groups efficiently.</p>
+                                                        <h5>How to Create a Fee Structure</h5>
+                                                        <ol>
+                                                            <li><strong>Navigate to the Fee Structures Page:</strong>
+                                                                <ul>
+                                                                    <li>From the sidebar menu, go to <strong>Administrator > Fees > Fee Structures</strong>.</li>
+                                                                    <li>This will take you to the Fee Structures page.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Initiate Fee Structure Creation:</strong>
+                                                                <ul>
+                                                                    <li>Click the "Create New Fee Structure" or "Add Fee Structure" button.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Define Fee Structure Details:</strong>
+                                                                <ul>
+                                                                    <li><strong>Name:</strong> Provide a descriptive name for the fee structure (e.g., "JSS 1 First Term Fees").</li>
+                                                                    <li><strong>Description:</strong> Add details about the fee structure's purpose or applicability.</li>
+                                                                    <li><strong>Academic Session:</strong> Select the relevant academic session.</li>
+                                                                    <li><strong>Term:</strong> Choose the applicable term.</li>
+                                                                    <li><strong>Class/Arm:</strong> Specify the class and arm this structure applies to.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Add Fee Items to the Structure:</strong>
+                                                                <ul>
+                                                                    <li>Select fee items from the available list to include in this structure.</li>
+                                                                    <li>Specify quantities or multipliers for each fee item if applicable.</li>
+                                                                    <li><strong>System Rule:</strong> The system calculates the total amount automatically based on selected fee items.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Save the Fee Structure:</strong>
+                                                                <ul>
+                                                                    <li>Click "Save" or "Create Fee Structure."</li>
+                                                                    <li><strong>Result:</strong> The fee structure is saved and can be assigned to students. The total calculated amount is displayed for reference.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                        <h5>How to Edit an Existing Fee Structure</h5>
+                                                        <ol>
+                                                            <li><strong>Access Fee Structures List:</strong>
+                                                                <ul>
+                                                                    <li>Navigate to <strong>Administrator > Fees > Fee Structures</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Select Fee Structure to Edit:</strong>
+                                                                <ul>
+                                                                    <li>Click "Edit" next to the desired fee structure.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Modify Details:</strong>
+                                                                <ul>
+                                                                    <li>Update name, description, session, term, or class/arm as needed.</li>
+                                                                    <li>Add or remove fee items from the structure.</li>
+                                                                    <li><strong>Important Validation:</strong> Changes to fee items will automatically recalculate the total amount. The system will warn if the structure is currently assigned to students.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Save Changes:</strong>
+                                                                <ul>
+                                                                    <li>Click "Update Fee Structure."</li>
+                                                                    <li><strong>Result:</strong> The fee structure is updated, and the new total is recalculated. Existing student assignments will reflect the changes.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                        <h5>How to Delete or Archive a Fee Structure</h5>
+                                                        <ol>
+                                                            <li><strong>Access Fee Structures List:</strong>
+                                                                <ul>
+                                                                    <li>Navigate to <strong>Administrator > Fees > Fee Structures</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Select Fee Structure to Delete:</strong>
+                                                                <ul>
+                                                                    <li>Click "Delete" next to the desired fee structure.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Confirm Deletion:</strong>
+                                                                <ul>
+                                                                    <li><strong>Important Validation:</strong> The system will check if the fee structure is currently assigned to students. If it is, deletion will be prevented, and you'll be prompted to unassign it first or archive instead.</li>
+                                                                    <li>If no assignments exist, confirm deletion.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Alternative: Archive the Fee Structure:</strong>
+                                                                <ul>
+                                                                    <li>Use the "Archive" option for fee structures that should be preserved for historical purposes but not used for new assignments.</li>
+                                                                    <li>Archived structures remain viewable but cannot be assigned to new students.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Result:</strong>
+                                                                <ul>
+                                                                    <li>Deleted fee structures are permanently removed. Archived structures remain in the system for reference.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingAssignFees">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAssignFees" aria-expanded="false" aria-controls="collapseAssignFees">
+                                                    How to Assign Fees to Students
+                                                </button>
+                                            </h2>
+                                            <div id="collapseAssignFees" class="accordion-collapse collapse" aria-labelledby="headingAssignFees" data-bs-parent="#feesManagementAccordion">
+                                                <div class="accordion-body">
+                                                    <div id="assign_fees">
+                                                        <p>Assigning fees to students establishes the financial obligations for each student based on their enrolled class, term, and applicable fee structures. This process can be done individually or in bulk to efficiently manage fee assignments across the student body.</p>
+                                                        <h5>How to Assign Fees Individually</h5>
+                                                        <ol>
+                                                            <li><strong>Navigate to Assign Fees Page:</strong>
+                                                                <ul>
+                                                                    <li>From the sidebar menu, go to <strong>Administrator > Fees > Assign Fees</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Select Assignment Method:</strong>
+                                                                <ul>
+                                                                    <li>Choose "Individual Assignment" option.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Select Student:</strong>
+                                                                <ul>
+                                                                    <li>Search and select the specific student by name or ID.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Choose Fee Structure:</strong>
+                                                                <ul>
+                                                                    <li>Select the appropriate fee structure for the student's class and term.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Assign Fees:</strong>
+                                                                <ul>
+                                                                    <li>Click "Assign Fees to Student."</li>
+                                                                    <li><strong>System Check:</strong> The system validates that the student doesn't already have fees assigned for the same term to prevent duplicates.</li>
+                                                                    <li><strong>Result:</strong> The student's bursary profile is updated with the assigned fees, and balances are calculated.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                        <h5>How to Assign Fees in Bulk</h5>
+                                                        <ol>
+                                                            <li><strong>Navigate to Assign Fees Page:</strong>
+                                                                <ul>
+                                                                    <li>Go to <strong>Administrator > Fees > Assign Fees</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Select Bulk Assignment:</strong>
+                                                                <ul>
+                                                                    <li>Choose "Bulk Assignment" option.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Specify Criteria:</strong>
+                                                                <ul>
+                                                                    <li>Select class, arm, term, and academic session.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Choose Fee Structure:</strong>
+                                                                <ul>
+                                                                    <li>Select the fee structure to apply to the selected group.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Execute Bulk Assignment:</strong>
+                                                                <ul>
+                                                                    <li>Click "Assign to All Students in Selection."</li>
+                                                                    <li><strong>System Check:</strong> The system prevents duplicate assignments and provides a summary of students affected.</li>
+                                                                    <li><strong>Result:</strong> All qualifying students in the selected group have fees assigned, with updated bursary profiles.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                        <h5>How to Assign Fees by Class, Term, or Academic Session</h5>
+                                                        <ol>
+                                                            <li><strong>Use Bulk Assignment Method:</strong>
+                                                                <ul>
+                                                                    <li>Follow the bulk assignment steps above, specifying the desired class, term, or session criteria.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>System Validation:</strong>
+                                                                <ul>
+                                                                    <li>The system ensures no duplicate assignments occur within the same term/session for individual students.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Result:</strong>
+                                                                <ul>
+                                                                    <li>Fees are assigned to all students matching the specified criteria, streamlining fee management for large groups.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingUnassignFees">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUnassignFees" aria-expanded="false" aria-controls="collapseUnassignFees">
+                                                    How to Unassign Fees from Students
+                                                </button>
+                                            </h2>
+                                            <div id="collapseUnassignFees" class="accordion-collapse collapse" aria-labelledby="headingUnassignFees" data-bs-parent="#feesManagementAccordion">
+                                                <div class="accordion-body">
+                                                    <div id="unassign_fees">
+                                                        <p>Unassigning fees removes financial obligations from students. This action should be performed carefully as it affects student balances and payment records.</p>
+                                                        <h5>Conditions for Unassigning Fees</h5>
+                                                        <ul>
+                                                            <li>Fees can only be unassigned if no payments have been made against them.</li>
+                                                            <li>Unassignment is typically allowed before the end of the term or session.</li>
+                                                            <li>Administrative approval may be required for unassignments after a certain date.</li>
+                                                        </ul>
+                                                        <h5>Steps to Unassign Fees</h5>
+                                                        <ol>
+                                                            <li><strong>Navigate to Unassign Fees Page:</strong>
+                                                                <ul>
+                                                                    <li>From the sidebar menu, go to <strong>Administrator > Fees > Unassign Fees</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Select Student:</strong>
+                                                                <ul>
+                                                                    <li>Search and select the student whose fees need to be unassigned.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Choose Fees to Unassign:</strong>
+                                                                <ul>
+                                                                    <li>Select specific fee items or the entire fee structure to remove.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Confirm Unassignment:</strong>
+                                                                <ul>
+                                                                    <li>Click "Unassign Fees."</li>
+                                                                    <li><strong>Impact on Payments and Balances:</strong> Unassigned fees are removed from the student's balance. Any related payment records are adjusted accordingly.</li>
+                                                                    <li><strong>Audit Logging:</strong> The action is logged in the audit trail for accountability.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Result:</strong>
+                                                                <ul>
+                                                                    <li>The student's bursary profile is updated, reflecting the removal of the assigned fees.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingBursaryProfile">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBursaryProfile" aria-expanded="false" aria-controls="collapseBursaryProfile">
+                                                    How to View a Student's Bursary Profile
+                                                </button>
+                                            </h2>
+                                            <div id="collapseBursaryProfile" class="accordion-collapse collapse" aria-labelledby="headingBursaryProfile" data-bs-parent="#feesManagementAccordion">
+                                                <div class="accordion-body">
+                                                    <div id="bursary_profile">
+                                                        <p>The bursary profile provides a comprehensive view of a student's financial status, including assigned fees, payments made, outstanding balances, and payment history.</p>
+                                                        <h5>Accessing the Bursary Profile</h5>
+                                                        <ol>
+                                                            <li><strong>Navigate to Student Bursary Profile:</strong>
+                                                                <ul>
+                                                                    <li>From the sidebar menu, go to <strong>Administrator > Fees > Student Bursary Profile</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Select Student:</strong>
+                                                                <ul>
+                                                                    <li>Search for and select the student by name or ID.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>View Profile Details:</strong>
+                                                                <ul>
+                                                                    <li><strong>Assigned Fees:</strong> List of all fees assigned to the student.</li>
+                                                                    <li><strong>Payments:</strong> History of payments made, including amounts and dates.</li>
+                                                                    <li><strong>Balances:</strong> Current outstanding balance and total paid.</li>
+                                                                    <li><strong>Carryovers:</strong> Any balances carried forward from previous terms.</li>
+                                                                    <li><strong>Payment Status Indicators:</strong> Visual indicators showing payment status (e.g., Paid, Partially Paid, Overdue).</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                        <h5>Understanding Payment Status Indicators</h5>
+                                                        <ul>
+                                                            <li><strong>Paid:</strong> All assigned fees have been fully paid.</li>
+                                                            <li><strong>Partially Paid:</strong> Some fees have been paid, but balance remains.</li>
+                                                            <li><strong>Overdue:</strong> Payment deadline has passed with outstanding balance.</li>
+                                                            <li><strong>Unassigned:</strong> No fees currently assigned to the student.</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingRecordPayment">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRecordPayment" aria-expanded="false" aria-controls="collapseRecordPayment">
+                                                    How to Record a Payment
+                                                </button>
+                                            </h2>
+                                            <div id="collapseRecordPayment" class="accordion-collapse collapse" aria-labelledby="headingRecordPayment" data-bs-parent="#feesManagementAccordion">
+                                                <div class="accordion-body">
+                                                    <div id="record_payment">
+                                                        <p>Recording payments accurately updates student balances and maintains financial records. The system supports various payment methods and handles both full and partial payments.</p>
+                                                        <h5>Supported Payment Methods</h5>
+                                                        <ul>
+                                                            <li>Cash</li>
+                                                            <li>Bank Transfer</li>
+                                                            <li>Cheque</li>
+                                                            <li>Online Payment</li>
+                                                            <li>Other (specify)</li>
+                                                        </ul>
+                                                        <h5>Steps to Record a Payment</h5>
+                                                        <ol>
+                                                            <li><strong>Navigate to Record Payment Page:</strong>
+                                                                <ul>
+                                                                    <li>From the sidebar menu, go to <strong>Administrator > Fees > Record Payment</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Select Student:</strong>
+                                                                <ul>
+                                                                    <li>Search for and select the student making the payment.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Enter Payment Details:</strong>
+                                                                <ul>
+                                                                    <li><strong>Amount:</strong> Enter the payment amount.</li>
+                                                                    <li><strong>Payment Method:</strong> Select from supported methods.</li>
+                                                                    <li><strong>Date:</strong> Specify the payment date.</li>
+                                                                    <li><strong>Reference:</strong> Add payment reference or receipt number.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Process Payment:</strong>
+                                                                <ul>
+                                                                    <li>For partial payments, specify which fees to apply the payment to.</li>
+                                                                    <li>Click "Record Payment."</li>
+                                                                    <li><strong>Automatic Allocation:</strong> The system automatically allocates payments to outstanding fees, prioritizing older balances.</li>
+                                                                    <li><strong>Balance Update:</strong> Student balances are immediately updated to reflect the payment.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Result:</strong>
+                                                                <ul>
+                                                                    <li>Payment is recorded in the transaction history.</li>
+                                                                    <li>Student's bursary profile shows updated balance.</li>
+                                                                    <li>Receipt can be generated for the student.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingPaymentList">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePaymentList" aria-expanded="false" aria-controls="collapsePaymentList">
+                                                    How to View the Payment List
+                                                </button>
+                                            </h2>
+                                            <div id="collapsePaymentList" class="accordion-collapse collapse" aria-labelledby="headingPaymentList" data-bs-parent="#feesManagementAccordion">
+                                                <div class="accordion-body">
+                                                    <div id="payment_list">
+                                                        <p>The payment list provides a comprehensive view of all payments made by students, allowing for easy tracking and reporting of financial transactions.</p>
+                                                        <h5>Viewing the Payment List</h5>
+                                                        <ol>
+                                                            <li><strong>Navigate to Payments List:</strong>
+                                                                <ul>
+                                                                    <li>From the sidebar menu, go to <strong>Administrator > Fees > Payments List</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Apply Filters:</strong>
+                                                                <ul>
+                                                                    <li><strong>By Date:</strong> Select date range to view payments within specific periods.</li>
+                                                                    <li><strong>By Student:</strong> Filter payments for a specific student.</li>
+                                                                    <li><strong>By Class:</strong> View payments for students in a particular class.</li>
+                                                                    <li><strong>By Payment Method:</strong> Filter by cash, transfer, etc.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Review Payment Records:</strong>
+                                                                <ul>
+                                                                    <li>View detailed list showing student name, amount, date, method, and reference.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Export or Print:</strong>
+                                                                <ul>
+                                                                    <li>Use export options to download payment records in various formats.</li>
+                                                                    <li>Print functionality for physical records or reports.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingOwingStudents">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOwingStudents" aria-expanded="false" aria-controls="collapseOwingStudents">
+                                                    How to View Students Who Are Still Owing
+                                                </button>
+                                            </h2>
+                                            <div id="collapseOwingStudents" class="accordion-collapse collapse" aria-labelledby="headingOwingStudents" data-bs-parent="#feesManagementAccordion">
+                                                <div class="accordion-body">
+                                                    <div id="owing_students">
+                                                        <p>This feature helps identify students with outstanding balances, enabling targeted follow-up and financial planning.</p>
+                                                        <h5>Viewing Outstanding Balances</h5>
+                                                        <ol>
+                                                            <li><strong>Navigate to Reports - Owing:</strong>
+                                                                <ul>
+                                                                    <li>From the sidebar menu, go to <strong>Administrator > Fees > Reports > Students Owing</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Apply Filters:</strong>
+                                                                <ul>
+                                                                    <li><strong>By Class:</strong> View owing students in specific classes.</li>
+                                                                    <li><strong>By Term:</strong> Filter by academic term.</li>
+                                                                    <li><strong>By Fee Type:</strong> Show balances for specific fee categories.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Review Results:</strong>
+                                                                <ul>
+                                                                    <li>View list of students with outstanding balances, showing amounts owed and breakdown by fee type.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Export Data:</strong>
+                                                                <ul>
+                                                                    <li>Download the owing students report for further analysis or communication.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingPaidStudents">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePaidStudents" aria-expanded="false" aria-controls="collapsePaidStudents">
+                                                    How to View Students Who Have Fully Paid
+                                                </button>
+                                            </h2>
+                                            <div id="collapsePaidStudents" class="accordion-collapse collapse" aria-labelledby="headingPaidStudents" data-bs-parent="#feesManagementAccordion">
+                                                <div class="accordion-body">
+                                                    <div id="paid_students">
+                                                        <p>This report identifies students who have cleared all their assigned fees, useful for verification and reporting purposes.</p>
+                                                        <h5>Identifying Cleared Balances</h5>
+                                                        <ol>
+                                                            <li><strong>Navigate to Reports - Paid:</strong>
+                                                                <ul>
+                                                                    <li>From the sidebar menu, go to <strong>Administrator > Fees > Reports > Students Paid</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Apply Filters:</strong>
+                                                                <ul>
+                                                                    <li>Filter by class, term, or session as needed.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>View Paid Students:</strong>
+                                                                <ul>
+                                                                    <li>Review the list of students with zero outstanding balances.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Verification and Reporting:</strong>
+                                                                <ul>
+                                                                    <li>Use this data to generate clearance certificates or financial reports.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingTransactionReports">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTransactionReports" aria-expanded="false" aria-controls="collapseTransactionReports">
+                                                    How to View Transaction Reports
+                                                </button>
+                                            </h2>
+                                            <div id="collapseTransactionReports" class="accordion-collapse collapse" aria-labelledby="headingTransactionReports" data-bs-parent="#feesManagementAccordion">
+                                                <div class="accordion-body">
+                                                    <div id="transaction_reports">
+                                                        <p>Transaction reports provide detailed financial summaries for analysis and auditing purposes.</p>
+                                                        <h5>Generating Reports</h5>
+                                                        <ol>
+                                                            <li><strong>Navigate to Transaction Reports:</strong>
+                                                                <ul>
+                                                                    <li>From the sidebar menu, go to <strong>Administrator > Fees > Reports > Transactions</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Select Report Type:</strong>
+                                                                <ul>
+                                                                    <li><strong>Daily:</strong> Transactions for a specific date.</li>
+                                                                    <li><strong>Termly:</strong> All transactions within an academic term.</li>
+                                                                    <li><strong>Session-based:</strong> Transactions for a full academic session.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Choose Report Format:</strong>
+                                                                <ul>
+                                                                    <li><strong>Summary:</strong> High-level totals and key metrics.</li>
+                                                                    <li><strong>Detailed:</strong> Individual transaction breakdown.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Generate and Export:</strong>
+                                                                <ul>
+                                                                    <li>Apply filters and generate the report.</li>
+                                                                    <li>Export in PDF or Excel format for record-keeping.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingAuditLogs">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAuditLogs" aria-expanded="false" aria-controls="collapseAuditLogs">
+                                                    How to View Audit Logs
+                                                </button>
+                                            </h2>
+                                            <div id="collapseAuditLogs" class="accordion-collapse collapse" aria-labelledby="headingAuditLogs" data-bs-parent="#feesManagementAccordion">
+                                                <div class="accordion-body">
+                                                    <div id="audit_logs">
+                                                        <p>Audit logs track all actions performed in the fees and payments system, ensuring accountability and allowing for investigation of any irregularities.</p>
+                                                        <h5>Accessing Audit Logs</h5>
+                                                        <ol>
+                                                            <li><strong>Navigate to Audit Logs:</strong>
+                                                                <ul>
+                                                                    <li>From the sidebar menu, go to <strong>Administrator > Fees > Audit Logs</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Filter Logs:</strong>
+                                                                <ul>
+                                                                    <li><strong>By User:</strong> View actions performed by specific users.</li>
+                                                                    <li><strong>By Date:</strong> Filter logs within date ranges.</li>
+                                                                    <li><strong>By Action Type:</strong> Filter by specific actions like fee assignment, payment recording, etc.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Review Logged Actions:</strong>
+                                                                <ul>
+                                                                    <li>View detailed records of all fee and payment related activities.</li>
+                                                                    <li>Each entry shows user, action, timestamp, and affected records.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingFeeRollover">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFeeRollover" aria-expanded="false" aria-controls="collapseFeeRollover">
+                                                    How to Roll Over Fees from One Term to the Next
+                                                </button>
+                                            </h2>
+                                            <div id="collapseFeeRollover" class="accordion-collapse collapse" aria-labelledby="headingFeeRollover" data-bs-parent="#feesManagementAccordion">
+                                                <div class="accordion-body">
+                                                    <div id="fee_rollover">
+                                                        <p>Fee rollover transfers unpaid balances from one term to the next, ensuring continuity of financial obligations across academic periods.</p>
+                                                        <h5>When Rollover Applies</h5>
+                                                        <ul>
+                                                            <li>Automatically at the end of each term for students with outstanding balances.</li>
+                                                            <li>Can be manually triggered for specific students or groups.</li>
+                                                            <li>Only unpaid fees are rolled over; paid fees remain cleared.</li>
+                                                        </ul>
+                                                        <h5>Steps to Roll Over Fees</h5>
+                                                        <ol>
+                                                            <li><strong>Navigate to Session Rollover:</strong>
+                                                                <ul>
+                                                                    <li>From the sidebar menu, go to <strong>Administrator > Fees > Session Rollover</strong>.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Select Rollover Criteria:</strong>
+                                                                <ul>
+                                                                    <li>Choose the term/session to roll over from.</li>
+                                                                    <li>Select students or classes to include.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Execute Rollover:</strong>
+                                                                <ul>
+                                                                    <li>Click "Roll Over Fees."</li>
+                                                                    <li><strong>Effect on Student Accounts:</strong> Outstanding balances are carried forward to the next term.</li>
+                                                                    <li><strong>Impact on Reports:</strong> Historical payment data is preserved while updating current balances.</li>
+                                                                </ul>
+                                                            </li>
+                                                            <li><strong>Result:</strong>
+                                                                <ul>
+                                                                    <li>Students' bursary profiles show carried forward balances.</li>
+                                                                    <li>New term fees are assigned in addition to rolled-over amounts.</li>
+                                                                </ul>
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
