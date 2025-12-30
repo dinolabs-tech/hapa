@@ -528,7 +528,7 @@ $records = $conn->query("SELECT * FROM classcomments where term = '$term' AND cs
                           </select>
                         </div>
                         <div class="col-md-4">
-                          <button type="submit" name="bulk_delete" class="btn btn-danger btn-round ps-1">
+                          <button type="submit" name="bulk_delete" class="btn btn-danger btn-round ps-3">
                             <span class="btn-label">
                               <i class="fa fa-trash"></i>
                             </span>
