@@ -446,7 +446,7 @@ $conn->close();
                           </select>
                         </div>
                         <div class="col-md-4">
-                          <button type="submit" name="bulk_delete" class="btn btn-danger btn-icon btn-round ps-1">
+                          <button type="submit" name="bulk_delete" class="btn btn-danger btn-round ps-1">
                             <span class="btn-label">
                               <i class="fa fa-trash"></i>
                             </span>
