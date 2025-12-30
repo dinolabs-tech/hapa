@@ -582,6 +582,9 @@
             </a>
           </li>
 
+        <?php } ?>
+
+         <?php if ($_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Superuser' || $_SESSION['role'] == 'Bursary') { ?>
           <li class="nav-item">
             <a href="documentation/index.php">
               <i class="fas fa-book"></i>
@@ -589,9 +592,8 @@
               <span class="badge badge-info">Guide</span>
             </a>
           </li>
-        <?php
-        }
-        ?>
+          <?php } ?>
+
         <?php
         // Check if the logged-in user has 'Administrator' or 'Superuser' roles.
         if ($_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Superuser') { ?>
