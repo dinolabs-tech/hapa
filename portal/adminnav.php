@@ -586,6 +586,7 @@
             <a href="documentation/index.php">
               <i class="fas fa-book"></i>
               <p>Documentation</p>
+              <span class="badge badge-info">Guide</span>
             </a>
           </li>
         <?php
