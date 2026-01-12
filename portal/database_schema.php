@@ -1,4 +1,8 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
 // Database connection settings
 include('db_connection.php');
 
@@ -143,22 +147,6 @@ $tables = [
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ",
 
-    // Table: cbt_score
-    "cbt_score" => "
-        CREATE TABLE IF NOT EXISTS `cbt_score` (
-            `id` VARCHAR(30) NOT NULL PRIMARY KEY,
-            `login` VARCHAR(100) NOT NULL,
-            `subject` VARCHAR(100) NOT NULL,
-            `class` VARCHAR(50) NOT NULL,
-            `arm` VARCHAR(20) NOT NULL,
-            `term` VARCHAR(20) NOT NULL,
-            `session` VARCHAR(20) NOT NULL,
-            `test_date` VARCHAR(255) NOT NULL,
-            `score` VARCHAR(255) NOT NULL,
-            UNIQUE KEY `unique_exam` (`login`, `subject`, `class`, `arm`, `term`, `session`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    ",
-
     // Table: cbtadmin
     "cbtadmin" => "
         CREATE TABLE IF NOT EXISTS `cbtadmin` (
@@ -272,29 +260,23 @@ $tables = [
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ",
 
-    // Table: fee
-    "fee" => "
-        CREATE TABLE IF NOT EXISTS `fee` (
-            `id` varchar(111) NOT NULL,
-            `class` varchar(111) NOT NULL,
-            `service` varchar(111) NOT NULL,
-            `price` int(11) NOT NULL,
-            `hostel` varchar(111) NOT NULL,
-            `session` varchar(111) NOT NULL,
-            PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    ",
+    // Attendance
+    "attendance" => "
+    CREATE TABLE IF NOT EXISTS attendance (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        student_id VARCHAR(50) NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        class VARCHAR(20) NOT NULL,
+        arm VARCHAR(5) NOT NULL,
+        date DATE NOT NULL,
+        term_id VARCHAR(20) NOT NULL,
+        session_id VARCHAR(20) NOT NULL,
+        status INT NOT NULL COMMENT '1=Present, 0=Absent',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_attendance (student_id, class, arm, date, term_id, session_id)
+    );
+",
 
-    // Table: fees
-    "fees" => "
-        CREATE TABLE IF NOT EXISTS `fees` (
-            `id` int(30) NOT NULL AUTO_INCREMENT,
-            `course_id` int(30) NOT NULL,
-            `description` varchar(200) NOT NULL,
-            `amount` float NOT NULL,
-            PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-    ",
 
     // Table: firstcum
     "firstcum" => "
@@ -440,7 +422,11 @@ $tables = [
             `login` varchar(20) DEFAULT NULL,
             `subject` varchar(111) DEFAULT NULL,
             `test_date` varchar(111) DEFAULT NULL,
-            `score` int(11) DEFAULT NULL
+            `score` int(11) DEFAULT NULL,
+            `class` varchar(111) DEFAULT NULL,
+            `arm` varchar(111) DEFAULT NULL,
+            `term` varchar(111) DEFAULT NULL,
+            `session` varchar(111) DEFAULT NULL
         ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
     ",
 
@@ -504,6 +490,7 @@ $tables = [
             PRIMARY KEY (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ",
+
 
     // Table: principalcomments
     "principalcomments" => "
@@ -661,7 +648,7 @@ $tables = [
     // Table: students
     "students" => "
         CREATE TABLE IF NOT EXISTS `students` (
-            `id` varchar(222) NOT NULL,
+            `id` varchar(100) NOT NULL,
             `name` varchar(222) NOT NULL,
             `gender` varchar(222) NOT NULL,
             `dob` varchar(222) NOT NULL,
@@ -709,7 +696,6 @@ $tables = [
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ",
 
-
     // Table: sub
     "sub" => "
         CREATE TABLE IF NOT EXISTS `sub` (
@@ -741,6 +727,7 @@ $tables = [
             PRIMARY KEY (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ",
+
 
     // Table: tb_chat
     "tb_chat" => "
@@ -878,7 +865,22 @@ $tables = [
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ",
 
-  
+    // Table: cbt_score
+    "cbt_score" => "
+        CREATE TABLE IF NOT EXISTS `cbt_score` (
+            `id` VARCHAR(30) NOT NULL PRIMARY KEY,
+            `login` VARCHAR(120) NOT NULL,
+            `subject` VARCHAR(120) NOT NULL,
+            `class` VARCHAR(120) NOT NULL,
+            `arm` VARCHAR(120) NOT NULL,
+            `term` VARCHAR(120) NOT NULL,
+            `session` VARCHAR(120) NOT NULL,
+            `test_date` VARCHAR(255) NOT NULL,
+            `score` VARCHAR(255) NOT NULL,
+            UNIQUE KEY `unique_exam` (`login`, `subject`, `class`, `arm`, `term`, `session`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+    ",
+
     // Table: posts (must be after threads due to foreign key)
     "posts" => "
         CREATE TABLE IF NOT EXISTS `posts` (
@@ -893,7 +895,7 @@ $tables = [
         ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
     ",
 
-
+    // bursary starts here
     // Table: fee_items
     "fee_items" => "
         CREATE TABLE IF NOT EXISTS fee_items (
@@ -1023,7 +1025,7 @@ $tables = [
         CREATE TABLE IF NOT EXISTS transactions (
         id INT AUTO_INCREMENT PRIMARY KEY,
         student_id VARCHAR(64) NOT NULL,
-        type ENUM('payment','refund','carryover','adjustment') NOT NULL,
+        type ENUM('payment','refund','carryover','adjustment','tuckshop_deposit') NOT NULL,
         amount BIGINT NOT NULL,
         reference VARCHAR(64),
         related_id INT,
@@ -1049,12 +1051,14 @@ $tables = [
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
     ",
 
+    //Bursary ends here 
+
     // Table: parent_student
     "parent_student" => "
         CREATE TABLE IF NOT EXISTS `parent_student` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `parent_id` int(11) NOT NULL,
-            `student_id` varchar(222) NOT NULL,
+            `student_id` varchar(100) NOT NULL,
             PRIMARY KEY (`id`),
             KEY `parent_id` (`parent_id`),
             KEY `student_id` (`student_id`),
@@ -1074,6 +1078,23 @@ foreach ($tables as $tableName => $query) {
         }
     }
 }
+
+// Alter transactions table to add tuckshop_deposit type if not present
+if (tableExists($conn, 'transactions')) {
+    $result = $conn->query("SHOW COLUMNS FROM `transactions` LIKE 'type'");
+    if ($result) {
+        $row = $result->fetch_assoc();
+        if (strpos($row['Type'], 'tuckshop_deposit') === false) {
+            $alter_sql = "ALTER TABLE `transactions` MODIFY COLUMN `type` ENUM('payment','refund','carryover','adjustment','tuckshop_deposit') NOT NULL";
+            if ($conn->query($alter_sql) === TRUE) {
+                // Altered successfully
+            } else {
+                error_log("Error altering transactions table: " . $conn->error);
+            }
+        }
+    }
+}
+
 
 if (tableExists($conn, 'mst_useranswer')) {
     if (!columnExists($conn, 'mst_useranswer', 'que_id')) {

@@ -375,6 +375,11 @@
                     <span class="sub-item">Transactions</span>
                   </a>
                 </li>
+                  <li>
+                  <a href="tuckshop_payment.php">
+                    <span class="sub-item">Record Payment</span>
+                  </a>
+                </li>
               </ul>
             </div>
           </li>
@@ -422,6 +427,12 @@
                 <li>
                   <a href="students_assigned_fees.php">
                     <span class="sub-item">Students with Fees</span>
+                  </a>
+                </li>
+                 </li>
+                   <li>
+                  <a href="tuckshop_payment.php">
+                    <span class="sub-item">Record Tuckshop Payment</span>
                   </a>
                 </li>
                 <li>

@@ -80,8 +80,9 @@ while ($row = $res->fetch_assoc()) {
   $row['total_fees_display'] = money_format_naira($row['total_fees']);
   $row['total_paid_display'] = money_format_naira($row['total_paid']);
   $paid[] = $row;
-  $total_paid += $row['total_paid'];
+  $total_paid;
 }
+
 $stmt->close();
 
 // Export
