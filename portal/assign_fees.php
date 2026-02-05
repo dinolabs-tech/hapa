@@ -134,18 +134,33 @@ if ($action === 'unassign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
         if ($sf) {
           $before = $sf;
-          $stmt = $mysqli->prepare("UPDATE student_fees SET status='inactive', unassigned_at=NOW() WHERE id=?");
+          
+          // Delete payment allocations first (depends on student_fee_items)
+          $stmt = $mysqli->prepare("DELETE FROM payment_allocations WHERE student_fee_item_id IN (SELECT id FROM student_fee_items WHERE student_fee_id=?)");
           $stmt->bind_param('i', $sf['id']);
           $stmt->execute();
           $stmt->close();
-          audit_log('unassign_fee', 'student_fee', $sf['id'], $before, ['status' => 'inactive']);
+          
+          // Delete student fee items
+          $stmt = $mysqli->prepare("DELETE FROM student_fee_items WHERE student_fee_id=?");
+          $stmt->bind_param('i', $sf['id']);
+          $stmt->execute();
+          $stmt->close();
+          
+          // Delete the main student fee record
+          $stmt = $mysqli->prepare("DELETE FROM student_fees WHERE id=?");
+          $stmt->bind_param('i', $sf['id']);
+          $stmt->execute();
+          $stmt->close();
+          
+          audit_log('delete_fee', 'student_fee', $sf['id'], $before, ['action' => 'unassign_delete']);
         }
       }
       $mysqli->commit();
-      $alerts[] = ['success', 'Fees unassigned from selected students.'];
+      $alerts[] = ['success', 'Fees deleted from selected students.'];
     } catch (Exception $e) {
       $mysqli->rollback();
-      $alerts[] = ['danger', 'Error unassigning fees: ' . $e->getMessage()];
+      $alerts[] = ['danger', 'Error deleting fees: ' . $e->getMessage()];
     }
   } else {
     $alerts[] = ['danger', 'Select fee structure and students.'];

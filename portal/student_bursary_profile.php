@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 include('components/admin_logic.php');
 require_once('helpers/audit.php');
 require_once('helpers/money.php');
@@ -55,15 +58,35 @@ foreach ($fees as $fee) {
 
 // Fetch payments
 $payments = [];
-$stmt = $mysqli->prepare("SELECT id, amount, payment_method, payment_date, receipt_number FROM payments WHERE student_id = ? AND term = ? AND session = ? ORDER BY payment_date DESC");
+$stmt = $mysqli->prepare("SELECT id, amount, payment_method, payment_date, receipt_number, discount FROM payments WHERE student_id = ? AND term = ? AND session = ? ORDER BY payment_date DESC");
 $stmt->bind_param('sss', $student_id, $current_term, $current_session);
 $stmt->execute();
 $res = $stmt->get_result();
 while ($row = $res->fetch_assoc()) {
   $row['amount_display'] = money_format_naira($row['amount']);
+  $row['discount_display'] = money_format_naira($row['discount']);
   $payments[] = $row;
 }
 $stmt->close();
+
+// Fetch discounts for current term
+$discounts = [];
+$stmt = $mysqli->prepare("SELECT amount, created_at, reference FROM transactions WHERE student_id = ? AND type = 'discount' AND term = ? AND session = ? ORDER BY created_at DESC");
+$stmt->bind_param('sss', $student_id, $current_term, $current_session);
+$stmt->execute();
+$res = $stmt->get_result();
+while ($row = $res->fetch_assoc()) {
+  $row['amount_display'] = money_format_naira($row['amount']);
+  $row['payment_date'] = $row['created_at']; // Map created_at to payment_date for consistency
+  $discounts[] = $row;
+}
+$stmt->close();
+
+// Calculate total discounts for current term
+$total_discounts = 0;
+foreach ($discounts as $discount) {
+  $total_discounts += $discount['amount'];
+}
 
 // Calculate total paid and outstanding for current term
 $total_paid = 0;
@@ -319,70 +342,88 @@ $stmt->close();
             </div>
           </div>
 
-          <div class="col-md-12">
-            <div class="card">
-              <div class="card-header">
-                <h4 class="card-title">Assigned Fees </h4>
-              </div>
-              <div class="card-body">
-
-                <table class="table table-bordered table-striped table-hover bg-white mb-4">
-                  <thead class="table-light">
-                    <tr>
-                      <th>Name</th>
-                      <th>Amount</th>
-                      <th>Paid</th>
-                      <th>Outstanding</th>
-                      <th>Carryover</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <?php foreach ($fee_items as $fi): ?>
-                      <tr>
-                        <td><?= htmlspecialchars($fi['name']) ?></td>
-                        <td><?= $fi['amount_display'] ?></td>
-                        <td><?= $fi['paid_display'] ?></td>
-                        <td><?= money_format_naira($fi['amount'] - $fi['paid_amount']) ?></td>
-                        <td><?= $fi['carryover_flag'] ? 'Yes' : 'No' ?></td>
-                      </tr>
-                    <?php endforeach; ?>
-                  </tbody>
-                </table>
-
-              </div>
-            </div>
-          </div>
+       
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
                 <h4 class="card-title">Payments </h4>
               </div>
               <div class="card-body">
-
-                <table class="table table-bordered table-striped table-hover bg-white mb-4" id="basic-datatables">
-                  <thead class="table-light">
-                    <tr>
-                      <th>Date</th>
-                      <th>Method</th>
-                      <th>Amount</th>
-                      <th>Receipt</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <?php foreach ($payments as $p): ?>
+                <div class="table-responsive">
+                  <table class="table table-bordered table-striped table-hover bg-white mb-4" id="basic-datatables">
+                    <thead class="table-light">
                       <tr>
-                        <td><?= htmlspecialchars($p['payment_date']) ?></td>
-                        <td><?= htmlspecialchars($p['payment_method']) ?></td>
-                        <td><?= $p['amount_display'] ?></td>
-                        <td><?= htmlspecialchars($p['receipt_number']) ?></td>
+                        <th>Date</th>
+                        <th>Method</th>
+                        <th>Amount</th>
+                        <th>Discount</th>
+                        <th>Receipt</th>
                       </tr>
-                    <?php endforeach; ?>
-                  </tbody>
-                </table>
-
+                    </thead>
+                    <tbody>
+                      <?php foreach ($payments as $p): ?>
+                        <tr>
+                          <td><?= htmlspecialchars($p['payment_date']) ?></td>
+                          <td><?= htmlspecialchars($p['payment_method']) ?></td>
+                          <td><?= $p['amount_display'] ?></td>
+                          <td><?= $p['discount_display'] ?></td>
+                          <td><?= htmlspecialchars($p['receipt_number']) ?></td>
+                        </tr>
+                      <?php endforeach; ?>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
+
+          <!-- Discount Information Section -->
+          <?php if (!empty($discounts)): ?>
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header">
+                  <h4 class="card-title">Discounts Applied (Current Term) </h4>
+                </div>
+                <div class="card-body">
+                  <div class="row mb-3">
+                    <div class="col-md-4">
+                      <div class="card card-stats card-round bg-info">
+                        <div class="card-body">
+                          <div class="row">
+                            <div class="col-12 col-stats justify-content-center">
+                              <div class="numbers">
+                                <p class="card-category text-center text-white">Total Discounts Received</p>
+                                <h4 class="card-title text-white"><?= money_format_naira($total_discounts) ?></h4>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <table class="table table-bordered table-striped table-hover bg-white mb-4">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Reference</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php foreach ($discounts as $discount): ?>
+                        <tr>
+                          <td><?= htmlspecialchars($discount['payment_date']) ?></td>
+                          <td><?= $discount['amount_display'] ?></td>
+                          <td><?= htmlspecialchars($discount['reference']) ?></td>
+                        </tr>
+                      <?php endforeach; ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          <?php endif; ?>
         </div>
       </div>
 

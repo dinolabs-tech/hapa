@@ -70,9 +70,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['amount'])) {
     $alerts[] = ['danger', 'Amount must be positive.'];
   } else {
     try {
-      // Allocate payment: mandatory items first, then optional
+      // Allocate payment: handle discount first, then mandatory items, then optional
       $remaining = $amount;
       $allocations = [];
+      
+      // Step 1: Apply discount if any
+      if ($discount > 0) {
+        // Create discount allocation record
+        $allocations[] = [
+          'student_fee_item_id' => 0, // 0 indicates this is a discount, not a specific fee item
+          'allocated_amount' => $discount,
+          'manual_override' => 1, // Mark as manual override for discount
+          'is_discount' => true
+        ];
+        $remaining -= $discount;
+      }
+      
+      // Step 2: Allocate remaining amount to fee items (mandatory first, then optional)
       foreach ([1, 0] as $mand) {
         foreach ($fee_items as &$fi) {
           if ($fi['outstanding'] > 0 && $fi['mandatory'] == $mand && $remaining > 0) {
@@ -80,7 +94,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['amount'])) {
             $allocations[] = [
               'student_fee_item_id' => $fi['id'],
               'allocated_amount' => $alloc,
-              'manual_override' => 0
+              'manual_override' => 0,
+              'is_discount' => false
             ];
             $fi['paid_amount'] += $alloc;
             $fi['outstanding'] -= $alloc;
@@ -88,7 +103,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['amount'])) {
           }
         }
       }
-      // Overpayment: credit/refund
+      
+      // Step 3: Handle overpayment (credit/refund)
       $overpayment = $remaining > 0 ? $remaining : 0;
 
       // Calculate totals
@@ -127,11 +143,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['amount'])) {
         $stmt->execute();
         $stmt->close();
 
-        // Update paid_amount
-        $stmt = $mysqli->prepare("UPDATE student_fee_items SET paid_amount = paid_amount + ? WHERE id = ?");
-        $stmt->bind_param('ii', $alloc['allocated_amount'], $alloc['student_fee_item_id']);
+        // Update paid_amount only for actual fee items (not discounts)
+        if ($alloc['student_fee_item_id'] > 0) {
+          $stmt = $mysqli->prepare("UPDATE student_fee_items SET paid_amount = paid_amount + ? WHERE id = ?");
+          $stmt->bind_param('ii', $alloc['allocated_amount'], $alloc['student_fee_item_id']);
+          $stmt->execute();
+          $stmt->close();
+        }
+      }
+
+      // Create discount transaction entry if discount was applied
+      if ($discount > 0) {
+        $stmt = $mysqli->prepare("INSERT INTO transactions (student_id, type, amount, reference, related_id, term, session) VALUES (?, 'discount', ?, ?, ?, ?, ?)");
+        $stmt->bind_param('sisiss', $student_id, $discount, $receipt_number, $payment_id, $current_term, $current_session);
         $stmt->execute();
         $stmt->close();
+        
+        // Log discount application for audit trail
+        audit_log('apply_discount', 'discount', $payment_id, null, [
+          'student_id' => $student_id,
+          'discount_amount' => $discount,
+          'receipt_number' => $receipt_number,
+          'applied_by' => $created_by,
+          'payment_id' => $payment_id,
+          'term' => $current_term,
+          'session' => $current_session
+        ]);
       }
 
       // Ledger entry

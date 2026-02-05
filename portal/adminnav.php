@@ -408,6 +408,11 @@
             <div class="collapse" id="bursary">
               <ul class="nav nav-collapse">
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Superuser') { ?>
+                <li>
+                    <a href="bursary_dashboard.php">
+                      <span class="sub-item">Dashboard</span>
+                    </a>
+                  </li>
                   <li>
                     <a href="fee_items.php">
                       <span class="sub-item">Fee Items</span>
