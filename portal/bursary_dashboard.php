@@ -35,9 +35,9 @@ while ($row = $result->fetch_assoc()) {
     $recent_transactions[] = $row;
 }
 
-// Payment trends (last 7 days)
+// Payment trends (last 12 months)
 $payment_trends = [];
-$result = $mysqli->query("SELECT DATE(payment_date) as date, SUM(amount) as total FROM payments WHERE payment_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) AND term = '$current_term' AND session = '$current_session' GROUP BY DATE(payment_date) ORDER BY date");
+$result = $mysqli->query("SELECT DATE_FORMAT(payment_date, '%Y-%m') as date, SUM(amount) as total FROM payments WHERE payment_date >= DATE_SUB(NOW(), INTERVAL 12 MONTH) AND term = '$current_term' AND session = '$current_session' GROUP BY DATE_FORMAT(payment_date, '%Y-%m') ORDER BY date");
 while ($row = $result->fetch_assoc()) {
     $payment_trends[] = $row;
 }
@@ -256,7 +256,7 @@ while ($row = $result->fetch_assoc()) {
                         <div class="col-md-6">
                             <div class="card mb-4">
                                 <div class="card-header">
-                                    <h4 class="card-title">Payment Trends (Last 7 Days)</h4>
+                                    <h4 class="card-title">Payment Trends (Last 12 Months)</h4>
                                 </div>
                                 <div class="card-body">
                                     <div class="chart-container">
@@ -655,7 +655,7 @@ while ($row = $result->fetch_assoc()) {
             const trendsData = {
                 labels: trends.map(t => t.date),
                 datasets: [{
-                    label: 'Daily Payments (₦)',
+                    label: 'Monthly Payments (₦)',
                     data: trends.map(t => t.total),
                     borderColor: '#007bff',
                     backgroundColor: 'rgba(0, 123, 255, 0.1)',
@@ -713,7 +713,7 @@ while ($row = $result->fetch_assoc()) {
             const trendsData = {
                 labels: <?= json_encode(array_column($payment_trends, 'date')) ?>,
                 datasets: [{
-                    label: 'Daily Payments (₦)',
+                    label: 'Monthly Payments (₦)',
                     data: <?= json_encode(array_column($payment_trends, 'total')) ?>,
                     borderColor: '#007bff',
                     backgroundColor: 'rgba(0, 123, 255, 0.1)',

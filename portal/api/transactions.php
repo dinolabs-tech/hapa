@@ -361,8 +361,8 @@ function getDashboardData($term, $session, $filters) {
     }
     $stmt->close();
     
-    // Get payment trends (last 7 days)
-    $payment_trends_sql = "SELECT DATE(payment_date) as date, SUM(amount) as total FROM payments WHERE payment_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) AND term = ? AND session = ?" . $whereClause . " GROUP BY DATE(payment_date) ORDER BY date";
+    // Get payment trends (last 12 months)
+    $payment_trends_sql = "SELECT DATE_FORMAT(payment_date, '%Y-%m') as date, SUM(amount) as total FROM payments WHERE payment_date >= DATE_SUB(NOW(), INTERVAL 12 MONTH) AND term = ? AND session = ?" . $whereClause . " GROUP BY DATE_FORMAT(payment_date, '%Y-%m') ORDER BY date";
     $stmt = $mysqli->prepare($payment_trends_sql);
     $stmt->bind_param($types, ...$params);
     $stmt->execute();
