@@ -376,7 +376,7 @@ while ($row = $result->fetch_assoc()) {
                                         <div class="col-md-3">
                                             <input type="text" class="form-control" id="search-student" placeholder="Search by student name or ID">
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-3">
                                             <select class="form-select form-control" id="filter-method">
                                                 <option value="">All Payment Methods</option>
                                                 <option value="cash">Cash</option>
@@ -391,7 +391,7 @@ while ($row = $result->fetch_assoc()) {
                                         <div class="col-md-2">
                                             <input type="date" class="form-control" id="filter-date-to">
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <div class="d-flex gap-2">
                                                 <button type="submit" class="btn btn-primary btn-icon btn-round">
                                                     <i class="fas fa-search"></i>
