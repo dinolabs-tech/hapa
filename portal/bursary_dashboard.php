@@ -377,7 +377,7 @@ while ($row = $result->fetch_assoc()) {
                                             <input type="text" class="form-control" id="search-student" placeholder="Search by student name or ID">
                                         </div>
                                         <div class="col-md-2">
-                                            <select class="form-select" id="filter-method">
+                                            <select class="form-select form-control" id="filter-method">
                                                 <option value="">All Payment Methods</option>
                                                 <option value="cash">Cash</option>
                                                 <option value="bank">Bank Transfer</option>
