@@ -393,14 +393,11 @@ while ($row = $result->fetch_assoc()) {
                                         </div>
                                         <div class="col-md-3">
                                             <div class="d-flex gap-2">
-                                                <button type="submit" class="btn btn-primary">
-                                                    <i class="fas fa-search"></i> Search
+                                                <button type="submit" class="btn btn-primary btn-icon btn-round">
+                                                    <i class="fas fa-search"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-outline-secondary" id="clear-filters">
-                                                    <i class="fas fa-eraser"></i> Clear
-                                                </button>
-                                                <button type="button" class="btn btn-outline-info" id="export-data">
-                                                    <i class="fas fa-download"></i> Export
+                                                <button type="button" class="btn btn-outline-secondary btn-icon btn-round" id="clear-filters">
+                                                    <i class="fas fa-eraser"></i> 
                                                 </button>
                                             </div>
                                         </div>
