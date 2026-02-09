@@ -61,25 +61,68 @@ if (isset($_POST['update'])) {
         $average = ($lastcum + $total) / 2;
     }
 
-    // Determine grade
-    if ($average >= 75) {
-        $grade = 'A';
-        $remark = 'EXCELLENT';
-    } elseif ($average >= 65) {
-        $grade = 'B';
-        $remark = 'VERY GOOD';
-    } elseif ($average >= 50) {
-        $grade = 'C';
-        $remark = 'GOOD';
-    } elseif ($average >= 45) {
-        $grade = 'D';
-        $remark = 'FAIR';
-    } elseif ($average >= 40) {
-        $grade = 'E';
-        $remark = 'POOR';
+    // Fetch student's class to determine grading scale
+    $class_query = "SELECT class FROM students WHERE id = '$id'";
+    $class_result = $conn->query($class_query);
+    $selected_class = '';
+    
+    if ($class_result && $class_result->num_rows > 0) {
+        $class_row = $class_result->fetch_assoc();
+        $selected_class = $class_row['class'];
+    }
+
+    // Determine grade and remark based on class
+    if (in_array($selected_class, ['SSS 1', 'SSS 2', 'SSS 3'])) {
+        // SSS grading
+        if ($average >= 75) {
+            $grade = 'A1';
+            $remark = 'EXCELLENT';
+        } elseif ($average >= 70) {
+            $grade = 'B2';
+            $remark = 'VERY GOOD';
+        } elseif ($average >= 65) {
+            $grade = 'B3';
+            $remark = 'GOOD';
+        } elseif ($average >= 60) {
+            $grade = 'C4';
+            $remark = 'GOOD';
+        } elseif ($average >= 55) {
+            $grade = 'C5';
+            $remark = 'AVERAGE';
+        } elseif ($average >= 50) {
+            $grade = 'C6';
+            $remark = 'AVERAGE';
+        } elseif ($average >= 45) {
+            $grade = 'D7';
+            $remark = 'PASS';
+        } elseif ($average >= 40) {
+            $grade = 'E8';
+            $remark = 'PASS';
+        } else {
+            $grade = 'F9';
+            $remark = 'FAIL';
+        }
     } else {
-        $grade = 'F';
-        $remark = 'VERY POOR';
+        // JSS grading
+        if ($average >= 70) {
+            $grade = 'A';
+            $remark = 'EXCELLENT';
+        } elseif ($average >= 60) {
+            $grade = 'B';
+            $remark = 'GOOD';
+        } elseif ($average >= 50) {
+            $grade = 'C';
+            $remark = 'AVERAGE';
+        } elseif ($average >= 45) {
+            $grade = 'D';
+            $remark = 'BELOW AVERAGE';
+        } elseif ($average >= 40) {
+            $grade = 'E';
+            $remark = 'POOR';
+        } else {
+            $grade = 'F';
+            $remark = 'FAIL';
+        }
     }
 
     // Update the record based on id, subject, term, and session
