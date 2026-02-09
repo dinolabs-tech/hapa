@@ -109,15 +109,31 @@ if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
   $stmt->close();
 
   if ($before) {
-    $stmt = $mysqli->prepare("DELETE FROM fee_structures WHERE id=?");
+    // Check if fee structure has been assigned to any students
+    $stmt = $mysqli->prepare("SELECT COUNT(*) as assignment_count FROM student_fees WHERE fee_structure_id = ?");
     $stmt->bind_param('i', $id);
-    if ($stmt->execute()) {
-      audit_log('delete', 'fee_structure', $id, $before, null);
-      $alerts[] = ['success', 'Fee structure deleted.'];
-    } else {
-      $alerts[] = ['danger', 'Error deleting fee structure.'];
-    }
+    $stmt->execute();
+    $stmt->bind_result($assignment_count);
+    $stmt->fetch();
     $stmt->close();
+
+    if ($assignment_count > 0) {
+      // Fee structure has been assigned to students, prevent deletion
+      $alerts[] = ['danger', "Cannot delete fee structure '{$before['name']}' because it has been assigned to {$assignment_count} student(s). Remove all assignments before deleting."];
+      // Log the blocked deletion attempt
+      audit_log('delete_blocked', 'fee_structure', $id, $before, ['reason' => 'assigned_to_students', 'assignment_count' => $assignment_count]);
+    } else {
+      // No assignments found, safe to delete
+      $stmt = $mysqli->prepare("DELETE FROM fee_structures WHERE id=?");
+      $stmt->bind_param('i', $id);
+      if ($stmt->execute()) {
+        audit_log('delete', 'fee_structure', $id, $before, null);
+        $alerts[] = ['success', 'Fee structure deleted successfully.'];
+      } else {
+        $alerts[] = ['danger', 'Error deleting fee structure.'];
+      }
+      $stmt->close();
+    }
   } else {
     $alerts[] = ['danger', 'Fee structure not found.'];
   }
@@ -172,9 +188,14 @@ if (isset($_GET['export']) && in_array($_GET['export'], ['csv', 'pdf'])) {
   }
 }
 
-// Fetch fee structures
+// Fetch fee structures with assignment status
 $structures = [];
-$result = $mysqli->query("SELECT id, name, class, arm, term, session, hostel_type, total_amount, created_at FROM fee_structures ORDER BY id DESC");
+$result = $mysqli->query("
+  SELECT fs.id, fs.name, fs.class, fs.arm, fs.term, fs.session, fs.hostel_type, fs.total_amount, fs.created_at,
+         (SELECT COUNT(*) FROM student_fees sf WHERE sf.fee_structure_id = fs.id) as assignment_count
+  FROM fee_structures fs 
+  ORDER BY fs.id DESC
+");
 while ($row = $result->fetch_assoc()) {
   $row['total_amount_display'] = money_format_naira($row['total_amount']);
   $structures[] = $row;
@@ -223,6 +244,11 @@ while ($row = $result->fetch_assoc()) {
             <div class="card">
               <div class="card-header">
                 <h4 class="card-title">Fee Structure</h4>
+                <div class="card-subtitle text-muted mb-3">
+                  <small>
+                    <i class="fas fa-lock text-danger me-2"></i>Locked fee structures cannot be deleted because they have been assigned to students
+                  </small>
+                </div>
               </div>
               <div class="card-body">
 
@@ -329,7 +355,13 @@ while ($row = $result->fetch_assoc()) {
                             <td><?= htmlspecialchars($s['created_at']) ?></td>
                             <td class="d-flex gap-1">
                               <button name="action" value="update" class="btn btn-sm btn-success rounded-5">Update</button>
-                              <button name="action" value="delete" class="btn btn-sm btn-danger rounded-5" onclick="return confirm('Delete this fee structure?')">Delete</button>
+                              <?php if ($s['assignment_count'] > 0): ?>
+                                <button class="btn btn-sm btn-danger rounded-5 disabled" disabled title="Cannot delete: assigned to <?= $s['assignment_count'] ?> student(s)" style="cursor: not-allowed; opacity: 0.6;">
+                                  <i class="fas fa-lock me-1"></i>Delete
+                                </button>
+                              <?php else: ?>
+                                <button name="action" value="delete" class="btn btn-sm btn-danger rounded-5" onclick="return confirm('Delete this fee structure?')">Delete</button>
+                              <?php endif; ?>
                               <a href="fee_structure_edit.php?id=<?= $s['id'] ?>" class="btn btn-sm btn-info rounded-5">Edit Items</a>
                             </td>
                           </form>
