@@ -66,9 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csv_upload'])) {
     // Read the CSV file line by line.
     while (($row = fgetcsv($file)) !== FALSE) {
       // Skip empty lines.
-      if (count($row) < 16) {
-        continue; // Not enough columns, skip this row
-      }
+      // if (count($row) < 16) {
+      //   continue; // Not enough columns, skip this row
+      // }
 
       // Extract data from the CSV row, trimming whitespace from each value.
       $id = trim($row[0]);
