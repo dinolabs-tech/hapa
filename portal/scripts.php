@@ -428,11 +428,14 @@
 
 <!-- CLASS TEACHER COMMENTS ======================= -->
 <script>
-  function editClassCommentRecord(id, name, comment, attentiveness, neatness, politeness, selfcontrol, punctuality, relationship, handwriting, music, club, sport, className, arm, term, session) {
+  function editClassCommentRecord(id, name, comment, schlopen, dayspresent, daysabsent, attentiveness, neatness, politeness, selfcontrol, punctuality, relationship, handwriting, music, club, sport, className, arm, term, session) {
     document.getElementById('hidden_id').value = id;
     document.getElementById('id').value = id;
     document.getElementById('name').value = name;
     document.getElementById('comment').value = comment;
+    document.getElementById('schlopen').value = schlopen;
+    document.getElementById('dayspresent').value = dayspresent;
+    document.getElementById('daysabsent').value = daysabsent;
     document.getElementById('attentiveness').value = attentiveness;
     document.getElementById('neatness').value = neatness;
     document.getElementById('politeness').value = politeness;
