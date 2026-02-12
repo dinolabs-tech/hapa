@@ -74,20 +74,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csv_upload'])) {
       $id = trim($row[0]);
       $name = trim($row[1]);
       $comment = trim($row[2]);
-      $attentiveness = trim($row[3]);
-      $neatness = trim($row[4]);
-      $politeness = trim($row[5]);
-      $selfcontrol = trim($row[6]);
-      $punctuality = trim($row[7]);
-      $relationship = trim($row[8]);
-      $handwriting = trim($row[9]);
-      $music = trim($row[10]);
-      $club = trim($row[11]);
-      $sport = trim($row[12]);
+      $schlopen = trim($row[3]);
+      $dayspresent = trim($row[4]);
+      $daysabsent = trim($row[5]);
+
+      $attentiveness = trim($row[6]);
+      $neatness = trim($row[7]);
+      $politeness = trim($row[8]);
+      $selfcontrol = trim($row[9]);
+      $punctuality = trim($row[10]);
+      $relationship = trim($row[11]);
+      $handwriting = trim($row[12]);
+      $music = trim($row[13]);
+      $club = trim($row[14]);
+      $sport = trim($row[15]);
 
       // SQL query to insert the data into the 'classcomments' table.
-      $sql = "INSERT INTO classcomments (id, name, comment, attentiveness, neatness, politeness, selfcontrol, punctuality, relationship, handwriting, music, club, sport, class, arm, term, csession)
-                VALUES ('$id', '$name', '$comment', '$attentiveness', '$neatness', '$politeness', '$selfcontrol', '$punctuality', '$relationship', '$handwriting', '$music', '$club', '$sport', '$csvClass', '$csvArm', '$csvTerm', '$csvSession')";
+      $sql = "INSERT INTO classcomments (id, name, comment, schlopen, dayspresent, daysabsent, attentiveness, neatness, politeness, selfcontrol, punctuality, relationship, handwriting, music, club, sport, class, arm, term, csession)
+                VALUES ('$id', '$name', '$comment', '$schlopen', '$dayspresent', '$daysabsent', '$attentiveness', '$neatness', '$politeness', '$selfcontrol', '$punctuality', '$relationship', '$handwriting', '$music', '$club', '$sport', '$csvClass', '$csvArm', '$csvTerm', '$csvSession')";
       // Execute the query using the helper function.
       executeClassQuery($conn, $sql);
     }
@@ -103,6 +107,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csv_upload'])) {
   $id = $_POST['id'];
   $name = $_POST['name'];
   $comment = $_POST['comment'];
+  $schlopen = $_POST['schlopen'];
+  $dayspresent = $_POST['dayspresent'];
+  $daysabsent = $_POST['daysabsent'];
+
   $class = $_POST['class'];
   $arm = $_POST['arm'];
   $term = $_POST['term'];
@@ -123,12 +131,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csv_upload'])) {
   if (empty($hidden_id)) {
     // SQL query to insert a new record into the 'classcomments' table.
     $sql = "INSERT INTO classcomments (id,
-      name, comment, class, arm, term, csession,
+      name, comment, schlopen, dayspresent, daysabsent, class, arm, term, csession,
       attentiveness, neatness, politeness, selfcontrol, punctuality,
       relationship, handwriting, music, club, sport
   )
   VALUES ('$id',
-      '$name', '$comment', '$class', '$arm', '$term', '$session',
+      '$name', '$comment', '$schlopen', '$dayspresent', '$daysabsent', '$class', '$arm', '$term', '$session',
       '$attentiveness', '$neatness', '$politeness', '$selfcontrol', '$punctuality',
       '$relationship', '$handwriting', '$music', '$club', '$sport'
   )";
@@ -138,6 +146,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csv_upload'])) {
       id='$id',
       name='$name',
       comment='$comment',
+      schlopen='$schlopen',
+      dayspresent='$dayspresent',
+      daysabsent='$daysabsent',
       class='$class',
       arm='$arm',
       term='$term',
@@ -338,6 +349,12 @@ $records = $conn->query("SELECT * FROM classcomments where term = '$term' AND cs
                       <textarea name="comment" id="comment" required Placeholder="Comments"
                         class="form-control"></textarea>
                       <br>
+                      <input type="number" name="schlopen" id="schlopen" required placeholder="Days School Opened" class="form-control">
+                      <br>
+                      <input type="number" name="dayspresent" id="dayspresent" required placeholder="Days Present" class="form-control">
+                      <br>
+                      <input type="number" name="daysabsent" id="daysabsent" required placeholder="Days Absent" class="form-control">
+                      <br>
                       <input type="text" name="attentiveness" id="attentiveness" placeholder="Attentiveness"
                         class="form-control" required>
                       <br>
@@ -415,13 +432,13 @@ $records = $conn->query("SELECT * FROM classcomments where term = '$term' AND cs
                       <br>
 
                       <div class="text-center">
-                      <button type="submit" class="btn btn-success btn-icon btn-round ps-1">
-                        <span class="btn-label">
-                          <i class="fa fa-save"></i></button>
-                      <button type="reset" class="btn btn-secondary btn-icon btn-round ps-1">
-                        <span class="btn-label">
-                          <i class="fa fa-undo"></i></button>
-                          </div>
+                        <button type="submit" class="btn btn-success btn-icon btn-round ps-1">
+                          <span class="btn-label">
+                            <i class="fa fa-save"></i></button>
+                        <button type="reset" class="btn btn-secondary btn-icon btn-round ps-1">
+                          <span class="btn-label">
+                            <i class="fa fa-undo"></i></button>
+                      </div>
                     </form>
 
                     </p>
@@ -430,22 +447,22 @@ $records = $conn->query("SELECT * FROM classcomments where term = '$term' AND cs
               </div>
             </div>
 
-          <!-- Bulk Upload Section -->
-          <div class="col-md-4">
-            <div class="card card-round">
-              <div class="card-header">
-                <div class="card-head-row">
-                  <div class="card-title">Bulk Upload CSV</div>
+            <!-- Bulk Upload Section -->
+            <div class="col-md-4">
+              <div class="card card-round">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Bulk Upload CSV</div>
+                  </div>
                 </div>
-              </div>
-              <div class="card-body pb-0">
-                <div class="mb-4 mt-2">
-                  <!-- Form for uploading class teacher comments from a CSV file -->
-                  <form method="post" enctype="multipart/form-data" style="margin-top: 30px;">
-                    <input type="file" name="csv_file" id="csv_file" accept=".csv" class="form-control" required>
-                    <br>
-                    <select name="csv_class" id="csv_class" class="form-control form-select" required>
-                      <?php
+                <div class="card-body pb-0">
+                  <div class="mb-4 mt-2">
+                    <!-- Form for uploading class teacher comments from a CSV file -->
+                    <form method="post" enctype="multipart/form-data" style="margin-top: 30px;">
+                      <input type="file" name="csv_file" id="csv_file" accept=".csv" class="form-control" required>
+                      <br>
+                      <select name="csv_class" id="csv_class" class="form-control form-select" required>
+                        <?php
                         // Rewind to start to fetch classes again
                         $classes->data_seek(0);
                         while ($row = $classes->fetch_assoc()): ?>
@@ -481,10 +498,10 @@ $records = $conn->query("SELECT * FROM classcomments where term = '$term' AND cs
                       </select>
                       <br>
                       <div class="text-center">
-                      <button type="submit" class="btn btn-primary btn-icon btn-round ps-1" name="csv_upload">
-                        <span class="btn-label">
-                          <i class="fa fa-cloud-upload-alt"></i></button>
-                          </div>
+                        <button type="submit" class="btn btn-primary btn-icon btn-round ps-1" name="csv_upload">
+                          <span class="btn-label">
+                            <i class="fa fa-cloud-upload-alt"></i></button>
+                      </div>
                     </form>
 
                   </div>
@@ -543,92 +560,92 @@ $records = $conn->query("SELECT * FROM classcomments where term = '$term' AND cs
             </div>
           </div>
 
-          </div>
+        </div>
 
-          <!-- Display Uploaded Comments Section -->
-          <div class="row">
+        <!-- Display Uploaded Comments Section -->
+        <div class="row">
 
-            <div class="col-md-12">
-              <div class="card card-round">
-                <div class="card-header">
-                  <div class="card-head-row">
-                    <div class="card-title">Uploaded Comments</div>
-                  </div>
+          <div class="col-md-12">
+            <div class="card card-round">
+              <div class="card-header">
+                <div class="card-head-row">
+                  <div class="card-title">Uploaded Comments</div>
                 </div>
-                <div class="card-body pb-0">
-                  <div class="mb-4 mt-2">
+              </div>
+              <div class="card-body pb-0">
+                <div class="mb-4 mt-2">
 
-                    <div class="table-responsive">
-                      <!-- Table to display uploaded class teacher comments -->
-                      <table id="multi-filter-select" class="display table table-striped table-hover">
-                        <thead>
+                  <div class="table-responsive">
+                    <!-- Table to display uploaded class teacher comments -->
+                    <table id="multi-filter-select" class="display table table-striped table-hover">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Name</th>
+                          <th>Comment</th>
+                          <th>Attentiveness</th>
+                          <th>Neatness</th>
+                          <th>Politeness</th>
+                          <th>Selfcontrol</th>
+                          <th>Punctuality</th>
+                          <th>Relationship</th>
+                          <th>Handwriting</th>
+                          <th>Music</th>
+                          <th>Club</th>
+                          <th>Sport</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <?php while ($row = $records->fetch_assoc()): ?>
                           <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Comment</th>
-                            <th>Attentiveness</th>
-                            <th>Neatness</th>
-                            <th>Politeness</th>
-                            <th>Selfcontrol</th>
-                            <th>Punctuality</th>
-                            <th>Relationship</th>
-                            <th>Handwriting</th>
-                            <th>Music</th>
-                            <th>Club</th>
-                            <th>Sport</th>
-                            <th>Actions</th>
+                            <td><?php echo htmlspecialchars($row['id']); ?></td>
+                            <td><?php echo htmlspecialchars($row['name']); ?></td>
+                            <td><?php echo htmlspecialchars($row['comment']); ?></td>
+                            <td><?php echo htmlspecialchars($row['attentiveness']); ?></td>
+                            <td><?php echo htmlspecialchars($row['neatness']); ?></td>
+                            <td><?php echo htmlspecialchars($row['politeness']); ?></td>
+                            <td><?php echo htmlspecialchars($row['selfcontrol']); ?></td>
+                            <td><?php echo htmlspecialchars($row['punctuality']); ?></td>
+                            <td><?php echo htmlspecialchars($row['relationship']); ?></td>
+                            <td><?php echo htmlspecialchars($row['handwriting']); ?></td>
+                            <td><?php echo htmlspecialchars($row['music']); ?></td>
+                            <td><?php echo htmlspecialchars($row['club']); ?></td>
+                            <td><?php echo htmlspecialchars($row['sport']); ?></td>
+
+                            <td class="d-flex">
+                              <!-- Edit button: calls JavaScript function to populate form for editing -->
+                              <a href="javascript:void(0);"
+                                onclick="editClassCommentRecord('<?php echo htmlspecialchars($row['id']); ?>', '<?php echo htmlspecialchars($row['name']); ?>', '<?php echo htmlspecialchars($row['comment']); ?>', '<?php echo htmlspecialchars($row['attentiveness']); ?>', '<?php echo htmlspecialchars($row['neatness']); ?>', '<?php echo htmlspecialchars($row['politeness']); ?>', '<?php echo htmlspecialchars($row['selfcontrol']); ?>', '<?php echo htmlspecialchars($row['punctuality']); ?>', '<?php echo htmlspecialchars($row['relationship']); ?>', '<?php echo htmlspecialchars($row['handwriting']); ?>', '<?php echo htmlspecialchars($row['music']); ?>', '<?php echo htmlspecialchars($row['club']); ?>', '<?php echo htmlspecialchars($row['sport']); ?>', '<?php echo htmlspecialchars($row['class']); ?>', '<?php echo htmlspecialchars($row['arm']); ?>', '<?php echo htmlspecialchars($row['term']); ?>', '<?php echo htmlspecialchars($row['csession']); ?>')"
+                                class="btn btn-warning btn-icon btn-round ps-1 me-2"><span class="btn-label">
+                                  <i class="fa fa-edit"></i></span></a>
+                              <!-- Delete button: links to delete the record -->
+                              <a href="?delete=<?php echo htmlspecialchars($row['id']); ?>"
+                                class="btn btn-danger btn-icon btn-round ps-1"><span
+                                  class="btn-label">
+                                  <i class="fa fa-trash"></i></span></a>
+                            </td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          <?php while ($row = $records->fetch_assoc()): ?>
-                            <tr>
-                              <td><?php echo htmlspecialchars($row['id']); ?></td>
-                              <td><?php echo htmlspecialchars($row['name']); ?></td>
-                              <td><?php echo htmlspecialchars($row['comment']); ?></td>
-                              <td><?php echo htmlspecialchars($row['attentiveness']); ?></td>
-                              <td><?php echo htmlspecialchars($row['neatness']); ?></td>
-                              <td><?php echo htmlspecialchars($row['politeness']); ?></td>
-                              <td><?php echo htmlspecialchars($row['selfcontrol']); ?></td>
-                              <td><?php echo htmlspecialchars($row['punctuality']); ?></td>
-                              <td><?php echo htmlspecialchars($row['relationship']); ?></td>
-                              <td><?php echo htmlspecialchars($row['handwriting']); ?></td>
-                              <td><?php echo htmlspecialchars($row['music']); ?></td>
-                              <td><?php echo htmlspecialchars($row['club']); ?></td>
-                              <td><?php echo htmlspecialchars($row['sport']); ?></td>
-
-                              <td class="d-flex">
-                                <!-- Edit button: calls JavaScript function to populate form for editing -->
-                                <a href="javascript:void(0);"
-                                  onclick="editClassCommentRecord('<?php echo htmlspecialchars($row['id']); ?>', '<?php echo htmlspecialchars($row['name']); ?>', '<?php echo htmlspecialchars($row['comment']); ?>', '<?php echo htmlspecialchars($row['attentiveness']); ?>', '<?php echo htmlspecialchars($row['neatness']); ?>', '<?php echo htmlspecialchars($row['politeness']); ?>', '<?php echo htmlspecialchars($row['selfcontrol']); ?>', '<?php echo htmlspecialchars($row['punctuality']); ?>', '<?php echo htmlspecialchars($row['relationship']); ?>', '<?php echo htmlspecialchars($row['handwriting']); ?>', '<?php echo htmlspecialchars($row['music']); ?>', '<?php echo htmlspecialchars($row['club']); ?>', '<?php echo htmlspecialchars($row['sport']); ?>', '<?php echo htmlspecialchars($row['class']); ?>', '<?php echo htmlspecialchars($row['arm']); ?>', '<?php echo htmlspecialchars($row['term']); ?>', '<?php echo htmlspecialchars($row['csession']); ?>')"
-                                  class="btn btn-warning btn-icon btn-round ps-1 me-2"><span class="btn-label">
-                                    <i class="fa fa-edit"></i></span></a>
-                                <!-- Delete button: links to delete the record -->
-                                <a href="?delete=<?php echo htmlspecialchars($row['id']); ?>"
-                                  class="btn btn-danger btn-icon btn-round ps-1"><span
-                                    class="btn-label">
-                                    <i class="fa fa-trash"></i></span></a>
-                              </td>
-                            </tr>
-                          <?php endwhile; ?>
-                        </tbody>
-                      </table>
-                    </div>
-
+                        <?php endwhile; ?>
+                      </tbody>
+                    </table>
                   </div>
+
                 </div>
               </div>
             </div>
           </div>
-
         </div>
-      </div>
 
-      <?php include('footer.php'); ?> <!-- Includes the footer section of the page -->
+      </div>
     </div>
 
-    <!-- Custom template | don't include it in your project! -->
-    <?php include('cust-color.php'); ?> <!-- Includes custom color settings or scripts -->
-    <!-- End Custom template -->
+    <?php include('footer.php'); ?> <!-- Includes the footer section of the page -->
+  </div>
+
+  <!-- Custom template | don't include it in your project! -->
+  <?php include('cust-color.php'); ?> <!-- Includes custom color settings or scripts -->
+  <!-- End Custom template -->
   </div>
 
   <?php include('scripts.php'); ?> <!-- Includes general JavaScript scripts for the page -->
