@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['csv_upload'])) {
     // Read the CSV file line by line.
     while (($row = fgetcsv($file)) !== FALSE) {
       // Skip empty lines.
-      if (count($row) < 13) {
+      if (count($row) < 16) {
         continue; // Not enough columns, skip this row
       }
 
