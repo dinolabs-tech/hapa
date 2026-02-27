@@ -27,7 +27,7 @@ $action = $_POST['action'] ?? null;
 // Assign item
 if ($action === 'assign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
   $item_id = intval($_POST['fee_item_id'] ?? 0);
-  $amount = $_POST['amount'];
+  $amount = intval(preg_replace('/[^\d]/', '', $_POST['amount'] ?? '0'));
   $mandatory = isset($_POST['mandatory']) ? 1 : 0;
   if ($item_id > 0 && $amount > 0) {
     $mysqli->begin_transaction();
@@ -38,7 +38,10 @@ if ($action === 'assign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
       $after = ['fee_structure_id' => $structure_id, 'fee_item_id' => $item_id, 'amount' => $amount, 'mandatory' => $mandatory];
       if ($stmt->execute()) {
         audit_log('assign_item', 'fee_structure_item', $stmt->insert_id, $before, $after);
-        $alerts[] = ['success', 'Fee item assigned.'];
+        $mysqli->commit();
+        // Redirect to fee_structures page after successful insertion
+        header('Location: fee_structures.php');
+        exit;
       } else {
         throw new Exception('Error assigning item.');
       }
@@ -49,7 +52,6 @@ if ($action === 'assign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 SELECT COALESCE(SUM(amount),0) FROM fee_structure_items WHERE fee_structure_id = $structure_id
             ) WHERE id = $structure_id");
 
-      $mysqli->commit();
     } catch (Exception $e) {
       $mysqli->rollback();
       $alerts[] = ['danger', $e->getMessage()];
@@ -99,7 +101,7 @@ if ($action === 'unassign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 // Update item amount/mandatory
 if ($action === 'update_item' && $_SERVER['REQUEST_METHOD'] === 'POST') {
   $fsi_id = intval($_POST['fsi_id'] ?? 0);
-  $amount = $_POST['amount'];
+  $amount = intval(preg_replace('/[^\d]/', '', $_POST['amount'] ?? '0'));
   $mandatory = isset($_POST['mandatory']) ? 1 : 0;
   $stmt = $mysqli->prepare("SELECT * FROM fee_structure_items WHERE id = ?");
   $stmt->bind_param('i', $fsi_id);
@@ -359,7 +361,7 @@ while ($row = $res->fetch_assoc()) {
                             <input type="hidden" name="fsi_id" value="<?= $ai['id'] ?>">
                             <td><?= htmlspecialchars($ai['name']) ?></td>
                             <td style="min-width:200px;">
-                              <input type="text" name="amount" value="<?= $ai['amount_display'] ?>" class="form-control" required>
+                              <input type="text" name="amount" value="<?= $ai['amount'] ?>" class="form-control" required>
                             </td>
                             <td class="text-center">
                               <input type="checkbox" name="mandatory" <?= $ai['mandatory'] ? 'checked' : '' ?>>

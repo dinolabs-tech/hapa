@@ -322,6 +322,18 @@ while ($row = $result->fetch_assoc()) {
               </div>
               <div class="card-body">
 
+                <div class="row mb-3">
+                  <div class="col-md-4">
+                    <label for="filterFeeName" class="form-label">Filter by Fee Name:</label>
+                    <select id="filterFeeName" class="form-select form-control">
+                      <option value="">All Fee Names</option>
+                      <?php foreach ($fee_items as $fi): ?>
+                        <option value="<?= htmlspecialchars($fi['name']) ?>"><?= htmlspecialchars($fi['name']) ?></option>
+                      <?php endforeach; ?>
+                    </select>
+                  </div>
+                </div>
+
                 <div class="table-responsive">
 
                   <table class="table table-bordered table-striped table-hover bg-white" id="basic-datatables">
@@ -386,6 +398,25 @@ while ($row = $result->fetch_assoc()) {
     <!-- End Custom template -->
   </div>
   <?php include('scripts.php'); ?>
+  <script>
+    document.getElementById('filterFeeName').addEventListener('change', function() {
+      var filterValue = this.value.toLowerCase();
+      var table = document.getElementById('basic-datatables');
+      var rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+      
+      for (var i = 0; i < rows.length; i++) {
+        var nameInput = rows[i].querySelector('input[name="name"]');
+        if (nameInput) {
+          var feeName = nameInput.value.toLowerCase();
+          if (filterValue === '' || feeName === filterValue) {
+            rows[i].style.display = '';
+          } else {
+            rows[i].style.display = 'none';
+          }
+        }
+      }
+    });
+  </script>
 </body>
 
 </html>
