@@ -74,7 +74,47 @@ if (isset($_POST['action'])) {
             $product_id = $_POST['product_id'];
             $product_name = $_POST['product_name'];
             $price = $_POST['price'];
-            $qty = $_POST['qty'];
+            $qty = intval($_POST['qty']);
+
+            // Fetch current product quantity from database
+            $stockQuery = "SELECT qty FROM product WHERE productid = ?";
+            $stmt = $conn->prepare($stockQuery);
+            $stmt->bind_param("s", $product_id);
+            $stmt->execute();
+            $stmt->bind_result($availableQty);
+            $stmt->fetch();
+            $stmt->close();
+
+            // Check if product exists
+            if ($availableQty === null) {
+                $_SESSION['cart_error'] = "Product not found.";
+                break;
+            }
+
+            // Check if product is out of stock
+            if ($availableQty <= 0) {
+                $_SESSION['cart_error'] = "Sorry, {$product_name} is out of stock.";
+                break;
+            }
+
+            // Calculate current quantity in cart
+            $currentCartQty = 0;
+            if (isset($_SESSION['cart'])) {
+                foreach ($_SESSION['cart'] as $item) {
+                    if ($item['product_id'] === $product_id) {
+                        $currentCartQty = $item['qty'];
+                        break;
+                    }
+                }
+            }
+
+            // Check if requested quantity exceeds available stock
+            $totalRequestedQty = $currentCartQty + $qty;
+            if ($totalRequestedQty > $availableQty) {
+                $remaining = $availableQty - $currentCartQty;
+                $_SESSION['cart_error'] = "Insufficient stock for {$product_name}. Only {$remaining} item(s) available.";
+                break;
+            }
 
             // Initialize cart if it doesn't exist
             if (!isset($_SESSION['cart'])) {
@@ -248,9 +288,9 @@ $conn->close();
             <div class="container">
                 <div class="page-inner">
                     <div
-                        class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4 d-none d-lg-block">
+                        class="d-flex d-none d-lg-block align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
                         <div>
-                            <nts class="fw-bold mb-3">Tuck Shop</h3>
+                            <h3 class="fw-bold mb-3">Tuck Shop</h3>
                                 <ol class="breadcrumb">
                                     <li class="breadcrumb-item active">Home</li>
                                     <li class="breadcrumb-item active">Tuck Shop</li>
@@ -449,6 +489,13 @@ $conn->close();
                                         <div class="alert alert-info mt-3" role="alert">
                                             <?= htmlspecialchars($message) ?>
                                         </div>
+                                    <?php endif; ?>
+
+                                    <?php if (isset($_SESSION['cart_error'])): ?>
+                                        <div class="alert alert-danger mt-3" role="alert">
+                                            <?= htmlspecialchars($_SESSION['cart_error']) ?>
+                                        </div>
+                                        <?php unset($_SESSION['cart_error']); ?>
                                     <?php endif; ?>
 
                                 </div>
