@@ -63,6 +63,16 @@ if (isset($_POST['initiate'])) {
                 'SSS 1' => 'SSS 2',
                 'SSS 2' => 'SSS 3'
             ];
+            
+            // Demotion mapping for students who need to repeat (move back to previous class)
+            $demotionMapping = [
+                'JSS 2' => 'JSS 1',
+                'JSS 3' => 'JSS 2',
+                'SSS 1' => 'JSS 3',
+                'SSS 2' => 'SSS 1',
+                'SSS 3' => 'SSS 2'
+            ];
+            
             $new_class = $promote_class;
             if ($action === 'promote' || $action === 'trial') {
                 foreach ($promotionMapping as $fromClass => $toClass) {
@@ -72,6 +82,18 @@ if (isset($_POST['initiate'])) {
                         $stmt->execute();
                         $stmt->close();
                         $new_class = $toClass;
+                        break;
+                    }
+                }
+            } elseif ($action === 'repeat') {
+                // Move student back to previous class if they were mistakenly promoted
+                foreach ($demotionMapping as $currentClass => $previousClass) {
+                    if ($promote_class === $currentClass) {
+                        $stmt = $conn->prepare("UPDATE students SET class = ? WHERE class = ? AND id = ?");
+                        $stmt->bind_param("sss", $previousClass, $currentClass, $promote_id);
+                        $stmt->execute();
+                        $stmt->close();
+                        $new_class = $previousClass;
                         break;
                     }
                 }
