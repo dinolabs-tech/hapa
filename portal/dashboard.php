@@ -59,28 +59,23 @@ $difference = $diff->days;
 
       <div class="container">
         <div class="page-inner">
-          <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4 d-none d-lg-block">
-            <div class="col-md-4">
+           <div
+            class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4 d-flex">
+            <div>
               <h3 class="fw-bold mb-3">Dashboard</h3>
               <ol class="breadcrumb">
-                <li class="breadcrumb-item active">Home</li>
+                <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                 <li class="breadcrumb-item active">Dashboard</li>
               </ol>
-
             </div>
-            <?php if ($_SESSION['role'] == 'Administrator') {
-              if ($difference <= '30') {
-            ?>
-
-                <div class="col-md-8 d-flex">
+            <?php if ($difference <= '30') { ?>
+                <div class="col-md-8 d-flex ms-auto">
                   <marquee behavior="" direction="" class="text-danger fw-bold mt-2" style="border-left: solid red 5px; height:40px; border-bottom:solid 1px red; border-radius:10px;"><a href="expiry.php">
                       <h5 class="mt-1">Your license will expire in <?= $difference; ?> day(s) time, click on me to make payment</h5>
                     </a></marquee>
                   <span class="ms-auto card bg-danger p-3 text-white fw-bold col-4 col-md-2 text-center"><a href="expiry.php" class="text-white"><?= $expirydate ?></a></span>
                 </div>
-            <?php
-              }
-            } ?>
+            <?php } ?>
           </div>
 
           <!-- PERSONAL AI ============================ -->
@@ -514,9 +509,9 @@ $difference = $diff->days;
   <?php include('scripts.php'); ?>
 
 
-
-
+<?php if ($_SESSION['role'] !== 'Tuckshop' && $_SESSION['role'] !== 'Admission' && $_SESSION['role'] !== 'Bursary') { ?>
   <div class="chatbot-icon" onclick="toggleChatbot()">AI</div>
+<?php  }?>
 
 
   <!-- Chatbot popup -->

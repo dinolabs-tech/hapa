@@ -123,7 +123,7 @@ $currentTimestamp = time();
         <?php echo $activation_message; ?>
 
         <h1>Subscription Expired</h1>
-        <p>We're sorry, but your subscription has expired. To continue using EDUHIVE, please renew your subscription. Click <a href="https://www.dinolabstech.com/backend/login.php">Here</a> to purchase License
+        <p>We're sorry, but your subscription has expired. To continue using EDUHIVE, please renew your subscription. Click <a href="https://www.dinolabstech.com/backend/login.php" class="text-warning fw-bold h5">Here</a> to purchase License
         </p>
 
 

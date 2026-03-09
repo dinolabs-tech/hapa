@@ -1,7 +1,6 @@
 <?php
-
 // Check expiry for non-Student/Alumni/Superuser roles
-if ($role !== 'Superuser') {
+if ($_SESSION['role'] !== 'Superuser') {
     // Fetch the subscription expiry date
     $stmtExp = $conn->prepare("SELECT expdate FROM sub WHERE id = 1 LIMIT 1");
     $stmtExp->execute();
@@ -26,3 +25,5 @@ if ($role !== 'Superuser') {
     }
     // Otherwise, allow login to proceed as usual
 }
+
+?>

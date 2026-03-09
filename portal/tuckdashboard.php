@@ -222,7 +222,6 @@ $date2 = new datetime($expirydatefofrmatted);
 $diff = $date1->diff($date2);
 $difference = $diff->days;
 
-
 // Close database connection
 $conn->close();
 
@@ -252,8 +251,8 @@ $conn->close();
 
       <div class="container">
         <div class="page-inner">
-          <div
-            class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+           <div
+            class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4 d-flex">
             <div>
               <h3 class="fw-bold mb-3">Dashboard</h3>
               <ol class="breadcrumb">
@@ -262,18 +261,15 @@ $conn->close();
                 <li class="breadcrumb-item active">Dashboard</li>
               </ol>
             </div>
-            <?php if ($_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Tuckshop') {
-              if ($difference <= '30') {
+            <?php if ($difference <= '30' && $_SESSION['role'] != 'Superuser') {
             ?>
-
-                <div class="col-md-8 d-flex">
+                <div class="col-md-8 d-flex ms-auto">
                   <marquee behavior="" direction="" class="text-danger fw-bold mt-2" style="border-left: solid red 5px; height:40px; border-bottom:solid 1px red; border-radius:10px;"><a href="expiry.php">
                       <h5 class="mt-1">Your license will expire in <?= $difference; ?> day(s) time, click on me to make payment</h5>
                     </a></marquee>
                   <span class="ms-auto card bg-danger p-3 text-white fw-bold col-4 col-md-2 text-center"><a href="expiry.php" class="text-white"><?= $expirydate ?></a></span>
                 </div>
             <?php
-              }
             } ?>
           </div>
 
