@@ -3,6 +3,8 @@ include('components/birthday_logic.php');
 
 include('helpers/money.php');
 
+// check license expiry
+include('check_expiry.php');
 
 // Fetch stats
 $total_students = $conn->query("SELECT COUNT(*) as count FROM students where status = 0")->fetch_assoc()['count'];

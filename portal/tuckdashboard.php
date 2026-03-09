@@ -5,17 +5,19 @@ session_start();
 
 // Check if the user is logged in, if not redirect to login page
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
+  header("Location: login.php");
+  exit();
 }
 
 // Database connection
 include 'db_connection.php';
 
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+  die("Connection failed: " . $conn->connect_error);
 }
 
+// check license expiry
+include('check_expiry.php');
 
 // Queries to retrieve the data
 $total_sales_query = "SELECT SUM(amount) FROM transactiondetails WHERE description='Sales'";
@@ -52,22 +54,23 @@ $top_products_chart_query = "SELECT productname, SUM(amount) as total_revenue FR
 
 // Function to safely execute queries and handle errors
 // Function to safely execute queries and handle errors
-function executeQuery($conn, $sql) {
-    $stmt = $conn->prepare($sql);
-    if ($stmt === false) {
-        error_log("Error preparing statement: " . $conn->error . " in " . __FILE__ . " on line " . __LINE__);
-        return null;
-    }
-    if ($stmt->execute() === false) {
-        error_log("Error executing statement: " . $stmt->error . " in " . __FILE__ . " on line " . __LINE__);
-        return null;
-    }
+function executeQuery($conn, $sql)
+{
+  $stmt = $conn->prepare($sql);
+  if ($stmt === false) {
+    error_log("Error preparing statement: " . $conn->error . " in " . __FILE__ . " on line " . __LINE__);
+    return null;
+  }
+  if ($stmt->execute() === false) {
+    error_log("Error executing statement: " . $stmt->error . " in " . __FILE__ . " on line " . __LINE__);
+    return null;
+  }
 
-    $value = null; // Initialize $value to null
-    $stmt->bind_result($value); // Bind the single result column to a variable
-    $stmt->fetch(); // Fetch the result
-    $stmt->close();
-    return $value; // Return the fetched value directly
+  $value = null; // Initialize $value to null
+  $stmt->bind_result($value); // Bind the single result column to a variable
+  $stmt->fetch(); // Fetch the result
+  $stmt->close();
+  return $value; // Return the fetched value directly
 }
 
 // Execute the queries
@@ -101,97 +104,95 @@ if (!isset($avg_transaction)) $avg_transaction = 0;
 $low_stock_items = [];
 $result = $conn->query($low_stock_query);
 if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $low_stock_items[] = $row;
-    }
-    $result->close();
+  while ($row = $result->fetch_assoc()) {
+    $low_stock_items[] = $row;
+  }
+  $result->close();
 }
 
 $recent_transactions = [];
 $result = $conn->query($recent_transactions_query);
 if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $recent_transactions[] = $row;
-    }
-    $result->close();
+  while ($row = $result->fetch_assoc()) {
+    $recent_transactions[] = $row;
+  }
+  $result->close();
 }
 
 $top_products = [];
 $result = $conn->query($top_products_query);
 if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $top_products[] = $row;
-    }
-    $result->close();
+  while ($row = $result->fetch_assoc()) {
+    $top_products[] = $row;
+  }
+  $result->close();
 }
 
 // Fetch chart data
 $sales_trend_data = [];
 $result = $conn->query($sales_trend_query);
 if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $sales_trend_data[] = $row;
-    }
-    $result->close();
+  while ($row = $result->fetch_assoc()) {
+    $sales_trend_data[] = $row;
+  }
+  $result->close();
 }
 
 $monthly_sales_data = [];
 $result = $conn->query($monthly_sales_query);
 if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $monthly_sales_data[] = $row;
-    }
-    $result->close();
+  while ($row = $result->fetch_assoc()) {
+    $monthly_sales_data[] = $row;
+  }
+  $result->close();
 }
 
 $transaction_volume_data = [];
 $result = $conn->query($transaction_volume_query);
 if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $transaction_volume_data[] = $row;
-    }
-    $result->close();
+  while ($row = $result->fetch_assoc()) {
+    $transaction_volume_data[] = $row;
+  }
+  $result->close();
 }
 
 $top_products_chart_data = [];
 $result = $conn->query($top_products_chart_query);
 if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $top_products_chart_data[] = $row;
-    }
-    $result->close();
+  while ($row = $result->fetch_assoc()) {
+    $top_products_chart_data[] = $row;
+  }
+  $result->close();
 }
 
 // Handle potential nulls from executeQuery
 if (!isset($total_sales)) {
-    $total_sales = 0;
+  $total_sales = 0;
 }
 if (!isset($total_profit)) {
-    $total_profit = 0;
+  $total_profit = 0;
 }
 if (!isset($inventory_qty)) {
-    $inventory_qty = 0;
+  $inventory_qty = 0;
 }
 if (!isset($inventory_sum)) {
-    $inventory_sum = 0;
+  $inventory_sum = 0;
 }
 if (!isset($total_transactions)) {
-    $total_transactions = 0;
+  $total_transactions = 0;
 }
 if (!isset($out_of_stock)) {
-    $out_of_stock = 0;
+  $out_of_stock = 0;
 }
 if (!isset($total_tuck_students)) {
-    $total_tuck_students = 0;
+  $total_tuck_students = 0;
 }
 if (!isset($total_students_balance)) {
-    $total_students_balance = 0;
+  $total_students_balance = 0;
 }
 if (!isset($total_low_balance)) {
-    $total_low_balance = 0;
+  $total_low_balance = 0;
 }
-
-
 
 // Fetch the logged-in Staff name
 $user_id = $_SESSION['user_id'];
@@ -202,6 +203,26 @@ $stmt->bind_result($student_name);
 $stmt->fetch();
 $stmt->close();
 
+// 5. Get current expiry date from Sub table where id = 1
+$sql_expiry = "SELECT expdate FROM sub WHERE id = 1";
+$result = $conn->query($sql_expiry);
+$expirydate = ($result && $result->num_rows > 0) ? $result->fetch_assoc()['expdate'] : 'N/A';
+
+// convert expiry date to YYYY-MM-DD
+list($day, $month, $year) = explode('/', $expirydate);
+$expirydatefofrmatted = "$year-$month-$day";
+
+$today = date("Y-m-d");
+
+// convert both to datetime objects
+$date1 = new datetime($today);
+$date2 = new datetime($expirydatefofrmatted);
+
+// calculate the diffrence
+$diff = $date1->diff($date2);
+$difference = $diff->days;
+
+
 // Close database connection
 $conn->close();
 
@@ -209,608 +230,621 @@ $conn->close();
 
 <!DOCTYPE html>
 <html lang="en">
-<?php include('head.php');?>
-  <body>
-    <div class="wrapper">
-      <!-- Sidebar -->
-     <?php include('adminnav.php');?>
-      <!-- End Sidebar -->
+<?php include('head.php'); ?>
 
-      <div class="main-panel">
-        <div class="main-header">
-          <div class="main-header-logo">
-            <!-- Logo Header -->
-            <?php include('logo_header.php');?>
-            <!-- End Logo Header -->
-          </div>
-          <!-- Navbar Header -->
-         <?php include('navbar.php');?>
-          <!-- End Navbar -->
+<body>
+  <div class="wrapper">
+    <!-- Sidebar -->
+    <?php include('adminnav.php'); ?>
+    <!-- End Sidebar -->
+
+    <div class="main-panel">
+      <div class="main-header">
+        <div class="main-header-logo">
+          <!-- Logo Header -->
+          <?php include('logo_header.php'); ?>
+          <!-- End Logo Header -->
         </div>
-
-        <div class="container">
-          <div class="page-inner">
-            <div
-              class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4"
-            >
-              <div>
-                <h3 class="fw-bold mb-3">Dashboard</h3>
-                <ol class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                  <li class="breadcrumb-item active">Tuck Shop</li>
-                  <li class="breadcrumb-item active">Dashboard</li>
-              </ol>
-              </div>
-
-            </div>
-
-            <!-- Today's Performance -->
-            <div class="row mb-4">
-              <div class="col-md-3">
-                <div class="card card-round card-primary">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Today's Sales</div>
-                    </div>
-                  </div>
-                  <div class="card-body pb-0">
-                    <div class="mb-4 mt-2">
-                      <p class="card-title text-info">₦ <?php echo number_format($today_sales, 2); ?></p>
-                      <small class="text-muted">
-                        <?php
-                        $change = $today_sales - $yesterday_sales;
-                        $change_percent = $yesterday_sales > 0 ? (($change / $yesterday_sales) * 100) : 0;
-                        $change_class = $change >= 0 ? 'text-success' : 'text-danger';
-                        $change_icon = $change >= 0 ? '↑' : '↓';
-                        echo "<span class='$change_class'>$change_icon " . abs($change_percent) . "%</span> vs yesterday";
-                        ?>
-                      </small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="card card-round card-success">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">This Week</div>
-                    </div>
-                  </div>
-                  <div class="card-body pb-0">
-                    <div class="mb-4 mt-2">
-                      <p class="card-title text-success">₦ <?php echo number_format($week_sales, 2); ?></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="card card-round card-primary">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">This Month</div>
-                    </div>
-                  </div>
-                  <div class="card-body pb-0">
-                    <div class="mb-4 mt-2">
-                      <p class="card-title text-primary">₦ <?php echo number_format($month_sales, 2); ?></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="card card-round card-warning">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Avg Transaction</div>
-                    </div>
-                  </div>
-                  <div class="card-body pb-0">
-                    <div class="mb-4 mt-2">
-                      <p class="card-title text-warning">₦ <?php echo number_format($avg_transaction, 2); ?></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Main Statistics -->
-            <div class="row mb-4">
-              <div class="col-md-3">
-                <div class="card card-round card-success curves-shadow">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Total Students Registered</div>
-                    </div>
-                  </div>
-                  <div class="card-body pb-0">
-                    <div class="mb-4 mt-2">
-                      <p class="card-title"> <?php echo $total_tuck_students; ?> </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="card card-round card-primary skew-shadow">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Total Students Balance</div>
-                    </div>
-                  </div>
-                  <div class="card-body pb-0">
-                    <div class="mb-4 mt-2">
-                      <p class="card-title">₦ <?php echo number_format($total_students_balance, 2); ?> </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="card card-round card-danger bubble-shadow">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Low Balance Students</div>
-                    </div>
-                  </div>
-                  <div class="card-body pb-0">
-                    <div class="mb-4 mt-2">
-                      <p class="card-title"> <?php echo $total_low_balance; ?> </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="card card-round card-success curves-shadow">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Total Sales</div>
-                    </div>
-                  </div>
-                  <div class="card-body pb-0">
-                    <div class="mb-4 mt-2">
-                      <p class="card-title">₦ <?php echo number_format($total_sales, 2); ?> </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="card card-round card-secondary skew-shadow">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Total Transactions</div>
-                    </div>
-                  </div>
-                  <div class="card-body pb-0">
-                    <div class="mb-4 mt-2">
-                      <p class="card-title"> <?php echo $total_transactions; ?> </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="card card-round card-warning bubble-shadow">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Inventory Items</div>
-                    </div>
-                  </div>
-                  <div class="card-body pb-0">
-                    <div class="mb-4 mt-2">
-                      <p class="card-title"><?php echo $inventory_qty; ?> Items</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="card card-round card-primary curves-shadow">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Inventory Value</div>
-                    </div>
-                  </div>
-                  <div class="card-body pb-0">
-                    <div class="mb-4 mt-2">
-                      <p class="card-title">₦ <?php echo number_format($inventory_sum, 2); ?></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-3">
-                <div class="card card-round card-danger bubble-shadow">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Out of Stock</div>
-                    </div>
-                  </div>
-                  <div class="card-body pb-0">
-                    <div class="mb-4 mt-2">
-                      <p class="card-title"><?php echo $out_of_stock; ?> Products</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Recent Transactions and Inventory Alerts -->
-            <div class="row mb-4">
-              <!-- Recent Transactions -->
-              <div class="col-md-8">
-                <div class="card card-round">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Recent Transactions</div>
-                      <div class="card-tools">
-                        <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="card-body">
-                    <div class="table-responsive">
-                      <table class="table table-hover">
-                        <thead>
-                          <tr>
-                            <th>Student</th>
-                            <th>Product</th>
-                            <th>Amount</th>
-                            <th>Date</th>
-                            <th>Cashier</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <?php if (!empty($recent_transactions)): ?>
-                            <?php foreach ($recent_transactions as $transaction): ?>
-                              <tr>
-                                <td><?php echo htmlspecialchars($transaction['studentname']); ?></td>
-                                <td><?php echo htmlspecialchars($transaction['productname']); ?></td>
-                                <td>₦<?php echo number_format($transaction['amount'], 2); ?></td>
-                                <td><?php echo date('M d, H:i', strtotime($transaction['transactiondate'])); ?></td>
-                                <td><?php echo htmlspecialchars($transaction['cashier']); ?></td>
-                              </tr>
-                            <?php endforeach; ?>
-                          <?php else: ?>
-                            <tr>
-                              <td colspan="5" class="text-center text-muted">No recent transactions</td>
-                            </tr>
-                          <?php endif; ?>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Inventory Alerts -->
-              <div class="col-md-4">
-                <div class="card card-round">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Inventory Alerts</div>
-                    </div>
-                  </div>
-                  <div class="card-body">
-                    <?php if (!empty($low_stock_items)): ?>
-                      <?php foreach ($low_stock_items as $item): ?>
-                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                          <strong><?php echo htmlspecialchars($item['productname']); ?></strong><br>
-                          <small>Only <?php echo $item['qty']; ?> left (Reorder at: <?php echo $item['reorder_level']; ?>)</small>
-                          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                      <?php endforeach; ?>
-                    <?php else: ?>
-                      <div class="text-center text-muted">
-                        <i class="fas fa-check-circle text-success fa-2x"></i><br>
-                        All inventory levels are good!
-                      </div>
-                    <?php endif; ?>
-
-                    <?php if ($out_of_stock > 0): ?>
-                      <div class="alert alert-danger" role="alert">
-                        <strong><?php echo $out_of_stock; ?> products are out of stock!</strong>
-                      </div>
-                    <?php endif; ?>
-                  </div>
-                </div>
-
-                <!-- Top Products -->
-                <div class="card card-round mt-3">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Top Selling Products</div>
-                    </div>
-                  </div>
-                  <div class="card-body">
-                    <?php if (!empty($top_products)): ?>
-                      <?php foreach ($top_products as $index => $product): ?>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                          <div>
-                            <strong><?php echo htmlspecialchars($product['productname']); ?></strong><br>
-                            <small class="text-muted"><?php echo $product['total_qty']; ?> units sold</small>
-                          </div>
-                          <div class="text-end">
-                            <span class="badge bg-success">₦<?php echo number_format($product['total_revenue'], 2); ?></span>
-                          </div>
-                        </div>
-                        <?php if ($index < count($top_products) - 1): ?>
-                          <hr>
-                        <?php endif; ?>
-                      <?php endforeach; ?>
-                    <?php else: ?>
-                      <div class="text-center text-muted">
-                        No sales data available
-                      </div>
-                    <?php endif; ?>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Charts Section -->
-            <div class="row mb-4">
-              <!-- Sales Trend Chart -->
-              <div class="col-md-6">
-                <div class="card card-round">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Sales Trend (Last 14 Days)</div>
-                    </div>
-                  </div>
-                  <div class="card-body">
-                    <canvas id="salesTrendChart" width="400" height="200"></canvas>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Monthly Comparison Chart -->
-              <div class="col-md-6">
-                <div class="card card-round">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Monthly Sales Comparison</div>
-                    </div>
-                  </div>
-                  <div class="card-body">
-                    <canvas id="monthlySalesChart" width="400" height="200"></canvas>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="row mb-4">
-              <!-- Product Performance Chart -->
-              <div class="col-md-6">
-                <div class="card card-round">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Top Products Performance</div>
-                    </div>
-                  </div>
-                  <div class="card-body">
-                    <canvas id="productPerformanceChart" width="400" height="200"></canvas>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Transaction Volume Chart -->
-              <div class="col-md-6">
-                <div class="card card-round">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Transaction Volume (Last 14 Days)</div>
-                    </div>
-                  </div>
-                  <div class="card-body">
-                    <canvas id="transactionVolumeChart" width="400" height="200"></canvas>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <?php include('footer.php');?>
+        <!-- Navbar Header -->
+        <?php include('navbar.php'); ?>
+        <!-- End Navbar -->
       </div>
 
-      <!-- Custom template | don't include it in your project! -->
-      <?php include('cust-color.php');?>
-      <!-- End Custom template -->
+      <div class="container">
+        <div class="page-inner">
+          <div
+            class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+            <div>
+              <h3 class="fw-bold mb-3">Dashboard</h3>
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
+                <li class="breadcrumb-item active">Tuck Shop</li>
+                <li class="breadcrumb-item active">Dashboard</li>
+              </ol>
+            </div>
+            <?php if ($_SESSION['role'] == 'Administrator') {
+              if ($difference <= '30') {
+            ?>
+
+                <div class="col-md-8 d-flex">
+                  <marquee behavior="" direction="" class="text-danger fw-bold mt-2" style="border-left: solid red 5px; height:40px; border-bottom:solid 1px red; border-radius:10px;"><a href="expiry.php">
+                      <h5 class="mt-1">Your license will expire in <?= $difference; ?> day(s) time, click on me to make payment</h5>
+                    </a></marquee>
+                  <span class="ms-auto card bg-danger p-3 text-white fw-bold col-4 col-md-2 text-center"><a href="expiry.php" class="text-white"><?= $expirydate ?></a></span>
+                </div>
+            <?php
+              }
+            } ?>
+          </div>
+
+          <!-- Today's Performance -->
+          <div class="row mb-4">
+            <div class="col-md-3">
+              <div class="card card-round card-primary">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Today's Sales</div>
+                  </div>
+                </div>
+                <div class="card-body pb-0">
+                  <div class="mb-4 mt-2">
+                    <p class="card-title text-info">₦ <?php echo number_format($today_sales, 2); ?></p>
+                    <small class="text-muted">
+                      <?php
+                      $change = $today_sales - $yesterday_sales;
+                      $change_percent = $yesterday_sales > 0 ? (($change / $yesterday_sales) * 100) : 0;
+                      $change_class = $change >= 0 ? 'text-success' : 'text-danger';
+                      $change_icon = $change >= 0 ? '↑' : '↓';
+                      echo "<span class='$change_class'>$change_icon " . abs($change_percent) . "%</span> vs yesterday";
+                      ?>
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card card-round card-success">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">This Week</div>
+                  </div>
+                </div>
+                <div class="card-body pb-0">
+                  <div class="mb-4 mt-2">
+                    <p class="card-title text-success">₦ <?php echo number_format($week_sales, 2); ?></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card card-round card-primary">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">This Month</div>
+                  </div>
+                </div>
+                <div class="card-body pb-0">
+                  <div class="mb-4 mt-2">
+                    <p class="card-title text-primary">₦ <?php echo number_format($month_sales, 2); ?></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card card-round card-warning">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Avg Transaction</div>
+                  </div>
+                </div>
+                <div class="card-body pb-0">
+                  <div class="mb-4 mt-2">
+                    <p class="card-title text-warning">₦ <?php echo number_format($avg_transaction, 2); ?></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Statistics -->
+          <div class="row mb-4">
+            <div class="col-md-3">
+              <div class="card card-round card-success curves-shadow">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Total Students Registered</div>
+                  </div>
+                </div>
+                <div class="card-body pb-0">
+                  <div class="mb-4 mt-2">
+                    <p class="card-title"> <?php echo $total_tuck_students; ?> </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card card-round card-primary skew-shadow">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Total Students Balance</div>
+                  </div>
+                </div>
+                <div class="card-body pb-0">
+                  <div class="mb-4 mt-2">
+                    <p class="card-title">₦ <?php echo number_format($total_students_balance, 2); ?> </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card card-round card-danger bubble-shadow">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Low Balance Students</div>
+                  </div>
+                </div>
+                <div class="card-body pb-0">
+                  <div class="mb-4 mt-2">
+                    <p class="card-title"> <?php echo $total_low_balance; ?> </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card card-round card-success curves-shadow">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Total Sales</div>
+                  </div>
+                </div>
+                <div class="card-body pb-0">
+                  <div class="mb-4 mt-2">
+                    <p class="card-title">₦ <?php echo number_format($total_sales, 2); ?> </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card card-round card-secondary skew-shadow">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Total Transactions</div>
+                  </div>
+                </div>
+                <div class="card-body pb-0">
+                  <div class="mb-4 mt-2">
+                    <p class="card-title"> <?php echo $total_transactions; ?> </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card card-round card-warning bubble-shadow">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Inventory Items</div>
+                  </div>
+                </div>
+                <div class="card-body pb-0">
+                  <div class="mb-4 mt-2">
+                    <p class="card-title"><?php echo $inventory_qty; ?> Items</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card card-round card-primary curves-shadow">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Inventory Value</div>
+                  </div>
+                </div>
+                <div class="card-body pb-0">
+                  <div class="mb-4 mt-2">
+                    <p class="card-title">₦ <?php echo number_format($inventory_sum, 2); ?></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="card card-round card-danger bubble-shadow">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Out of Stock</div>
+                  </div>
+                </div>
+                <div class="card-body pb-0">
+                  <div class="mb-4 mt-2">
+                    <p class="card-title"><?php echo $out_of_stock; ?> Products</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Transactions and Inventory Alerts -->
+          <div class="row mb-4">
+            <!-- Recent Transactions -->
+            <div class="col-md-8">
+              <div class="card card-round">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Recent Transactions</div>
+                    <div class="card-tools">
+                      <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Student</th>
+                          <th>Product</th>
+                          <th>Amount</th>
+                          <th>Date</th>
+                          <th>Cashier</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <?php if (!empty($recent_transactions)): ?>
+                          <?php foreach ($recent_transactions as $transaction): ?>
+                            <tr>
+                              <td><?php echo htmlspecialchars($transaction['studentname']); ?></td>
+                              <td><?php echo htmlspecialchars($transaction['productname']); ?></td>
+                              <td>₦<?php echo number_format($transaction['amount'], 2); ?></td>
+                              <td><?php echo date('M d, H:i', strtotime($transaction['transactiondate'])); ?></td>
+                              <td><?php echo htmlspecialchars($transaction['cashier']); ?></td>
+                            </tr>
+                          <?php endforeach; ?>
+                        <?php else: ?>
+                          <tr>
+                            <td colspan="5" class="text-center text-muted">No recent transactions</td>
+                          </tr>
+                        <?php endif; ?>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inventory Alerts -->
+            <div class="col-md-4">
+              <div class="card card-round">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Inventory Alerts</div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <?php if (!empty($low_stock_items)): ?>
+                    <?php foreach ($low_stock_items as $item): ?>
+                      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <strong><?php echo htmlspecialchars($item['productname']); ?></strong><br>
+                        <small>Only <?php echo $item['qty']; ?> left (Reorder at: <?php echo $item['reorder_level']; ?>)</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      </div>
+                    <?php endforeach; ?>
+                  <?php else: ?>
+                    <div class="text-center text-muted">
+                      <i class="fas fa-check-circle text-success fa-2x"></i><br>
+                      All inventory levels are good!
+                    </div>
+                  <?php endif; ?>
+
+                  <?php if ($out_of_stock > 0): ?>
+                    <div class="alert alert-danger" role="alert">
+                      <strong><?php echo $out_of_stock; ?> products are out of stock!</strong>
+                    </div>
+                  <?php endif; ?>
+                </div>
+              </div>
+
+              <!-- Top Products -->
+              <div class="card card-round mt-3">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Top Selling Products</div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <?php if (!empty($top_products)): ?>
+                    <?php foreach ($top_products as $index => $product): ?>
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                          <strong><?php echo htmlspecialchars($product['productname']); ?></strong><br>
+                          <small class="text-muted"><?php echo $product['total_qty']; ?> units sold</small>
+                        </div>
+                        <div class="text-end">
+                          <span class="badge bg-success">₦<?php echo number_format($product['total_revenue'], 2); ?></span>
+                        </div>
+                      </div>
+                      <?php if ($index < count($top_products) - 1): ?>
+                        <hr>
+                      <?php endif; ?>
+                    <?php endforeach; ?>
+                  <?php else: ?>
+                    <div class="text-center text-muted">
+                      No sales data available
+                    </div>
+                  <?php endif; ?>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Section -->
+          <div class="row mb-4">
+            <!-- Sales Trend Chart -->
+            <div class="col-md-6">
+              <div class="card card-round">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Sales Trend (Last 14 Days)</div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <canvas id="salesTrendChart" width="400" height="200"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Monthly Comparison Chart -->
+            <div class="col-md-6">
+              <div class="card card-round">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Monthly Sales Comparison</div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <canvas id="monthlySalesChart" width="400" height="200"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <!-- Product Performance Chart -->
+            <div class="col-md-6">
+              <div class="card card-round">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Top Products Performance</div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <canvas id="productPerformanceChart" width="400" height="200"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Transaction Volume Chart -->
+            <div class="col-md-6">
+              <div class="card card-round">
+                <div class="card-header">
+                  <div class="card-head-row">
+                    <div class="card-title">Transaction Volume (Last 14 Days)</div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <canvas id="transactionVolumeChart" width="400" height="200"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <?php include('footer.php'); ?>
     </div>
-   <?php include('scripts.php');?>
 
-   <script>
-   // Chart data preparation
-   <?php
-   // Sales Trend Chart Data
-   $salesTrendLabels = [];
-   $salesTrendValues = [];
-   foreach ($sales_trend_data as $data) {
-       $salesTrendLabels[] = date('M d', strtotime($data['date']));
-       $salesTrendValues[] = (float)$data['total_sales'];
-   }
+    <!-- Custom template | don't include it in your project! -->
+    <?php include('cust-color.php'); ?>
+    <!-- End Custom template -->
+  </div>
+  <?php include('scripts.php'); ?>
 
-   // Monthly Sales Chart Data
-   $monthlyLabels = [];
-   $monthlyValues = [];
-   foreach ($monthly_sales_data as $data) {
-       $monthlyLabels[] = date('M Y', strtotime($data['month'] . '-01'));
-       $monthlyValues[] = (float)$data['total_sales'];
-   }
+  <script>
+    // Chart data preparation
+    <?php
+    // Sales Trend Chart Data
+    $salesTrendLabels = [];
+    $salesTrendValues = [];
+    foreach ($sales_trend_data as $data) {
+      $salesTrendLabels[] = date('M d', strtotime($data['date']));
+      $salesTrendValues[] = (float)$data['total_sales'];
+    }
 
-   // Product Performance Chart Data
-   $productLabels = [];
-   $productValues = [];
-   foreach ($top_products_chart_data as $data) {
-       $productLabels[] = $data['productname'];
-       $productValues[] = (float)$data['total_revenue'];
-   }
+    // Monthly Sales Chart Data
+    $monthlyLabels = [];
+    $monthlyValues = [];
+    foreach ($monthly_sales_data as $data) {
+      $monthlyLabels[] = date('M Y', strtotime($data['month'] . '-01'));
+      $monthlyValues[] = (float)$data['total_sales'];
+    }
 
-   // Transaction Volume Chart Data
-   $transactionLabels = [];
-   $transactionValues = [];
-   foreach ($transaction_volume_data as $data) {
-       $transactionLabels[] = date('M d', strtotime($data['date']));
-       $transactionValues[] = (int)$data['transaction_count'];
-   }
-   ?>
+    // Product Performance Chart Data
+    $productLabels = [];
+    $productValues = [];
+    foreach ($top_products_chart_data as $data) {
+      $productLabels[] = $data['productname'];
+      $productValues[] = (float)$data['total_revenue'];
+    }
 
-   // Sales Trend Chart
-   const salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
-   new Chart(salesTrendCtx, {
-       type: 'line',
-       data: {
-           labels: <?php echo json_encode($salesTrendLabels); ?>,
-           datasets: [{
-               label: 'Daily Sales (₦)',
-               data: <?php echo json_encode($salesTrendValues); ?>,
-               borderColor: 'rgb(75, 192, 192)',
-               backgroundColor: 'rgba(75, 192, 192, 0.2)',
-               tension: 0.1,
-               fill: true
-           }]
-       },
-       options: {
-           responsive: true,
-           plugins: {
-               legend: {
-                   position: 'top',
-               },
-               title: {
-                   display: false
-               }
-           },
-           scales: {
-               y: {
-                   beginAtZero: true,
-                   ticks: {
-                       callback: function(value) {
-                           return '₦' + value.toLocaleString();
-                       }
-                   }
-               }
-           }
-       }
-   });
+    // Transaction Volume Chart Data
+    $transactionLabels = [];
+    $transactionValues = [];
+    foreach ($transaction_volume_data as $data) {
+      $transactionLabels[] = date('M d', strtotime($data['date']));
+      $transactionValues[] = (int)$data['transaction_count'];
+    }
+    ?>
 
-   // Monthly Sales Comparison Chart
-   const monthlySalesCtx = document.getElementById('monthlySalesChart').getContext('2d');
-   new Chart(monthlySalesCtx, {
-       type: 'bar',
-       data: {
-           labels: <?php echo json_encode($monthlyLabels); ?>,
-           datasets: [{
-               label: 'Monthly Sales (₦)',
-               data: <?php echo json_encode($monthlyValues); ?>,
-               backgroundColor: 'rgba(54, 162, 235, 0.8)',
-               borderColor: 'rgba(54, 162, 235, 1)',
-               borderWidth: 1
-           }]
-       },
-       options: {
-           responsive: true,
-           plugins: {
-               legend: {
-                   position: 'top',
-               }
-           },
-           scales: {
-               y: {
-                   beginAtZero: true,
-                   ticks: {
-                       callback: function(value) {
-                           return '₦' + value.toLocaleString();
-                       }
-                   }
-               }
-           }
-       }
-   });
+    // Sales Trend Chart
+    const salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
+    new Chart(salesTrendCtx, {
+      type: 'line',
+      data: {
+        labels: <?php echo json_encode($salesTrendLabels); ?>,
+        datasets: [{
+          label: 'Daily Sales (₦)',
+          data: <?php echo json_encode($salesTrendValues); ?>,
+          borderColor: 'rgb(75, 192, 192)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          tension: 0.1,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          title: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return '₦' + value.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
 
-   // Product Performance Chart
-   const productPerformanceCtx = document.getElementById('productPerformanceChart').getContext('2d');
-   new Chart(productPerformanceCtx, {
-       type: 'bar',
-       data: {
-           labels: <?php echo json_encode($productLabels); ?>,
-           datasets: [{
-               label: 'Revenue (₦)',
-               data: <?php echo json_encode($productValues); ?>,
-               backgroundColor: [
-                   'rgba(255, 99, 132, 0.8)',
-                   'rgba(54, 162, 235, 0.8)',
-                   'rgba(255, 205, 86, 0.8)',
-                   'rgba(75, 192, 192, 0.8)',
-                   'rgba(153, 102, 255, 0.8)',
-                   'rgba(255, 159, 64, 0.8)',
-                   'rgba(199, 199, 199, 0.8)',
-                   'rgba(83, 102, 255, 0.8)',
-                   'rgba(255, 99, 255, 0.8)',
-                   'rgba(99, 255, 132, 0.8)'
-               ],
-               borderWidth: 1
-           }]
-       },
-       options: {
-           indexAxis: 'y',
-           responsive: true,
-           plugins: {
-               legend: {
-                   position: 'top',
-               }
-           },
-           scales: {
-               x: {
-                   beginAtZero: true,
-                   ticks: {
-                       callback: function(value) {
-                           return '₦' + value.toLocaleString();
-                       }
-                   }
-               }
-           }
-       }
-   });
+    // Monthly Sales Comparison Chart
+    const monthlySalesCtx = document.getElementById('monthlySalesChart').getContext('2d');
+    new Chart(monthlySalesCtx, {
+      type: 'bar',
+      data: {
+        labels: <?php echo json_encode($monthlyLabels); ?>,
+        datasets: [{
+          label: 'Monthly Sales (₦)',
+          data: <?php echo json_encode($monthlyValues); ?>,
+          backgroundColor: 'rgba(54, 162, 235, 0.8)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return '₦' + value.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
 
-   // Transaction Volume Chart
-   const transactionVolumeCtx = document.getElementById('transactionVolumeChart').getContext('2d');
-   new Chart(transactionVolumeCtx, {
-       type: 'line',
-       data: {
-           labels: <?php echo json_encode($transactionLabels); ?>,
-           datasets: [{
-               label: 'Transaction Count',
-               data: <?php echo json_encode($transactionValues); ?>,
-               borderColor: 'rgb(255, 99, 132)',
-               backgroundColor: 'rgba(255, 99, 132, 0.2)',
-               tension: 0.1,
-               fill: true
-           }]
-       },
-       options: {
-           responsive: true,
-           plugins: {
-               legend: {
-                   position: 'top',
-               }
-           },
-           scales: {
-               y: {
-                   beginAtZero: true,
-                   ticks: {
-                       stepSize: 1
-                   }
-               }
-           }
-       }
-   });
-   </script>
+    // Product Performance Chart
+    const productPerformanceCtx = document.getElementById('productPerformanceChart').getContext('2d');
+    new Chart(productPerformanceCtx, {
+      type: 'bar',
+      data: {
+        labels: <?php echo json_encode($productLabels); ?>,
+        datasets: [{
+          label: 'Revenue (₦)',
+          data: <?php echo json_encode($productValues); ?>,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 205, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)',
+            'rgba(153, 102, 255, 0.8)',
+            'rgba(255, 159, 64, 0.8)',
+            'rgba(199, 199, 199, 0.8)',
+            'rgba(83, 102, 255, 0.8)',
+            'rgba(255, 99, 255, 0.8)',
+            'rgba(99, 255, 132, 0.8)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return '₦' + value.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
 
-  </body>
+    // Transaction Volume Chart
+    const transactionVolumeCtx = document.getElementById('transactionVolumeChart').getContext('2d');
+    new Chart(transactionVolumeCtx, {
+      type: 'line',
+      data: {
+        labels: <?php echo json_encode($transactionLabels); ?>,
+        datasets: [{
+          label: 'Transaction Count',
+          data: <?php echo json_encode($transactionValues); ?>,
+          borderColor: 'rgb(255, 99, 132)',
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          tension: 0.1,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+  </script>
+
+</body>
+
 </html>
