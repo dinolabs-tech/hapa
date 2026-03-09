@@ -262,7 +262,7 @@ $conn->close();
                 <li class="breadcrumb-item active">Dashboard</li>
               </ol>
             </div>
-            <?php if ($_SESSION['role'] == 'Administrator') {
+            <?php if ($_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Tuckshop') {
               if ($difference <= '30') {
             ?>
 
