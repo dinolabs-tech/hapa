@@ -103,6 +103,42 @@ if (isset($_POST['update_subject'])) {
     $stmt_update_mastersheet->bind_param("ssss", $new_subject, $old_subject, $new_class, $new_arm);
     $stmt_update_mastersheet->execute();
     $stmt_update_mastersheet->close();
+
+    // Update the question table
+    $stmt_update_question = $conn->prepare("UPDATE question SET subject = ? WHERE subject = ? AND class = ? AND arm = ?");
+    $stmt_update_question->bind_param("ssss", $new_subject, $old_subject, $new_class, $new_arm);
+    $stmt_update_question->execute();
+    $stmt_update_question->close();
+
+    // Update the cbt_score table
+    $stmt_update_cbt_score = $conn->prepare("UPDATE cbt_score SET subject = ? WHERE subject = ? AND class = ? AND arm = ?");
+    $stmt_update_cbt_score->bind_param("ssss", $new_subject, $old_subject, $new_class, $new_arm);
+    $stmt_update_cbt_score->execute();
+    $stmt_update_cbt_score->close();
+
+    // Update the ques table
+    $stmt_update_ques = $conn->prepare("UPDATE ques SET subject = ? WHERE subject = ? AND class = ? AND arm = ?");
+    $stmt_update_ques->bind_param("ssss", $new_subject, $old_subject, $new_class, $new_arm);
+    $stmt_update_ques->execute();
+    $stmt_update_ques->close();
+
+    // Update the result table
+    $stmt_update_result = $conn->prepare("UPDATE result SET subject = ? WHERE subject = ? AND class = ? AND arm = ?");
+    $stmt_update_result->bind_param("ssss", $new_subject, $old_subject, $new_class, $new_arm);
+    $stmt_update_result->execute();
+    $stmt_update_result->close();
+
+    // Update the mst_result table
+    $stmt_update_mst_result = $conn->prepare("UPDATE mst_result SET subject = ? WHERE subject = ? AND class = ? AND arm = ?");
+    $stmt_update_mst_result->bind_param("ssss", $new_subject, $old_subject, $new_class, $new_arm);
+    $stmt_update_mst_result->execute();
+    $stmt_update_mst_result->close();
+
+    // Update the mst_useranswer table
+    $stmt_update_mst_useranswer = $conn->prepare("UPDATE mst_useranswer SET subject = ? WHERE subject = ? AND class = ? AND arm = ?");
+    $stmt_update_mst_useranswer->bind_param("ssss", $new_subject, $old_subject, $new_class, $new_arm);
+    $stmt_update_mst_useranswer->execute();
+    $stmt_update_mst_useranswer->close();
   }
 
   echo "<script>alert('Subject updated successfully!');</script>";
