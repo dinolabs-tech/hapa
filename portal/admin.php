@@ -42,6 +42,28 @@ if (!$next_term_result) {
 }
 $next_term = $next_term_result->fetch_assoc()['Next'];
 
+// --- Fetch License and Billing Info ---
+$licenseExpiry = '';
+$enrolledStudentsCount = 0;
+$amountDue = 0;
+$amountPerChild = 2000;
+
+// Get license expiry date
+$stmtLicense = $conn->prepare("SELECT expdate FROM sub LIMIT 1");
+$stmtLicense->execute();
+$stmtLicense->bind_result($licenseExpiry);
+$stmtLicense->fetch();
+$stmtLicense->close();
+
+// Get enrolled students count (status = 0 means active/enrolled)
+$stmtCount = $conn->prepare("SELECT COUNT(*) as total FROM students WHERE status = 0");
+$stmtCount->execute();
+$stmtCount->bind_result($enrolledStudentsCount);
+$stmtCount->fetch();
+$stmtCount->close();
+
+// Calculate amount due
+$amountDue = $enrolledStudentsCount * $amountPerChild;
 
 // Fetch existing records
 $arms = [];
@@ -478,6 +500,75 @@ $conn->close();
 
             <!-- ===================== ADMIN WIDGETS PANEL ENDS HERE ======================= -->
 
+            <!-- License & Billing Section -->
+            <div class="row mt-4">
+              <div class="col-12">
+                <div class="card border-primary">
+                  <div class="card-header bg-primary text-white">
+                    <div class="card-head-row">
+                      <div class="card-title text-white">
+                        <i class="fas fa-key me-2"></i> Software License & Billing
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <div class="text-center p-3 border rounded">
+                          <i class="fas fa-calendar-check fa-2x text-primary mb-2"></i>
+                          <h6 class="text-muted mb-1">License Expiry Date</h6>
+                          <h4 class="mb-0"><?php echo htmlspecialchars($licenseExpiry ?: 'Not Set'); ?></h4>
+                          <?php 
+                          if (!empty($licenseExpiry)) {
+                            $dateObj = DateTime::createFromFormat('d-m-Y', $licenseExpiry);
+                            if (!$dateObj) {
+                              $dateObj = DateTime::createFromFormat('d/m/Y', $licenseExpiry);
+                            }
+                            if ($dateObj) {
+                              $now = new DateTime();
+                              $diff = $now->diff($dateObj);
+                              if ($diff->invert) {
+                                echo '<span class="badge bg-danger mt-2">Expired</span>';
+                              } elseif ($diff->days <= 30) {
+                                echo '<span class="badge bg-warning mt-2">Expiring Soon</span>';
+                              } else {
+                                echo '<span class="badge bg-success mt-2">Active</span>';
+                              }
+                            }
+                          }
+                          ?>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="text-center p-3 border rounded">
+                          <i class="fas fa-users fa-2x text-info mb-2"></i>
+                          <h6 class="text-muted mb-1">Enrolled Students</h6>
+                          <h4 class="mb-0"><?php echo number_format($enrolledStudentsCount); ?></h4>
+                          <small class="text-muted">Active students</small>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="text-center p-3 border rounded">
+                          <i class="fas fa-money-bill-wave fa-2x text-success mb-2"></i>
+                          <h6 class="text-muted mb-1">Total Amount Due</h6>
+                          <h4 class="mb-0">₦<?php echo number_format($amountDue); ?></h4>
+                          <small class="text-muted">₦<?php echo number_format($amountPerChild); ?> per student</small>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-4 mb-0">
+                      <h6><i class="fas fa-info-circle me-2"></i> Billing Information</h6>
+                      <p class="mb-0">
+                        The total amount due is calculated based on <strong>₦<?php echo number_format($amountPerChild); ?> per enrolled student</strong>.
+                        Please ensure your license is renewed before the expiry date to avoid service interruption.
+                        <a href="https://www.dinolabstech.com" target="_blank" class="alert-link">Contact Dinolabs Tech Services</a> for license renewal.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div class="row">
               <div class="col-md-6">
