@@ -227,6 +227,36 @@ include('check_expiry.php');
             color: white;
         }
 
+        .password-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            padding: 5px;
+            font-size: 14px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle:hover {
+            color: white;
+        }
+
+        .password-wrapper .form-control {
+            padding-right: 40px;
+        }
+
         .btn-primary {
             background-color: #007bff;
             border: none;
@@ -295,7 +325,12 @@ include('check_expiry.php');
                                         <div class="input-group mb-4">
                                             <label for="yourPassword" class="visually-hidden">Password</label>
                                             <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                            <input type="password" name="password" class="form-control" id="yourPassword" placeholder="Password" required>
+                                            <div class="password-wrapper">
+                                                <input type="password" name="password" class="form-control" id="yourPassword" placeholder="Password" required>
+                                                <button type="button" class="password-toggle" onclick="togglePassword()">
+                                                    <i class="fas fa-eye" id="password-toggle-icon"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                         <button class="btn btn-primary w-100" type="submit">Login</button>
                                     </form>
@@ -325,6 +360,20 @@ include('check_expiry.php');
     <script src="assets/js/kaiadmin.min.js"></script>
     <!-- Kaiadmin DEMO methods, don't include it in your project! -->
     <script src="assets/js/setting-demo.js"></script>
+    
+    <!-- Password Toggle Script -->
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('yourPassword');
+            const toggleIcon = document.getElementById('password-toggle-icon');
+            
+            if (passwordInput && toggleIcon) {
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                toggleIcon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+            }
+        }
+    </script>
 </body>
 
 </html>
