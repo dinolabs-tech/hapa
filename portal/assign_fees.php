@@ -2,6 +2,7 @@
 include('components/admin_logic.php');
 require_once('helpers/audit.php');
 require_once('helpers/money.php');
+require_once('helpers/database_locks.php');
 
 $alerts = [];
 $action = $_POST['action'] ?? null;
@@ -79,16 +80,19 @@ if ($action === 'assign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get current term and session
     $current_term = $mysqli->query("SELECT cterm FROM currentterm LIMIT 1")->fetch_assoc()['cterm'] ?? '1st Term';
     $current_session = $mysqli->query("SELECT csession FROM currentsession LIMIT 1")->fetch_assoc()['csession'] ?? '2024/2025';
+    
     $mysqli->begin_transaction();
     try {
       foreach ($student_ids as $sid) {
         $sid = $sid;
-        // Check if already assigned
-        $stmt = $mysqli->prepare("SELECT * FROM student_fees WHERE student_id=? AND fee_structure_id=? AND status='active'");
+        
+        // Check if already assigned - WITH FOR UPDATE LOCK inside transaction
+        $stmt = $mysqli->prepare("SELECT id FROM student_fees WHERE student_id=? AND fee_structure_id=? AND status='active' FOR UPDATE");
         $stmt->bind_param('si', $sid, $structure_id);
         $stmt->execute();
         $exists = $stmt->get_result()->fetch_assoc();
         $stmt->close();
+        
         if ($exists) continue; // skip already assigned
 
         $stmt = $mysqli->prepare("INSERT INTO student_fees (student_id, fee_structure_id, term, session) VALUES (?, ?, ?, ?)");
@@ -127,11 +131,14 @@ if ($action === 'unassign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
       foreach ($student_ids as $sid) {
         $sid = $sid;
-        $stmt = $mysqli->prepare("SELECT * FROM student_fees WHERE student_id=? AND fee_structure_id=? AND status='active'");
+        
+        // Use FOR UPDATE to lock the row during check
+        $stmt = $mysqli->prepare("SELECT * FROM student_fees WHERE student_id=? AND fee_structure_id=? AND status='active' FOR UPDATE");
         $stmt->bind_param('si', $sid, $structure_id);
         $stmt->execute();
         $sf = $stmt->get_result()->fetch_assoc();
         $stmt->close();
+        
         if ($sf) {
           $before = $sf;
           

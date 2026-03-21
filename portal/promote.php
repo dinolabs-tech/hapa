@@ -1,4 +1,5 @@
 <?php include('components/admin_logic.php');
+require_once('helpers/database_locks.php');
 
 // Handle AJAX request for initiating actions
 if (isset($_POST['initiate'])) {
@@ -13,111 +14,139 @@ if (isset($_POST['initiate'])) {
     $comment = ($action === 'promote') ? 'Promoted' : (($action === 'trial') ? 'Promoted on Trial' : 'To Repeat');
 
     try {
-        // Check if the student already exists in the promote table
-        $check_sql = "SELECT id FROM promote WHERE id = ? AND term = ? AND csession = ?";
-        $check_stmt = $conn->prepare($check_sql);
-        if ($check_stmt) {
-            $check_stmt->bind_param("sss", $promote_id, $promote_term, $promote_session);
-            $check_stmt->execute();
-            $check_stmt->store_result();
-
-            if ($check_stmt->num_rows > 0) {
-                // Update the comment if the student already exists
-                $update_sql = "UPDATE promote SET comment = ? WHERE id = ? AND term = ? AND csession = ?";
-                $update_stmt = $conn->prepare($update_sql);
-                if ($update_stmt) {
-                    $update_stmt->bind_param("ssss", $comment, $promote_id, $promote_term, $promote_session);
-                    $update_stmt->execute();
-                    $update_stmt->close();
-                } else {
-                    throw new Exception("Error preparing update statement: " . $conn->error);
-                }
-            } else {
-                // Insert a new row if the student doesn't exist
-                $insert_sql = "INSERT INTO promote (id, name, comment, class, arm, term, csession) VALUES (?, ?, ?, ?, ?, ?, ?)";
-                $insert_stmt = $conn->prepare($insert_sql);
-                if ($insert_stmt) {
-                    $insert_stmt->bind_param("sssssss", $promote_id, $promote_name, $comment, $promote_class, $promote_arm, $promote_term, $promote_session);
-                    $insert_stmt->execute();
-                    $insert_stmt->close();
-                } else {
-                    throw new Exception("Error preparing insert statement: " . $conn->error);
-                }
-            }
-            $check_stmt->close();
-
-
-            // Step 1: Update status for the highest class
-            $stmt = $conn->prepare("UPDATE students SET status = ? WHERE class = ?");
-            $status = 1;
-            $class = 'SSS 3';
-            $stmt->bind_param("is", $status, $class);
-            $stmt->execute();
-            $stmt->close();
-
-            // Promote student to next class if action is promote or trial
-            $promotionMapping = [
-                'JSS 1' => 'JSS 2',
-                'JSS 2' => 'JSS 3',
-                'JSS 3' => 'SSS 1',
-                'SSS 1' => 'SSS 2',
-                'SSS 2' => 'SSS 3'
-            ];
-            
-            // Demotion mapping for students who need to repeat (move back to previous class)
-            $demotionMapping = [
-                'JSS 2' => 'JSS 1',
-                'JSS 3' => 'JSS 2',
-                'SSS 1' => 'JSS 3',
-                'SSS 2' => 'SSS 1',
-                'SSS 3' => 'SSS 2'
-            ];
-            
-            $new_class = $promote_class;
-            if ($action === 'promote' || $action === 'trial') {
-                foreach ($promotionMapping as $fromClass => $toClass) {
-                    if ($promote_class === $fromClass) {
-                        $stmt = $conn->prepare("UPDATE students SET class = ? WHERE class = ? AND id = ?");
-                        $stmt->bind_param("sss", $toClass, $fromClass, $promote_id);
-                        $stmt->execute();
-                        $stmt->close();
-                        $new_class = $toClass;
-                        break;
-                    }
-                }
-            } elseif ($action === 'repeat') {
-                // Move student back to previous class if they were mistakenly promoted
-                foreach ($demotionMapping as $currentClass => $previousClass) {
-                    if ($promote_class === $currentClass) {
-                        $stmt = $conn->prepare("UPDATE students SET class = ? WHERE class = ? AND id = ?");
-                        $stmt->bind_param("sss", $previousClass, $currentClass, $promote_id);
-                        $stmt->execute();
-                        $stmt->close();
-                        $new_class = $previousClass;
-                        break;
-                    }
-                }
-            }
-
-            // Send JSON response with updated student data
+        // Use advisory lock for promotion operation to prevent concurrent promotions
+        $lockName = "promote_{$promote_id}_{$promote_term}_{$promote_session}";
+        
+        if (!acquireLock($conn, $lockName, 5)) {
             header('Content-Type: application/json');
-            echo json_encode([
-                'success' => true,
-                'message' => 'Student processed successfully!',
-                'student' => [
-                    'id' => $promote_id,
-                    'name' => $promote_name,
-                    'class' => $new_class,
-                    'arm' => $promote_arm,
-                    'comment' => $comment
-                ]
-            ]);
-        } else {
-            throw new Exception("Error preparing check statement: " . $conn->error);
+            echo json_encode(['success' => false, 'message' => 'Another promotion operation is in progress. Please try again.']);
+            exit();
+        }
+        
+        // Start transaction for atomic operations
+        $conn->begin_transaction();
+        
+        try {
+            // Check if the student already exists in the promote table - with FOR UPDATE lock
+            $check_sql = "SELECT id FROM promote WHERE id = ? AND term = ? AND csession = ? FOR UPDATE";
+            $check_stmt = $conn->prepare($check_sql);
+            if ($check_stmt) {
+                $check_stmt->bind_param("sss", $promote_id, $promote_term, $promote_session);
+                $check_stmt->execute();
+                $check_stmt->store_result();
+
+                if ($check_stmt->num_rows > 0) {
+                    $check_stmt->close();
+                    
+                    // Update the comment if the student already exists
+                    $update_sql = "UPDATE promote SET comment = ? WHERE id = ? AND term = ? AND csession = ?";
+                    $update_stmt = $conn->prepare($update_sql);
+                    if ($update_stmt) {
+                        $update_stmt->bind_param("ssss", $comment, $promote_id, $promote_term, $promote_session);
+                        $update_stmt->execute();
+                        $update_stmt->close();
+                    } else {
+                        throw new Exception("Error preparing update statement: " . $conn->error);
+                    }
+                } else {
+                    $check_stmt->close();
+                    
+                    // Insert a new row if the student doesn't exist
+                    $insert_sql = "INSERT INTO promote (id, name, comment, class, arm, term, csession) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    $insert_stmt = $conn->prepare($insert_sql);
+                    if ($insert_stmt) {
+                        $insert_stmt->bind_param("sssssss", $promote_id, $promote_name, $comment, $promote_class, $promote_arm, $promote_term, $promote_session);
+                        $insert_stmt->execute();
+                        $insert_stmt->close();
+                    } else {
+                        throw new Exception("Error preparing insert statement: " . $conn->error);
+                    }
+                }
+
+                // Step 1: Update status for the highest class (SSS 3 graduates)
+                $stmt = $conn->prepare("UPDATE students SET status = ? WHERE class = ? AND id = ?");
+                $status = 1;
+                $class = 'SSS 3';
+                $stmt->bind_param("iss", $status, $class, $promote_id);
+                $stmt->execute();
+                $stmt->close();
+
+                // Promote student to next class if action is promote or trial
+                $promotionMapping = [
+                    'JSS 1' => 'JSS 2',
+                    'JSS 2' => 'JSS 3',
+                    'JSS 3' => 'SSS 1',
+                    'SSS 1' => 'SSS 2',
+                    'SSS 2' => 'SSS 3'
+                ];
+                
+                // Demotion mapping for students who need to repeat (move back to previous class)
+                $demotionMapping = [
+                    'JSS 2' => 'JSS 1',
+                    'JSS 3' => 'JSS 2',
+                    'SSS 1' => 'JSS 3',
+                    'SSS 2' => 'SSS 1',
+                    'SSS 3' => 'SSS 2'
+                ];
+                
+                $new_class = $promote_class;
+                if ($action === 'promote' || $action === 'trial') {
+                    foreach ($promotionMapping as $fromClass => $toClass) {
+                        if ($promote_class === $fromClass) {
+                            $stmt = $conn->prepare("UPDATE students SET class = ? WHERE class = ? AND id = ?");
+                            $stmt->bind_param("sss", $toClass, $fromClass, $promote_id);
+                            $stmt->execute();
+                            $stmt->close();
+                            $new_class = $toClass;
+                            break;
+                        }
+                    }
+                } elseif ($action === 'repeat') {
+                    // Move student back to previous class if they were mistakenly promoted
+                    foreach ($demotionMapping as $currentClass => $previousClass) {
+                        if ($promote_class === $currentClass) {
+                            $stmt = $conn->prepare("UPDATE students SET class = ? WHERE class = ? AND id = ?");
+                            $stmt->bind_param("sss", $previousClass, $currentClass, $promote_id);
+                            $stmt->execute();
+                            $stmt->close();
+                            $new_class = $previousClass;
+                            break;
+                        }
+                    }
+                }
+
+                // Commit transaction
+                $conn->commit();
+                
+                // Release lock
+                releaseLock($conn, $lockName);
+
+                // Send JSON response with updated student data
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Student processed successfully!',
+                    'student' => [
+                        'id' => $promote_id,
+                        'name' => $promote_name,
+                        'class' => $new_class,
+                        'arm' => $promote_arm,
+                        'comment' => $comment
+                    ]
+                ]);
+            } else {
+                throw new Exception("Error preparing check statement: " . $conn->error);
+            }
+        } catch (Exception $e) {
+            $conn->rollback();
+            releaseLock($conn, $lockName);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
         }
     } catch (Exception $e) {
+        releaseLock($conn, $lockName);
         header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+        echo json_encode(['success' => false, 'message' => 'An error occurred. Please try again.']);
     }
     exit();
 }

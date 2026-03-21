@@ -15,43 +15,48 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Include helper functions
+require_once('helpers/database_locks.php');
 
 // Handle Edit Request for result
 if (isset($_POST['edit'])) {
-    $id      = $_POST['id'];
-    $subject = $_POST['subject'];
-    $term    = $_POST['term'];
-    $session = $_POST['session'];
+    $id      = $conn->real_escape_string($_POST['id']);
+    $subject = $conn->real_escape_string($_POST['subject']);
+    $term    = $conn->real_escape_string($_POST['term']);
+    $session = $conn->real_escape_string($_POST['session']);
 
-    $query = "SELECT * FROM mastersheet 
-              WHERE id='$id' 
-                AND subject='$subject' 
-                AND term='$term' 
-                AND csession='$session'";
-    $result = $conn->query($query);
+    // Use FOR UPDATE to lock the row while editing
+    $stmt = $conn->prepare("SELECT * FROM mastersheet 
+              WHERE id=? AND subject=? AND term=? AND csession=? FOR UPDATE");
+    $stmt->bind_param("ssss", $id, $subject, $term, $session);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result && $result->num_rows > 0) {
         $mrow = $result->fetch_assoc();
+        // Store original values hash for optimistic locking
+        $_SESSION['edit_hash'] = md5(serialize($mrow));
+        $_SESSION['edit_time'] = time();
     } else {
         echo "Record not found.";
     }
+    $stmt->close();
 }
 
 
 
 // Handle Update Request
 if (isset($_POST['update'])) {
-    $id = $_POST['id'];
-    $subject = $_POST['subject'];
-    $term = $_POST['term'];
-    $session = $_POST['session'];
-    $exam = $_POST['exam'];
+    $id = $conn->real_escape_string($_POST['id']);
+    $subject = $conn->real_escape_string($_POST['subject']);
+    $term = $conn->real_escape_string($_POST['term']);
+    $session = $conn->real_escape_string($_POST['session']);
+    $exam = floatval($_POST['exam']);
+    $ca1 = floatval($_POST['ca1']);
+    $ca2 = floatval($_POST['ca2']);
+    $lastcum = floatval($_POST['lastcum']);
 
     // Calculate total and average
-    $ca1 = $_POST['ca1'];
-    $ca2 = $_POST['ca2'];
-    $lastcum = $_POST['lastcum'];
-
     $total = $ca1 + $ca2 + $exam;
 
     // Adjust average calculation
@@ -61,87 +66,120 @@ if (isset($_POST['update'])) {
         $average = ($lastcum + $total) / 2;
     }
 
-    // Fetch student's class to determine grading scale
-    $class_query = "SELECT class FROM students WHERE id = '$id'";
-    $class_result = $conn->query($class_query);
-    $selected_class = '';
+    // Start transaction for atomic update
+    $conn->begin_transaction();
     
-    if ($class_result && $class_result->num_rows > 0) {
-        $class_row = $class_result->fetch_assoc();
-        $selected_class = $class_row['class'];
-    }
-
-    // Determine grade and remark based on class
-    if (in_array($selected_class, ['SSS 1', 'SSS 2', 'SSS 3'])) {
-        // SSS grading
-        if ($average >= 75) {
-            $grade = 'A1';
-            $remark = 'EXCELLENT';
-        } elseif ($average >= 70) {
-            $grade = 'B2';
-            $remark = 'VERY GOOD';
-        } elseif ($average >= 65) {
-            $grade = 'B3';
-            $remark = 'GOOD';
-        } elseif ($average >= 60) {
-            $grade = 'C4';
-            $remark = 'GOOD';
-        } elseif ($average >= 55) {
-            $grade = 'C5';
-            $remark = 'AVERAGE';
-        } elseif ($average >= 50) {
-            $grade = 'C6';
-            $remark = 'AVERAGE';
-        } elseif ($average >= 45) {
-            $grade = 'D7';
-            $remark = 'PASS';
-        } elseif ($average >= 40) {
-            $grade = 'E8';
-            $remark = 'PASS';
-        } else {
-            $grade = 'F9';
-            $remark = 'FAIL';
+    try {
+        // Fetch student's class to determine grading scale - with lock
+        $stmt = $conn->prepare("SELECT class FROM students WHERE id = ? FOR UPDATE");
+        $stmt->bind_param("s", $id);
+        $stmt->execute();
+        $class_result = $stmt->get_result();
+        $selected_class = '';
+        
+        if ($class_result && $class_result->num_rows > 0) {
+            $class_row = $class_result->fetch_assoc();
+            $selected_class = $class_row['class'];
         }
-    } else {
-        // JSS grading
-        if ($average >= 70) {
-            $grade = 'A';
-            $remark = 'EXCELLENT';
-        } elseif ($average >= 60) {
-            $grade = 'B';
-            $remark = 'GOOD';
-        } elseif ($average >= 50) {
-            $grade = 'C';
-            $remark = 'AVERAGE';
-        } elseif ($average >= 45) {
-            $grade = 'D';
-            $remark = 'BELOW AVERAGE';
-        } elseif ($average >= 40) {
-            $grade = 'E';
-            $remark = 'POOR';
+        $stmt->close();
+
+        // Determine grade and remark based on class
+        if (in_array($selected_class, ['SSS 1', 'SSS 2', 'SSS 3'])) {
+            // SSS grading
+            if ($average >= 75) {
+                $grade = 'A1';
+                $remark = 'EXCELLENT';
+            } elseif ($average >= 70) {
+                $grade = 'B2';
+                $remark = 'VERY GOOD';
+            } elseif ($average >= 65) {
+                $grade = 'B3';
+                $remark = 'GOOD';
+            } elseif ($average >= 60) {
+                $grade = 'C4';
+                $remark = 'GOOD';
+            } elseif ($average >= 55) {
+                $grade = 'C5';
+                $remark = 'AVERAGE';
+            } elseif ($average >= 50) {
+                $grade = 'C6';
+                $remark = 'AVERAGE';
+            } elseif ($average >= 45) {
+                $grade = 'D7';
+                $remark = 'PASS';
+            } elseif ($average >= 40) {
+                $grade = 'E8';
+                $remark = 'PASS';
+            } else {
+                $grade = 'F9';
+                $remark = 'FAIL';
+            }
         } else {
-            $grade = 'F';
-            $remark = 'FAIL';
+            // JSS grading
+            if ($average >= 70) {
+                $grade = 'A';
+                $remark = 'EXCELLENT';
+            } elseif ($average >= 60) {
+                $grade = 'B';
+                $remark = 'GOOD';
+            } elseif ($average >= 50) {
+                $grade = 'C';
+                $remark = 'AVERAGE';
+            } elseif ($average >= 45) {
+                $grade = 'D';
+                $remark = 'BELOW AVERAGE';
+            } elseif ($average >= 40) {
+                $grade = 'E';
+                $remark = 'POOR';
+            } else {
+                $grade = 'F';
+                $remark = 'FAIL';
+            }
         }
+
+        // Optimistic locking: Check if record was modified by another user
+        $stmt = $conn->prepare("SELECT * FROM mastersheet WHERE id=? AND subject=? AND term=? AND csession=?");
+        $stmt->bind_param("ssss", $id, $subject, $term, $session);
+        $stmt->execute();
+        $currentRecord = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        
+        $currentHash = md5(serialize($currentRecord));
+        if (isset($_SESSION['edit_hash']) && $_SESSION['edit_hash'] !== $currentHash) {
+            // Record was modified by another user
+            $conn->rollback();
+            echo "<p style='color: red; text-align: center;'>Error: This record was modified by another user. Please refresh and try again.</p>";
+        } else {
+            // Update the record using prepared statement
+            $stmt = $conn->prepare("UPDATE mastersheet SET 
+              ca1=?, 
+              ca2=?, 
+              exam=?, 
+              total=?, 
+              average=?, 
+              grade=?, 
+              remark=? 
+              WHERE id=? AND subject=? AND term=? AND csession=?");
+            $stmt->bind_param("dddtdssssss", $ca1, $ca2, $exam, $total, $average, $grade, $remark, $id, $subject, $term, $session);
+            $stmt->execute();
+            $stmt->close();
+            
+            $conn->commit();
+            
+            // Clear edit session
+            unset($_SESSION['edit_hash']);
+            unset($_SESSION['edit_time']);
+            
+            echo "<p style='color: green; text-align: center;'>Record updated successfully!</p>";
+        }
+    } catch (Exception $e) {
+        $conn->rollback();
+        echo "<p style='color: red; text-align: center;'>Error updating record: " . htmlspecialchars($e->getMessage()) . "</p>";
     }
-
-    // Update the record based on id, subject, term, and session
-    $conn->query("UPDATE mastersheet SET 
-      ca1='$ca1', 
-      ca2='$ca2', 
-      exam='$exam', 
-      total='$total', 
-      average='$average', 
-      grade='$grade', 
-      remark='$remark' 
-      WHERE id='$id' AND subject='$subject' AND term='$term' AND csession='$session'");
-
-    echo "<p style='color: green; text-align: center;'>Record updated successfully!</p>";
-    // Redirect back to refresh the page (you can pass $message via session or GET if needed)
+    
+    // Redirect back to refresh the page
     header("Location: " . $_SERVER['PHP_SELF']);
     exit;
-} else {
-    //    echo "Error updating record: " . $conn->error;
 }
 
 // Handle Search Request
@@ -218,62 +256,62 @@ $stmt->close();
                                         <!-- Edit Form -->
                                         <?php if (isset($_POST['edit'])) { ?>
                                             <form method="POST">
-                                                <input type="hidden" name="id" value="<?php echo $mrow['id']; ?>">
+                                                <input type="hidden" name="id" value="<?php echo htmlspecialchars($mrow['id']); ?>">
 
                                                 <div class="form-group">
                                                     <label for="name">Name</label>
-                                                    <input type="text" id="name" name="name" value="<?php echo $mrow['name']; ?>" class="form-control" disabled>
+                                                    <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($mrow['name']); ?>" class="form-control" disabled>
                                                 </div>
 
                                                 <div class="form-group">
                                                     <label for="ca1">CA</label>
-                                                    <input class="form-control" type="text" id="ca1" name="ca1" value="<?php echo $mrow['ca1']; ?>" required>
+                                                    <input class="form-control" type="text" id="ca1" name="ca1" value="<?php echo htmlspecialchars($mrow['ca1']); ?>" required>
                                                 </div>
 
                                                 <div class="form-group">
                                                     <label for="ca2">Assignment</label>
-                                                    <input class="form-control" type="text" id="ca2" name="ca2" value="<?php echo $mrow['ca2']; ?>" required>
+                                                    <input class="form-control" type="text" id="ca2" name="ca2" value="<?php echo htmlspecialchars($mrow['ca2']); ?>" required>
                                                 </div>
 
                                                 <div class="form-group">
                                                     <label for="exam">Exam</label>
-                                                    <input class="form-control" type="text" id="exam" name="exam" value="<?php echo $mrow['exam']; ?>" required>
+                                                    <input class="form-control" type="text" id="exam" name="exam" value="<?php echo htmlspecialchars($mrow['exam']); ?>" required>
                                                 </div>
 
                                                 <div class="form-group">
                                                     <label for="lastcum">LastCum</label>
-                                                    <input class="form-control" type="text" id="lastcum" name="lastcum" value="<?php echo $mrow['lastcum']; ?>" readonly>
+                                                    <input class="form-control" type="text" id="lastcum" name="lastcum" value="<?php echo htmlspecialchars($mrow['lastcum']); ?>" readonly>
                                                 </div>
 
                                                 <div class="form-group">
                                                     <label for="total">Total</label>
-                                                    <input class="form-control" type="text" id="total" name="total" value="<?php echo $mrow['total']; ?>" disabled>
+                                                    <input class="form-control" type="text" id="total" name="total" value="<?php echo htmlspecialchars($mrow['total']); ?>" disabled>
                                                 </div>
 
                                                 <div class="form-group">
                                                     <label for="average">Average</label>
-                                                    <input class="form-control" type="text" id="average" name="average" value="<?php echo $mrow['average']; ?>" disabled>
+                                                    <input class="form-control" type="text" id="average" name="average" value="<?php echo htmlspecialchars($mrow['average']); ?>" disabled>
                                                 </div>
 
                                                 <div class="form-group">
                                                     <label for="grade">Grade</label>
-                                                    <input class="form-control" type="text" id="grade" name="grade" value="<?php echo $mrow['grade']; ?>" disabled>
+                                                    <input class="form-control" type="text" id="grade" name="grade" value="<?php echo htmlspecialchars($mrow['grade']); ?>" disabled>
                                                 </div>
 
                                                 <div class="form-group">
                                                     <label for="subject">Subject</label>
-                                                    <input class="form-control" type="text" id="subject" name="subject" value="<?php echo $mrow['subject']; ?>" disabled>
+                                                    <input class="form-control" type="text" id="subject" name="subject" value="<?php echo htmlspecialchars($mrow['subject']); ?>" disabled>
                                                 </div>
 
                                                 <div class="form-group">
                                                     <label for="remark">Remark</label>
-                                                    <input class="form-control" type="text" id="remark" name="remark" value="<?php echo $mrow['remark']; ?>" disabled>
+                                                    <input class="form-control" type="text" id="remark" name="remark" value="<?php echo htmlspecialchars($mrow['remark']); ?>" disabled>
                                                 </div>
 
                                                 <!--hidden inputs-->
-                                                <input type="hidden" name="subject" value="<?php echo $mrow['subject']; ?>">
-                                                <input type="hidden" name="term" value="<?php echo $mrow['term']; ?>">
-                                                <input type="hidden" name="session" value="<?php echo $mrow['csession']; ?>">
+                                                <input type="hidden" name="subject" value="<?php echo htmlspecialchars($mrow['subject']); ?>">
+                                                <input type="hidden" name="term" value="<?php echo htmlspecialchars($mrow['term']); ?>">
+                                                <input type="hidden" name="session" value="<?php echo htmlspecialchars($mrow['csession']); ?>">
                                                 <!--hidden inputs ends here-->
 
                                                 <button type="submit" name="update" class="btn btn-success btn-icon btn-round">
@@ -360,23 +398,23 @@ $stmt->close();
                                                     <tbody>
                                                         <?php while ($record = $searchResults->fetch_assoc()) { ?>
                                                             <tr>
-                                                                <td><?php echo $record['id']; ?></td>
-                                                                <td><?php echo $record['name']; ?></td>
-                                                                <td><?php echo $record['subject']; ?></td>
-                                                                <td><?php echo $record['ca1']; ?></td>
-                                                                <td><?php echo $record['ca2']; ?></td>
-                                                                <td><?php echo $record['exam']; ?></td>
-                                                                <td><?php echo $record['lastcum']; ?></td>
-                                                                <td><?php echo $record['total']; ?></td>
-                                                                <td><?php echo $record['average']; ?></td>
-                                                                <td><?php echo $record['grade']; ?></td>
-                                                                <td><?php echo $record['remark']; ?></td>
+                                                                <td><?php echo htmlspecialchars($record['id']); ?></td>
+                                                                <td><?php echo htmlspecialchars($record['name']); ?></td>
+                                                                <td><?php echo htmlspecialchars($record['subject']); ?></td>
+                                                                <td><?php echo htmlspecialchars($record['ca1']); ?></td>
+                                                                <td><?php echo htmlspecialchars($record['ca2']); ?></td>
+                                                                <td><?php echo htmlspecialchars($record['exam']); ?></td>
+                                                                <td><?php echo htmlspecialchars($record['lastcum']); ?></td>
+                                                                <td><?php echo htmlspecialchars($record['total']); ?></td>
+                                                                <td><?php echo htmlspecialchars($record['average']); ?></td>
+                                                                <td><?php echo htmlspecialchars($record['grade']); ?></td>
+                                                                <td><?php echo htmlspecialchars($record['remark']); ?></td>
                                                                 <td>
                                                                     <form style="display: inline;" method="POST">
-                                                                        <input type="hidden" name="id" value="<?php echo $record['id']; ?>">
-                                                                        <input type="hidden" name="subject" value="<?php echo $record['subject']; ?>">
-                                                                        <input type="hidden" name="term" value="<?php echo $record['term']; ?>">
-                                                                        <input type="hidden" name="session" value="<?php echo $record['csession']; ?>">
+                                                                        <input type="hidden" name="id" value="<?php echo htmlspecialchars($record['id']); ?>">
+                                                                        <input type="hidden" name="subject" value="<?php echo htmlspecialchars($record['subject']); ?>">
+                                                                        <input type="hidden" name="term" value="<?php echo htmlspecialchars($record['term']); ?>">
+                                                                        <input type="hidden" name="session" value="<?php echo htmlspecialchars($record['csession']); ?>">
                                                                         <button type="submit" name="edit" class="btn btn-warning btn-icon btn-round ps-1">
                                                                             <span class="btn-label">
                                                                                 <i class="fa fa-edit"></i>

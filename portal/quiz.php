@@ -16,6 +16,9 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Include helper functions
+require_once('helpers/database_locks.php');
+
 $loginid = $_SESSION['user_id'];
 error_reporting(1);
 $time = date("h:i:s");
@@ -39,6 +42,8 @@ if ($subject) {
 // Escape the subject value for queries.
 $subjectEsc = mysqli_real_escape_string($conn, $subject);
 
+// Use advisory lock for quiz operations to prevent race conditions
+$quizLockName = "quiz_{$loginid}_" . preg_replace('/[^a-zA-Z0-9]/', '_', $subject);
 
 ?>
 
@@ -109,52 +114,85 @@ $subjectEsc = mysqli_real_escape_string($conn, $subject);
         <?php 
         // Create a timer record for the user if one does not exist.
         $timeri = date('H:i:s');
-        $timi = mysqli_query($conn, "SELECT * FROM timer WHERE studentid = '$loginid'");
-        $rowtimer = mysqli_fetch_assoc($timi);
-        if (!$rowtimer || $rowtimer['studentid'] != $loginid) {
-            mysqli_query($conn, "INSERT INTO timer (studentid, timer) VALUES ('$loginid', '$timeri')");
+        
+        // Use transaction for timer check and insert
+        $conn->begin_transaction();
+        try {
+            $timi = mysqli_query($conn, "SELECT * FROM timer WHERE studentid = '$loginid' FOR UPDATE");
+            $rowtimer = mysqli_fetch_assoc($timi);
+            if (!$rowtimer || $rowtimer['studentid'] != $loginid) {
+                mysqli_query($conn, "INSERT INTO timer (studentid, timer) VALUES ('$loginid', '$timeri')");
+            }
+            $conn->commit();
+        } catch (Exception $e) {
+            $conn->rollback();
         }
 
-        // Check if the student already took the exam.
-        $scoli = mysqli_query($conn, "SELECT * FROM mst_result WHERE login = '$loginid' and subject='$subjectEsc' ");
-        $rowli = mysqli_fetch_assoc($scoli);
-        if ($rowli && $rowli['login'] == $loginid) {
-          // User has already taken the exam.
-          echo '<div class="alert alert-warning" role="alert">
-                  You have already taken the exam; don\'t be over-smart!
-                </div>';
-          echo '<div class="mb-3">
-                  <a href="students.php" class="btn btn-secondary">Go Back</a>
-                </div>';
-          exit; // Optionally, exit after showing the message.
-           
-           
+        // Check if the student already took the exam - with lock
+        $conn->begin_transaction();
+        try {
+            $scoli = mysqli_query($conn, "SELECT * FROM mst_result WHERE login = '$loginid' and subject='$subjectEsc' FOR UPDATE");
+            $rowli = mysqli_fetch_assoc($scoli);
+            
+            if ($rowli && $rowli['login'] == $loginid) {
+                $conn->commit();
+                // User has already taken the exam.
+                echo '<div class="alert alert-warning" role="alert">
+                        You have already taken the exam; don\'t be over-smart!
+                      </div>';
+                echo '<div class="mb-3">
+                        <a href="students.php" class="btn btn-secondary">Go Back</a>
+                      </div>';
+                exit;
+            }
+            $conn->commit();
+        } catch (Exception $e) {
+            $conn->rollback();
+            echo '<div class="alert alert-danger" role="alert">Error checking exam status. Please try again.</div>';
+            exit;
+        }
+        
+        // Initialize question number and correct answers count.
+        if (!isset($_SESSION['qn'])) {
+            $_SESSION['qn'] = 0;
+            // Delete any previous answers for this session atomically
+            $conn->begin_transaction();
+            try {
+                $sessId = session_id();
+                $stmt = $conn->prepare("DELETE FROM mst_useranswer WHERE sess_id = ?");
+                $stmt->bind_param("s", $sessId);
+                $stmt->execute();
+                $stmt->close();
+                $conn->commit();
+            } catch (Exception $e) {
+                $conn->rollback();
+            }
+            $_SESSION['trueans'] = 0;
         } else {
-            // Initialize question number and correct answers count.
-            if (!isset($_SESSION['qn'])) {
-                $_SESSION['qn'] = 0;
-                // Delete any previous answers for this session.
-                mysqli_query($conn, "DELETE FROM mst_useranswer WHERE sess_id='" . session_id() . "'");
-                $_SESSION['trueans'] = 0;
-                } else {
-                  if ($submit == 'Next Question') {
-                    // Get the selected answer (default to 0 if not set)
-                    $selectedAnswer = isset($ans) ? $ans : 0;
-                    
-                    // Fetch the current question based on subject and question number
-                    $rs = mysqli_query($conn, "SELECT * FROM question WHERE subject='$subjectEsc'");
-                    mysqli_data_seek($rs, $_SESSION['qn']);
-                    $row = mysqli_fetch_row($rs); // current question row
-                    
-                    // Check if an answer record already exists for this question number
-                    $uaResult = mysqli_query($conn, "SELECT * FROM mst_useranswer WHERE sess_id='" . session_id() . "' ORDER BY sess_id");
-                    $uaCount = mysqli_num_rows($uaResult);
+            if ($submit == 'Next Question') {
+                // Get the selected answer (default to 0 if not set)
+                $selectedAnswer = isset($ans) ? $ans : 0;
+                
+                // Fetch the current question based on subject and question number
+                $rs = mysqli_query($conn, "SELECT * FROM question WHERE subject='$subjectEsc'");
+                mysqli_data_seek($rs, $_SESSION['qn']);
+                $row = mysqli_fetch_row($rs); // current question row
+                
+                // Use transaction for answer handling to prevent race conditions
+                $conn->begin_transaction();
+                try {
+                    // Check if an answer record already exists for this question number - with lock
+                    $sessId = session_id();
+                    $stmt = $conn->prepare("SELECT * FROM mst_useranswer WHERE sess_id = ? ORDER BY sess_id FOR UPDATE");
+                    $stmt->bind_param("s", $sessId);
+                    $stmt->execute();
+                    $uaResult = $stmt->get_result();
+                    $uaCount = $uaResult->num_rows;
                     
                     if ($uaCount > $_SESSION['qn']) {
                         // A record exists: update it if the answer has changed.
-                        // First, get all user answer records into an array (ensure ordering is consistent)
                         $uaRecords = [];
-                        while ($ua = mysqli_fetch_assoc($uaResult)) {
+                        while ($ua = $uaResult->fetch_assoc()) {
                             $uaRecords[] = $ua;
                         }
                         $currentUA = $uaRecords[$_SESSION['qn']];
@@ -169,89 +207,107 @@ $subjectEsc = mysqli_real_escape_string($conn, $subject);
                             if ($selectedAnswer == $row[7] && $currentUA['your_ans'] != $row[7]) {
                                 $_SESSION['trueans']++;
                             }
-                            mysqli_query($conn, "UPDATE mst_useranswer SET your_ans='$selectedAnswer' WHERE sess_id='" . $currentUA['sess_id'] . "' AND que_id = '" . $row[0] . "'");
+                            $stmt2 = $conn->prepare("UPDATE mst_useranswer SET your_ans = ? WHERE sess_id = ? AND que_id = ?");
+                            $stmt2->bind_param("iss", $selectedAnswer, $currentUA['sess_id'], $row[0]);
+                            $stmt2->execute();
+                            $stmt2->close();
                         }
                     } else {
                         // No record exists for this question: insert a new record.
-                        mysqli_query($conn, "INSERT INTO mst_useranswer(sess_id, subject, que_id, que_des, ans1, ans2, ans3, ans4, true_ans, your_ans) 
-                            VALUES ('" . session_id() . "', '$subjectEsc', '" . addslashes($row[2]) . "', '" . addslashes($row[3]) . "', '" . addslashes($row[4]) . "', '" . addslashes($row[5]) . "', '" . addslashes($row[6]) . "', '" . addslashes($row[7]) . "', '$selectedAnswer')");
+                        $stmt2 = $conn->prepare("INSERT INTO mst_useranswer(sess_id, subject, que_id, que_des, ans1, ans2, ans3, ans4, true_ans, your_ans) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        $stmt2->bind_param("ssssssssii", $sessId, $subjectEsc, $row[2], $row[3], $row[4], $row[5], $row[6], $row[7], $selectedAnswer);
+                        $stmt2->execute();
+                        $stmt2->close();
                         if ($selectedAnswer == $row[7]) {
                             $_SESSION['trueans']++;
                         }
                     }
-                    $_SESSION['qn']++;
-                    } elseif ($submit == 'Previous Question') {
-                    // Instead of deleting the record, simply go back one question.
-                    if ($_SESSION['qn'] > 0) {
-                        $_SESSION['qn']--;
-                    }
-                   } elseif ($submit == 'Submit Exam') {
-                    // This block will now be handled by JavaScript and auto_submit.php
-                    // We can leave a placeholder or redirect if accessed directly.
-                    header("Location: students.php");
-                    exit;
-                   }
+                    $stmt->close();
+                    $conn->commit();
+                } catch (Exception $e) {
+                    $conn->rollback();
+                    error_log("Error saving answer: " . $e->getMessage());
+                }
+                
+                $_SESSION['qn']++;
+            } elseif ($submit == 'Previous Question') {
+                // Instead of deleting the record, simply go back one question.
+                if ($_SESSION['qn'] > 0) {
+                    $_SESSION['qn']--;
+                }
+            } elseif ($submit == 'Submit Exam') {
+                // This block will now be handled by JavaScript and auto_submit.php
+                // We can leave a placeholder or redirect if accessed directly.
+                header("Location: students.php");
+                exit;
             }
-             
-            // Fetch questions for the selected subject.
-            $rs = mysqli_query($conn, "SELECT * FROM question WHERE subject='$subjectEsc'");
-            $rs = mysqli_query($conn, "SELECT * FROM question WHERE subject='$subjectEsc'");
-              if ($_SESSION['qn'] > mysqli_num_rows($rs) - 1) {
-                  unset($_SESSION['qn']);
-                  echo "<div class='alert alert-info text-center'>
-                          <h4>No Question(s) for this subject yet. Kindly check back later.</h4>
-                          <a href='students.php' class='btn btn-secondary'>Go Back</a>
-                        </div>";
-                  exit;
-              }
-              mysqli_data_seek($rs, $_SESSION['qn']);
-              $row = mysqli_fetch_row($rs);
-
-              // Try to fetch the user’s answer (if it exists) for this question.
-              $uaQuery = "SELECT your_ans FROM mst_useranswer WHERE sess_id='" . session_id() . "' AND que_id = '$current_que_id'";
-              $uaResult = mysqli_query($conn, $uaQuery);
-              $uaRow = mysqli_fetch_assoc($uaResult);
-              $user_answer = isset($uaRow['your_ans']) ? $uaRow['your_ans'] : 0;
-
-            // Display the question form.
-            echo "<form name='myfm' method='post' action='quiz.php'>";
-            echo "<div class='mb-4'>";
-            $n = $_SESSION['qn'] + 1;
-            echo "<h5>Question " . $n . ":</h5>";
-            echo "<p>" . $row[2] . "</p>";
-            echo "</div>";
-            echo "<div class='form-check mb-2'>";
-            echo "<input class='form-check-input' type='radio' name='ans' id='ans1' value='1' " . ($user_answer == 1 ? "checked" : "") . ">";
-            echo "<label class='form-check-label' for='ans1'>" . $row[3] . "</label>";
-            echo "</div>";
-            
-            echo "<div class='form-check mb-2'>";
-            echo "<input class='form-check-input' type='radio' name='ans' id='ans2' value='2' " . ($user_answer == 2 ? "checked" : "") . ">";
-            echo "<label class='form-check-label' for='ans2'>" . $row[4] . "</label>";
-            echo "</div>";
-            
-            echo "<div class='form-check mb-2'>";
-            echo "<input class='form-check-input' type='radio' name='ans' id='ans3' value='3' " . ($user_answer == 3 ? "checked" : "") . ">";
-            echo "<label class='form-check-label' for='ans3'>" . $row[5] . "</label>";
-            echo "</div>";
-            
-            echo "<div class='form-check mb-4'>";
-            echo "<input class='form-check-input' type='radio' name='ans' id='ans4' value='4' " . ($user_answer == 4 ? "checked" : "") . ">";
-            echo "<label class='form-check-label' for='ans4'>" . $row[6] . "</label>";
-            echo "</div>";
-            
-            echo "<div class='d-flex justify-content-between'>";
-            if ($_SESSION['qn'] > 0) {
-                echo "<button type='submit' name='submit' value='Previous Question' class='btn btn-outline-secondary'>Previous Question</button>";
-            }
-            if ($_SESSION['qn'] < mysqli_num_rows($rs) - 1) {
-                echo "<button type='submit' name='submit' value='Next Question' class='btn btn-primary'>Next Question</button>";
-            } else {
-                echo "<button type='button' id='submitExamBtn' class='btn btn-success'>Submit Exam</button>";
-            }
-            echo "</div>";
-            echo "</form>";
         }
+         
+        // Fetch questions for the selected subject.
+        $rs = mysqli_query($conn, "SELECT * FROM question WHERE subject='$subjectEsc'");
+        $rs = mysqli_query($conn, "SELECT * FROM question WHERE subject='$subjectEsc'");
+        if ($_SESSION['qn'] > mysqli_num_rows($rs) - 1) {
+            unset($_SESSION['qn']);
+            echo "<div class='alert alert-info text-center'>
+                    <h4>No Question(s) for this subject yet. Kindly check back later.</h4>
+                    <a href='students.php' class='btn btn-secondary'>Go Back</a>
+                  </div>";
+            exit;
+        }
+        mysqli_data_seek($rs, $_SESSION['qn']);
+        $row = mysqli_fetch_row($rs);
+
+        // Try to fetch the user's answer (if it exists) for this question.
+        $sessId = session_id();
+        $current_que_id = $row[0] ?? '';
+        $uaQuery = "SELECT your_ans FROM mst_useranswer WHERE sess_id = ? AND que_id = ?";
+        $stmt = $conn->prepare($uaQuery);
+        $stmt->bind_param("ss", $sessId, $current_que_id);
+        $stmt->execute();
+        $uaResult = $stmt->get_result();
+        $uaRow = $uaResult->fetch_assoc();
+        $user_answer = isset($uaRow['your_ans']) ? $uaRow['your_ans'] : 0;
+        $stmt->close();
+
+        // Display the question form.
+        echo "<form name='myfm' method='post' action='quiz.php'>";
+        echo "<div class='mb-4'>";
+        $n = $_SESSION['qn'] + 1;
+        echo "<h5>Question " . $n . ":</h5>";
+        echo "<p>" . $row[2] . "</p>";
+        echo "</div>";
+        echo "<div class='form-check mb-2'>";
+        echo "<input class='form-check-input' type='radio' name='ans' id='ans1' value='1' " . ($user_answer == 1 ? "checked" : "") . ">";
+        echo "<label class='form-check-label' for='ans1'>" . $row[3] . "</label>";
+        echo "</div>";
+        
+        echo "<div class='form-check mb-2'>";
+        echo "<input class='form-check-input' type='radio' name='ans' id='ans2' value='2' " . ($user_answer == 2 ? "checked" : "") . ">";
+        echo "<label class='form-check-label' for='ans2'>" . $row[4] . "</label>";
+        echo "</div>";
+        
+        echo "<div class='form-check mb-2'>";
+        echo "<input class='form-check-input' type='radio' name='ans' id='ans3' value='3' " . ($user_answer == 3 ? "checked" : "") . ">";
+        echo "<label class='form-check-label' for='ans3'>" . $row[5] . "</label>";
+        echo "</div>";
+        
+        echo "<div class='form-check mb-4'>";
+        echo "<input class='form-check-input' type='radio' name='ans' id='ans4' value='4' " . ($user_answer == 4 ? "checked" : "") . ">";
+        echo "<label class='form-check-label' for='ans4'>" . $row[6] . "</label>";
+        echo "</div>";
+        
+        echo "<div class='d-flex justify-content-between'>";
+        if ($_SESSION['qn'] > 0) {
+            echo "<button type='submit' name='submit' value='Previous Question' class='btn btn-outline-secondary'>Previous Question</button>";
+        }
+        if ($_SESSION['qn'] < mysqli_num_rows($rs) - 1) {
+            echo "<button type='submit' name='submit' value='Next Question' class='btn btn-primary'>Next Question</button>";
+        } else {
+            echo "<button type='button' id='submitExamBtn' class='btn btn-success'>Submit Exam</button>";
+        }
+        echo "</div>";
+        echo "</form>";
         ?>
       </div>
     </div>

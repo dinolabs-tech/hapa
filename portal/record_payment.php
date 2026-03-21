@@ -3,6 +3,7 @@ include('components/admin_logic.php');
 require_once('helpers/audit.php');
 require_once('helpers/money.php');
 require_once('helpers/pdf.php');
+require_once('helpers/database_locks.php');
 
 $alerts = [];
 $student_id = $_GET['id'];
@@ -26,12 +27,11 @@ if (!$student) {
   exit;
 }
 
-// Fetch outstanding fee items (lock for update)
+// Fetch outstanding fee items (without transaction initially)
 $fee_items = [];
 $total_fee = 0;
 $total_paid = 0;
-$mysqli->begin_transaction();
-$stmt = $mysqli->prepare("SELECT sfi.id, fi.name, sfi.amount, sfi.paid_amount, sfi.carryover_flag, sfi.mandatory FROM student_fee_items sfi JOIN fee_items fi ON sfi.fee_item_id = fi.id JOIN student_fees sf ON sfi.student_fee_id = sf.id WHERE sf.student_id = ? AND sf.status='active' FOR UPDATE");
+$stmt = $mysqli->prepare("SELECT sfi.id, fi.name, sfi.amount, sfi.paid_amount, sfi.carryover_flag, sfi.mandatory FROM student_fee_items sfi JOIN fee_items fi ON sfi.fee_item_id = fi.id JOIN student_fees sf ON sfi.student_fee_id = sf.id WHERE sf.student_id = ? AND sf.status='active'");
 $stmt->bind_param('s', $student_id);
 $stmt->execute();
 $res = $stmt->get_result();
@@ -69,129 +69,163 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['amount'])) {
   if ($amount <= 0) {
     $alerts[] = ['danger', 'Amount must be positive.'];
   } else {
-    try {
-      // Allocate payment: handle discount first, then mandatory items, then optional
-      $remaining = $amount;
-      $allocations = [];
-      
-      // Step 1: Apply discount if any
-      if ($discount > 0) {
-        // Create discount allocation record
-        $allocations[] = [
-          'student_fee_item_id' => 0, // 0 indicates this is a discount, not a specific fee item
-          'allocated_amount' => $discount,
-          'manual_override' => 1, // Mark as manual override for discount
-          'is_discount' => true
-        ];
-        $remaining -= $discount;
-      }
-      
-      // Step 2: Allocate remaining amount to fee items (mandatory first, then optional)
-      foreach ([1, 0] as $mand) {
-        foreach ($fee_items as &$fi) {
-          if ($fi['outstanding'] > 0 && $fi['mandatory'] == $mand && $remaining > 0) {
-            $alloc = min($fi['outstanding'], $remaining);
-            $allocations[] = [
-              'student_fee_item_id' => $fi['id'],
-              'allocated_amount' => $alloc,
-              'manual_override' => 0,
-              'is_discount' => false
-            ];
-            $fi['paid_amount'] += $alloc;
-            $fi['outstanding'] -= $alloc;
-            $remaining -= $alloc;
+    // Use advisory lock for payment processing to prevent concurrent payments
+    $lockName = "payment_{$student_id}";
+    
+    if (!acquireLock($mysqli, $lockName, 10)) {
+      $alerts[] = ['danger', 'Another payment is being processed for this student. Please try again.'];
+    } else {
+      try {
+        // Start transaction for payment processing
+        $mysqli->begin_transaction();
+        
+        // Re-fetch fee items with FOR UPDATE lock inside transaction
+        $fee_items_locked = [];
+        $total_fee_locked = 0;
+        $total_paid_locked = 0;
+        $stmt = $mysqli->prepare("SELECT sfi.id, fi.name, sfi.amount, sfi.paid_amount, sfi.carryover_flag, sfi.mandatory FROM student_fee_items sfi JOIN fee_items fi ON sfi.fee_item_id = fi.id JOIN student_fees sf ON sfi.student_fee_id = sf.id WHERE sf.student_id = ? AND sf.status='active' FOR UPDATE");
+        $stmt->bind_param('s', $student_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        while ($row = $res->fetch_assoc()) {
+          $row['outstanding'] = $row['amount'] - $row['paid_amount'];
+          $fee_items_locked[] = $row;
+          $total_fee_locked += $row['amount'];
+          $total_paid_locked += $row['paid_amount'];
+        }
+        $stmt->close();
+        $balance_locked = $total_fee_locked - $total_paid_locked;
+        
+        // Allocate payment: handle discount first, then mandatory items, then optional
+        $remaining = $amount;
+        $allocations = [];
+        
+        // Step 1: Apply discount if any
+        if ($discount > 0) {
+          // Create discount allocation record
+          $allocations[] = [
+            'student_fee_item_id' => 0, // 0 indicates this is a discount, not a specific fee item
+            'allocated_amount' => $discount,
+            'manual_override' => 1, // Mark as manual override for discount
+            'is_discount' => true
+          ];
+          $remaining -= $discount;
+        }
+        
+        // Step 2: Allocate remaining amount to fee items (mandatory first, then optional)
+        foreach ([1, 0] as $mand) {
+          foreach ($fee_items_locked as &$fi) {
+            if ($fi['outstanding'] > 0 && $fi['mandatory'] == $mand && $remaining > 0) {
+              $alloc = min($fi['outstanding'], $remaining);
+              $allocations[] = [
+                'student_fee_item_id' => $fi['id'],
+                'allocated_amount' => $alloc,
+                'manual_override' => 0,
+                'is_discount' => false
+              ];
+              $fi['paid_amount'] += $alloc;
+              $fi['outstanding'] -= $alloc;
+              $remaining -= $alloc;
+            }
           }
         }
-      }
-      
-      // Step 3: Handle overpayment (credit/refund)
-      $overpayment = $remaining > 0 ? $remaining : 0;
+        
+        // Step 3: Handle overpayment (credit/refund)
+        $overpayment = $remaining > 0 ? $remaining : 0;
 
-      // Calculate totals
-      $allocated_amount = $amount - $overpayment;
-      $new_total_paid = $total_paid + $allocated_amount;
-      $new_balance = $balance - $allocated_amount;
+        // Calculate totals
+        $allocated_amount = $amount - $overpayment;
+        $new_total_paid = $total_paid_locked + $allocated_amount;
+        $new_balance = $balance_locked - $allocated_amount;
 
-      // Insert payment
-      $stmt = $mysqli->prepare("INSERT INTO payments (student_id, amount, payment_method, payment_date, reference, receipt_number, created_by, paid_by, bank_from, bank_to, transfer_mode, transfer_id, paid_for, discount, total_paid_term, balance_term, tuckshop_deposit, term, session) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-      $stmt->bind_param('sdssssissssssiiiiss', $student_id, $amount, $method, $payment_date, $reference, $receipt_number, $created_by, $paid_by, $bank_from, $bank_to, $transfer_mode, $transfer_id, $paid_for, $discount, $new_total_paid, $new_balance, $tuckshop_deposit, $current_term, $current_session);
-      if (!$stmt->execute()) throw new Exception('Error recording payment.');
-      $payment_id = $stmt->insert_id;
-      audit_log('record_payment', 'payment', $payment_id, null, [
-        'student_id' => $student_id,
-        'amount' => $amount,
-        'method' => $method,
-        'reference' => $reference,
-        'receipt_number' => $receipt_number,
-        'paid_by' => $paid_by,
-        'bank_from' => $bank_from,
-        'bank_to' => $bank_to,
-        'transfer_mode' => $transfer_mode,
-        'transfer_id' => $transfer_id,
-        'paid_for' => $paid_for,
-        'discount' => $discount,
-        'total_paid_term' => $new_total_paid,
-        'balance_term' => $new_balance,
-        'tuckshop_deposit' => $tuckshop_deposit
-      ]);
-      $stmt->close();
-
-      // Insert allocations and update fee items
-      foreach ($allocations as $alloc) {
-        $stmt = $mysqli->prepare("INSERT INTO payment_allocations (payment_id, student_fee_item_id, allocated_amount, manual_override, term, session) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param('iiiiss', $payment_id, $alloc['student_fee_item_id'], $alloc['allocated_amount'], $alloc['manual_override'], $current_term, $current_session);
-        $stmt->execute();
+        // Insert payment
+        $stmt = $mysqli->prepare("INSERT INTO payments (student_id, amount, payment_method, payment_date, reference, receipt_number, created_by, paid_by, bank_from, bank_to, transfer_mode, transfer_id, paid_for, discount, total_paid_term, balance_term, tuckshop_deposit, term, session) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param('sdssssissssssiiiiss', $student_id, $amount, $method, $payment_date, $reference, $receipt_number, $created_by, $paid_by, $bank_from, $bank_to, $transfer_mode, $transfer_id, $paid_for, $discount, $new_total_paid, $new_balance, $tuckshop_deposit, $current_term, $current_session);
+        if (!$stmt->execute()) throw new Exception('Error recording payment.');
+        $payment_id = $stmt->insert_id;
+        audit_log('record_payment', 'payment', $payment_id, null, [
+          'student_id' => $student_id,
+          'amount' => $amount,
+          'method' => $method,
+          'reference' => $reference,
+          'receipt_number' => $receipt_number,
+          'paid_by' => $paid_by,
+          'bank_from' => $bank_from,
+          'bank_to' => $bank_to,
+          'transfer_mode' => $transfer_mode,
+          'transfer_id' => $transfer_id,
+          'paid_for' => $paid_for,
+          'discount' => $discount,
+          'total_paid_term' => $new_total_paid,
+          'balance_term' => $new_balance,
+          'tuckshop_deposit' => $tuckshop_deposit
+        ]);
         $stmt->close();
 
-        // Update paid_amount only for actual fee items (not discounts)
-        if ($alloc['student_fee_item_id'] > 0) {
-          $stmt = $mysqli->prepare("UPDATE student_fee_items SET paid_amount = paid_amount + ? WHERE id = ?");
-          $stmt->bind_param('ii', $alloc['allocated_amount'], $alloc['student_fee_item_id']);
+        // Insert allocations and update fee items
+        foreach ($allocations as $alloc) {
+          $stmt = $mysqli->prepare("INSERT INTO payment_allocations (payment_id, student_fee_item_id, allocated_amount, manual_override, term, session) VALUES (?, ?, ?, ?, ?, ?)");
+          $stmt->bind_param('iiiiss', $payment_id, $alloc['student_fee_item_id'], $alloc['allocated_amount'], $alloc['manual_override'], $current_term, $current_session);
           $stmt->execute();
           $stmt->close();
-        }
-      }
 
-      // Create discount transaction entry if discount was applied
-      if ($discount > 0) {
-        $stmt = $mysqli->prepare("INSERT INTO transactions (student_id, type, amount, reference, related_id, term, session) VALUES (?, 'discount', ?, ?, ?, ?, ?)");
-        $stmt->bind_param('sisiss', $student_id, $discount, $receipt_number, $payment_id, $current_term, $current_session);
+          // Update paid_amount only for actual fee items (not discounts)
+          if ($alloc['student_fee_item_id'] > 0) {
+            $stmt = $mysqli->prepare("UPDATE student_fee_items SET paid_amount = paid_amount + ? WHERE id = ?");
+            $stmt->bind_param('ii', $alloc['allocated_amount'], $alloc['student_fee_item_id']);
+            $stmt->execute();
+            $stmt->close();
+          }
+        }
+
+        // Create discount transaction entry if discount was applied
+        if ($discount > 0) {
+          $stmt = $mysqli->prepare("INSERT INTO transactions (student_id, type, amount, reference, related_id, term, session) VALUES (?, 'discount', ?, ?, ?, ?, ?)");
+          $stmt->bind_param('sisiss', $student_id, $discount, $receipt_number, $payment_id, $current_term, $current_session);
+          $stmt->execute();
+          $stmt->close();
+          
+          // Log discount application for audit trail
+          audit_log('apply_discount', 'discount', $payment_id, null, [
+            'student_id' => $student_id,
+            'discount_amount' => $discount,
+            'receipt_number' => $receipt_number,
+            'applied_by' => $created_by,
+            'payment_id' => $payment_id,
+            'term' => $current_term,
+            'session' => $current_session
+          ]);
+        }
+
+        // Ledger entry
+        $stmt = $mysqli->prepare("INSERT INTO transactions (student_id, type, amount, reference, related_id, term, session) VALUES (?, 'payment', ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount), reference = VALUES(reference), related_id = VALUES(related_id)");
+        $stmt->bind_param('sisiss', $student_id, $amount, $receipt_number, $payment_id, $current_term, $current_session);
         $stmt->execute();
         $stmt->close();
+
+        // Overpayment: credit/refund logic (not implemented here, but log)
+        if ($overpayment > 0) {
+          audit_log('overpayment', 'payment', $payment_id, null, ['student_id' => $student_id, 'overpayment' => $overpayment]);
+        }
+
+        $mysqli->commit();
+        releaseLock($mysqli, $lockName);
         
-        // Log discount application for audit trail
-        audit_log('apply_discount', 'discount', $payment_id, null, [
-          'student_id' => $student_id,
-          'discount_amount' => $discount,
-          'receipt_number' => $receipt_number,
-          'applied_by' => $created_by,
-          'payment_id' => $payment_id,
-          'term' => $current_term,
-          'session' => $current_session
-        ]);
+        // Refresh fee items after successful payment
+        $fee_items = $fee_items_locked;
+        $total_fee = $total_fee_locked;
+        $total_paid = $new_total_paid;
+        $balance = $new_balance;
+        
+        $alerts[] = ['success', 'Payment recorded successfully.'];
+      } catch (Exception $e) {
+        $mysqli->rollback();
+        releaseLock($mysqli, $lockName);
+        $alerts[] = ['danger', 'Error: ' . $e->getMessage()];
       }
-
-      // Ledger entry
-      $stmt = $mysqli->prepare("INSERT INTO transactions (student_id, type, amount, reference, related_id, term, session) VALUES (?, 'payment', ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount), reference = VALUES(reference), related_id = VALUES(related_id)");
-      $stmt->bind_param('sisiss', $student_id, $amount, $receipt_number, $payment_id, $current_term, $current_session);
-      $stmt->execute();
-      $stmt->close();
-
-      // Overpayment: credit/refund logic (not implemented here, but log)
-      if ($overpayment > 0) {
-        audit_log('overpayment', 'payment', $payment_id, null, ['student_id' => $student_id, 'overpayment' => $overpayment]);
-      }
-
-      $mysqli->commit();
-      $alerts[] = ['success', 'Payment recorded successfully.'];
-    } catch (Exception $e) {
-      $mysqli->rollback();
-      $alerts[] = ['danger', 'Error: ' . $e->getMessage()];
     }
   }
 }
-
-$mysqli->commit();
 ?>
 
 <!DOCTYPE html>

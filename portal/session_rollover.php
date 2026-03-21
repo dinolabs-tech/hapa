@@ -6,6 +6,7 @@ ini_set('',1);
 include('components/admin_logic.php');
 require_once('helpers/audit.php');
 require_once('helpers/money.php');
+require_once('helpers/database_locks.php');
 
 
 // Fetch current session from database
@@ -56,24 +57,30 @@ if ($action === 'execute' && $_SERVER['REQUEST_METHOD'] === 'GET') {
   if ($session === '' || $current_term === '' || $new_term === '') {
     $alerts[] = ['danger', 'Session, current term, and new term required.'];
   } else {
-    $mysqli->begin_transaction();
-    try {
-      // Get students with outstanding fees
-      $sql = "SELECT s.id, s.name, SUM(sfi.amount - sfi.paid_amount) AS outstanding
-                    FROM students s
-                    JOIN student_fees sf ON s.id = sf.student_id AND sf.status = 'active'
-                    JOIN student_fee_items sfi ON sf.id = sfi.student_fee_id
-                    WHERE s.session = ? AND s.term = ? AND sfi.amount > sfi.paid_amount
-                    GROUP BY s.id";
-      $stmt = $mysqli->prepare($sql);
-      $stmt->bind_param('ss', $session, $current_term);
-      $stmt->execute();
-      $res = $stmt->get_result();
-      $students = [];
-      while ($row = $res->fetch_assoc()) {
-        $students[] = $row;
-      }
-      $stmt->close();
+    // Acquire advisory lock for rollover operation
+    $lockName = "session_rollover_{$session}";
+    if (!acquireLock($mysqli, $lockName, 30)) {
+      $alerts[] = ['danger', 'Another rollover operation is in progress. Please try again later.'];
+    } else {
+      $mysqli->begin_transaction();
+      try {
+        // Get students with outstanding fees - WITH FOR UPDATE LOCK
+        $sql = "SELECT s.id, s.name, SUM(sfi.amount - sfi.paid_amount) AS outstanding
+                      FROM students s
+                      JOIN student_fees sf ON s.id = sf.student_id AND sf.status = 'active'
+                      JOIN student_fee_items sfi ON sf.id = sfi.student_fee_id
+                      WHERE s.session = ? AND s.term = ? AND sfi.amount > sfi.paid_amount
+                      GROUP BY s.id
+                      FOR UPDATE";
+        $stmt = $mysqli->prepare($sql);
+        $stmt->bind_param('ss', $session, $current_term);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $students = [];
+        while ($row = $res->fetch_assoc()) {
+          $students[] = $row;
+        }
+        $stmt->close();
 
       foreach ($students as $student) {
         $student_id = $student['id'];
@@ -137,11 +144,14 @@ if ($action === 'execute' && $_SERVER['REQUEST_METHOD'] === 'GET') {
         audit_log('term_rollover', 'student', $student_id, ['term' => $current_term], ['term' => $new_term, 'combined_carryover' => $combined_amount]);
       }
 
-      $mysqli->commit();
-      $alerts[] = ['success', 'Term rollover executed successfully.'];
-    } catch (Exception $e) {
-      $mysqli->rollback();
-      $alerts[] = ['danger', 'Error executing term rollover: ' . $e->getMessage()];
+        $mysqli->commit();
+        releaseLock($mysqli, $lockName);
+        $alerts[] = ['success', 'Term rollover executed successfully.'];
+      } catch (Exception $e) {
+        $mysqli->rollback();
+        releaseLock($mysqli, $lockName);
+        $alerts[] = ['danger', 'Error executing term rollover: ' . $e->getMessage()];
+      }
     }
   }
 }
