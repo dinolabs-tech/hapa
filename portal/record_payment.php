@@ -6,10 +6,12 @@ require_once('helpers/pdf.php');
 require_once('helpers/database_locks.php');
 
 $alerts = [];
-$student_id = $_GET['id'];
-if ($student_id <= 0) {
-  echo "<div class='alert alert-danger'>Invalid student ID.</div>";
-  exit;
+
+// Validate student ID from GET parameter
+$student_id = validate_id($_GET['id'] ?? null);
+if ($student_id === false) {
+    echo "<div class='alert alert-danger'>Invalid student ID. Please provide a valid student ID.</div>";
+    exit;
 }
 
 // Fetch current term and session

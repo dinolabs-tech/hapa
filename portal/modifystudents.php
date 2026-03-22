@@ -4,91 +4,109 @@ include('components/admin_logic.php');
 // MODIFY STUDENTS =============================
 // Handle form submission for updating student record and image
 if (isset($_POST['update'])) {
-    // Collect student information from form
-    $id = $_POST['id'];
-    $name = $_POST['name'];
-    $gender = $_POST['gender'];
-    $dob_from_form = $_POST['dob'];
-    $dob = !empty($dob_from_form) ? date('d/m/Y', strtotime($dob_from_form)) : '';
-    $placeob = $_POST['placeob'];
-    $address = $_POST['address'];
-    $religion = $_POST['religion'];
-    $state = $_POST['state'];
-    $lga = $_POST['lga'];
-    $class = $_POST['class'];
-    $arm = $_POST['arm'];
-    $session_val = $_POST['session'];
-    $term = $_POST['term'];
-    $schoolname = $_POST['schoolname'];
-    $schooladdress = $_POST['schooladdress'];
-    $hobbies = $_POST['hobbies'];
-    $lastclass = isset($_POST['lastclass']) ? $_POST['lastclass'] : ''; // Line 25
-    $sickle = $_POST['sickle'];
-    $challenge = $_POST['challenge'];
-    $emergency = $_POST['emergency'];
-    $familydoc = $_POST['familydoc'];
-    $docaddress = $_POST['docaddress'];
-    $docmobile = $_POST['docmobile'];
-    $polio = $_POST['polio'];
-    $tuberculosis = $_POST['tuberculosis'];
-    $measles = $_POST['measles'];
-    $tetanus = $_POST['tetanus'];
-    $whooping = $_POST['whooping'];
-    $gname = $_POST['gname'];
-    $mobile = $_POST['mobile'];
-    $goccupation = $_POST['goccupation'];
-    $gaddress = $_POST['gaddress'];
-    $grelationship = $_POST['grelationship'];
-    $hostel = $_POST['hostel'];
-    $bloodtype = isset($_POST['bloodtype']) ? $_POST['bloodtype'] : ''; // Line 43
-    $bloodgroup = isset($_POST['bloodgroup']) ? $_POST['bloodgroup'] : ''; // Line 44
-    $height = $_POST['height'];
-    $weight = $_POST['weight'];
-    $password = $_POST['password'];
+    // Validate CSRF token
+    if (!csrf_verify_and_regenerate()) {
+        die("<div class='alert alert-danger'>Invalid request. Please try again.</div>");
+    }
+    
+    // Validate and collect student information from form
+    $id = validate_id($_POST['id']);
+    if ($id === false) {
+        die("<div class='alert alert-danger'>Invalid student ID.</div>");
+    }
+    
+    $name = validate_string($_POST['name'], 1, 255);
+    $gender = validate_enum($_POST['gender'], ['Male', 'Female']);
+    $dob_from_form = validate_date($_POST['dob'], 'Y-m-d');
+    $dob = $dob_from_form ? date('d/m/Y', strtotime($dob_from_form)) : '';
+    $placeob = validate_string($_POST['placeob'], 0, 255);
+    $address = validate_string($_POST['address'], 1, 500);
+    $religion = validate_enum($_POST['religion'], ['Christianity', 'Islam', 'Traditional', 'Other']);
+    $state = validate_string($_POST['state'], 0, 100);
+    $lga = validate_string($_POST['lga'], 0, 100);
+    $class = validate_string($_POST['class'], 1, 50);
+    $arm = validate_string($_POST['arm'], 1, 50);
+    $session_val = validate_string($_POST['session'], 1, 50);
+    $term = validate_enum($_POST['term'], ['1st Term', '2nd Term', '3rd Term']);
+    $schoolname = validate_string($_POST['schoolname'], 0, 255);
+    $schooladdress = validate_string($_POST['schooladdress'], 0, 500);
+    $hobbies = validate_string($_POST['hobbies'], 0, 255);
+    $lastclass = validate_string($_POST['lastclass'] ?? '', 0, 50);
+    $sickle = validate_enum($_POST['sickle'], ['Yes', 'No', '']);
+    $challenge = validate_string($_POST['challenge'], 0, 255);
+    $emergency = validate_enum($_POST['emergency'], ['Yes', 'No', '']);
+    $familydoc = validate_string($_POST['familydoc'], 0, 255);
+    $docaddress = validate_string($_POST['docaddress'], 0, 500);
+    $docmobile = validate_phone($_POST['docmobile']);
+    $polio = validate_enum($_POST['polio'], ['Yes', 'No', '']);
+    $tuberculosis = validate_enum($_POST['tuberculosis'], ['Yes', 'No', '']);
+    $measles = validate_enum($_POST['measles'], ['Yes', 'No', '']);
+    $tetanus = validate_enum($_POST['tetanus'], ['Yes', 'No', '']);
+    $whooping = validate_enum($_POST['whooping'], ['Yes', 'No', '']);
+    $gname = validate_string($_POST['gname'], 1, 255);
+    $mobile = validate_phone($_POST['mobile']);
+    $goccupation = validate_string($_POST['goccupation'], 0, 255);
+    $gaddress = validate_string($_POST['gaddress'], 0, 500);
+    $grelationship = validate_enum($_POST['grelationship'], ['Father', 'Mother', 'Other', '']);
+    $hostel = validate_enum($_POST['hostel'], ['Day', 'Boarding', '']);
+    $bloodtype = validate_enum($_POST['bloodtype'] ?? '', ['AA', 'AS', 'AC', 'SS', 'SC', '']);
+    $bloodgroup = validate_enum($_POST['bloodgroup'] ?? '', ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', '']);
+    $height = validate_string($_POST['height'], 0, 20);
+    $weight = validate_string($_POST['weight'], 0, 20);
+    $password = validate_string($_POST['password'], 1, 255);
 
-    // Update student record
-    $sql = "UPDATE students SET 
-                name='$name', 
-                gender='$gender', 
-                dob='$dob',
-                placeob='$placeob', 
-                address='$address', 
-                religion='$religion', 
-                state='$state', 
-                lga='$lga', 
-                class='$class', 
-                arm='$arm', 
-                session='$session_val', 
-                term='$term', 
-                schoolname='$schoolname', 
-                schooladdress='$schooladdress', 
-                hobbies='$hobbies', 
-                lastclass='$lastclass', 
-                sickle='$sickle', 
-                challenge='$challenge', 
-                emergency='$emergency', 
-                familydoc='$familydoc', 
-                docaddress='$docaddress', 
-                docmobile='$docmobile', 
-                polio='$polio', 
-                tuberculosis='$tuberculosis', 
-                measles='$measles', 
-                tetanus='$tetanus', 
-                whooping='$whooping', 
-                gname='$gname', 
-                mobile='$mobile', 
-                goccupation='$goccupation', 
-                gaddress='$gaddress', 
-                grelationship='$grelationship', 
-                hostel='$hostel', 
-                bloodtype='$bloodtype', 
-                bloodgroup='$bloodgroup', 
-                height='$height', 
-                weight='$weight', 
-                password='$password'
-            WHERE id='$id'";
+    // Update student record using prepared statement
+    $stmt = $conn->prepare("UPDATE students SET 
+                name=?, 
+                gender=?, 
+                dob=?,
+                placeob=?, 
+                address=?, 
+                religion=?, 
+                state=?, 
+                lga=?, 
+                class=?, 
+                arm=?, 
+                session=?, 
+                term=?, 
+                schoolname=?, 
+                schooladdress=?, 
+                hobbies=?, 
+                lastclass=?, 
+                sickle=?, 
+                challenge=?, 
+                emergency=?, 
+                familydoc=?, 
+                docaddress=?, 
+                docmobile=?, 
+                polio=?, 
+                tuberculosis=?, 
+                measles=?, 
+                tetanus=?, 
+                whooping=?, 
+                gname=?, 
+                mobile=?, 
+                goccupation=?, 
+                gaddress=?, 
+                grelationship=?, 
+                hostel=?, 
+                bloodtype=?, 
+                bloodgroup=?, 
+                height=?, 
+                weight=?, 
+                password=?
+            WHERE id=?");
+    
+    $stmt->bind_param("sssssssssssssssssssssssssssssssssssssss", 
+        $name, $gender, $dob, $placeob, $address, $religion, $state, $lga, 
+        $class, $arm, $session_val, $term, $schoolname, $schooladdress, $hobbies, 
+        $lastclass, $sickle, $challenge, $emergency, $familydoc, $docaddress, 
+        $docmobile, $polio, $tuberculosis, $measles, $tetanus, $whooping, 
+        $gname, $mobile, $goccupation, $gaddress, $grelationship, $hostel, 
+        $bloodtype, $bloodgroup, $height, $weight, $password, $id);
 
-    if ($conn->query($sql) === TRUE) {
+    if ($stmt->execute() === TRUE) {
+        $stmt->close();
         // Process student image if a new file is provided
         if (isset($_FILES["formFile"]) && $_FILES["formFile"]["error"] !== UPLOAD_ERR_NO_FILE) {
             $targetDir = "studentimg/"; // Upload folder
@@ -133,43 +151,69 @@ if (isset($_POST['update'])) {
 
 // Handle deletion of a student record
 if (isset($_GET['delete'])) {
-    $id = $_GET['delete'];
-    $sql = "DELETE FROM students WHERE id='$id'";
-    if ($conn->query($sql) === TRUE) {
+    $id = validate_id($_GET['delete']);
+    if ($id === false) {
+        die("<div class='alert alert-danger'>Invalid student ID.</div>");
+    }
+    $stmt = $conn->prepare("DELETE FROM students WHERE id=?");
+    $stmt->bind_param("s", $id);
+    if ($stmt->execute()) {
+        $stmt->close();
         header("Location: " . $_SERVER['PHP_SELF']);
         exit;
     } else {
-        echo "Error: " . $conn->error;
+        echo "Error: " . htmlspecialchars($stmt->error);
+        $stmt->close();
     }
 }
 
 // Search query for student based on ID or name
-$searchQuery = "";
-if (isset($_POST['search'])) {
-    $searchTerm = $_POST['searchTerm'];
-    $searchQuery = "WHERE name LIKE '%$searchTerm%' OR id LIKE '%$searchTerm%'";
-}
-
-// Fetch student records
-$sql = "SELECT * FROM students $searchQuery";
-$result = $conn->query($sql);
-
-// Convert result set into an array so it can be looped over safely later
+$searchTerm = '';
 $students = [];
-if ($result && $result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $students[] = $row;
+if (isset($_POST['search'])) {
+    $searchTerm = validate_string($_POST['searchTerm'], 0, 100);
+    if ($searchTerm !== false && $searchTerm !== '') {
+        $searchParam = '%' . $searchTerm . '%';
+        $stmt = $conn->prepare("SELECT * FROM students WHERE name LIKE ? OR id LIKE ?");
+        $stmt->bind_param("ss", $searchParam, $searchParam);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $students[] = $row;
+        }
+        $stmt->close();
+    } else {
+        // If no valid search term, fetch all students
+        $result = $conn->query("SELECT * FROM students");
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $students[] = $row;
+            }
+        }
+    }
+} else {
+    // Fetch student records
+    $result = $conn->query("SELECT * FROM students");
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $students[] = $row;
+        }
     }
 }
 
 // Fetch student details for editing if an ID is passed in the URL
 $studentDetails = null;
 if (isset($_GET['edit'])) {
-    $id = $_GET['edit'];
-    $studentSql = "SELECT * FROM students WHERE id='$id'";
-    $studentResult = $conn->query($studentSql);
-    if ($studentResult->num_rows > 0) {
-        $studentDetails = $studentResult->fetch_assoc();
+    $id = validate_id($_GET['edit']);
+    if ($id !== false) {
+        $stmt = $conn->prepare("SELECT * FROM students WHERE id=?");
+        $stmt->bind_param("s", $id);
+        $stmt->execute();
+        $studentResult = $stmt->get_result();
+        if ($studentResult->num_rows > 0) {
+            $studentDetails = $studentResult->fetch_assoc();
+        }
+        $stmt->close();
     }
 }
 
