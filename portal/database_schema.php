@@ -1150,3 +1150,78 @@ if (tableExists($conn, 'sub')) {
         $conn->query("INSERT INTO `sub` (`id`, `expdate`) VALUES (1, '12/19/2024')");
     }
 }
+
+// ============================================
+// BURSARY PERFORMANCE OPTIMIZATIONS
+// ============================================
+
+// Add auto_allocated column to payment_allocations if not exists
+if (tableExists($conn, 'payment_allocations')) {
+    if (!columnExists($conn, 'payment_allocations', 'auto_allocated')) {
+        $sql = "ALTER TABLE `payment_allocations` ADD COLUMN `auto_allocated` TINYINT(1) NOT NULL DEFAULT 1 AFTER `manual_override`";
+        if ($conn->query($sql) === TRUE) {
+            // Column added successfully
+        } else {
+            error_log("Error adding auto_allocated column: " . $conn->error);
+        }
+    }
+}
+
+// Add performance indexes for bursary tables
+$bursaryIndexes = [
+    // Payments table indexes
+    "payments" => [
+        "idx_payments_term_session" => "ADD INDEX IF NOT EXISTS idx_payments_term_session (term, session)",
+        "idx_payments_student" => "ADD INDEX IF NOT EXISTS idx_payments_student (student_id)",
+        "idx_payments_date" => "ADD INDEX IF NOT EXISTS idx_payments_date (payment_date)"
+    ],
+    // Student fees indexes
+    "student_fees" => [
+        "idx_student_fees_lookup" => "ADD INDEX IF NOT EXISTS idx_student_fees_lookup (student_id, status, term, session)"
+    ],
+    // Student fee items indexes
+    "student_fee_items" => [
+        "idx_sfi_balance" => "ADD INDEX IF NOT EXISTS idx_sfi_balance (student_fee_id, amount, paid_amount)"
+    ],
+    // Fee summaries indexes (already in table definition, but ensure they exist)
+    "fee_summaries" => [
+        "idx_fee_summaries_ts" => "ADD INDEX IF NOT EXISTS idx_fee_summaries_ts (term, session)"
+    ]
+];
+
+foreach ($bursaryIndexes as $table => $indexes) {
+    if (tableExists($conn, $table)) {
+        foreach ($indexes as $indexName => $indexSql) {
+            // Check if index exists
+            $result = $conn->query("SHOW INDEX FROM `$table` WHERE Key_name = '$indexName'");
+            if ($result && $result->num_rows == 0) {
+                $sql = "ALTER TABLE `$table` $indexSql";
+                if ($conn->query($sql) !== TRUE) {
+                    error_log("Error adding index $indexName to $table: " . $conn->error);
+                }
+            }
+        }
+    }
+}
+
+// Create fee_summaries table if not exists (with proper definition)
+if (!tableExists($conn, 'fee_summaries')) {
+    $sql = "CREATE TABLE fee_summaries (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        summary_date DATE NOT NULL,
+        term VARCHAR(32) NOT NULL,
+        session VARCHAR(32) NOT NULL,
+        total_collected BIGINT DEFAULT 0,
+        total_outstanding BIGINT DEFAULT 0,
+        student_count INT DEFAULT 0,
+        payment_count INT DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_summary (summary_date, term, session),
+        INDEX idx_term_session (term, session),
+        INDEX idx_date (summary_date)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci";
+    
+    if ($conn->query($sql) !== TRUE) {
+        error_log("Error creating fee_summaries table: " . $conn->error);
+    }
+}
