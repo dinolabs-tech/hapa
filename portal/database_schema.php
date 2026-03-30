@@ -1167,42 +1167,42 @@ if (tableExists($conn, 'payment_allocations')) {
     }
 }
 
-// Add performance indexes for bursary tables
-$bursaryIndexes = [
-    // Payments table indexes
-    "payments" => [
-        "idx_payments_term_session" => "ADD INDEX IF NOT EXISTS idx_payments_term_session (term, session)",
-        "idx_payments_student" => "ADD INDEX IF NOT EXISTS idx_payments_student (student_id)",
-        "idx_payments_date" => "ADD INDEX IF NOT EXISTS idx_payments_date (payment_date)"
-    ],
-    // Student fees indexes
-    "student_fees" => [
-        "idx_student_fees_lookup" => "ADD INDEX IF NOT EXISTS idx_student_fees_lookup (student_id, status, term, session)"
-    ],
-    // Student fee items indexes
-    "student_fee_items" => [
-        "idx_sfi_balance" => "ADD INDEX IF NOT EXISTS idx_sfi_balance (student_fee_id, amount, paid_amount)"
-    ],
-    // Fee summaries indexes (already in table definition, but ensure they exist)
-    "fee_summaries" => [
-        "idx_fee_summaries_ts" => "ADD INDEX IF NOT EXISTS idx_fee_summaries_ts (term, session)"
-    ]
-];
+// // Add performance indexes for bursary tables
+// $bursaryIndexes = [
+//     // Payments table indexes
+//     "payments" => [
+//         "idx_payments_term_session" => "ADD INDEX idx_payments_term_session (term, session)",
+//         "idx_payments_student" => "ADD INDEX idx_payments_student (student_id)",
+//         "idx_payments_date" => "ADD INDEX idx_payments_date (payment_date)"
+//     ],
+//     // Student fees indexes
+//     "student_fees" => [
+//         "idx_student_fees_lookup" => "ADD INDEX idx_student_fees_lookup (student_id, status, term, session)"
+//     ],
+//     // Student fee items indexes
+//     "student_fee_items" => [
+//         "idx_sfi_balance" => "ADD INDEX idx_sfi_balance (student_fee_id, amount, paid_amount)"
+//     ],
+//     // Fee summaries indexes (already in table definition, but ensure they exist)
+//     "fee_summaries" => [
+//         "idx_fee_summaries_ts" => "ADD INDEX idx_fee_summaries_ts (term, session)"
+//     ]
+// ];
 
-foreach ($bursaryIndexes as $table => $indexes) {
-    if (tableExists($conn, $table)) {
-        foreach ($indexes as $indexName => $indexSql) {
-            // Check if index exists
-            $result = $conn->query("SHOW INDEX FROM `$table` WHERE Key_name = '$indexName'");
-            if ($result && $result->num_rows == 0) {
-                $sql = "ALTER TABLE `$table` $indexSql";
-                if ($conn->query($sql) !== TRUE) {
-                    error_log("Error adding index $indexName to $table: " . $conn->error);
-                }
-            }
-        }
-    }
-}
+// foreach ($bursaryIndexes as $table => $indexes) {
+//     if (tableExists($conn, $table)) {
+//         foreach ($indexes as $indexName => $indexSql) {
+//             // Check if index exists
+//             $result = $conn->query("SHOW INDEX FROM `$table` WHERE Key_name = '$indexName'");
+//             if ($result && $result->num_rows == 0) {
+//                 $sql = "ALTER TABLE `$table` $indexSql";
+//                 if ($conn->query($sql) !== TRUE) {
+//                     error_log("Error adding index $indexName to $table: " . $conn->error);
+//                 }
+//             }
+//         }
+//     }
+// }
 
 // Create fee_summaries table if not exists (with proper definition)
 if (!tableExists($conn, 'fee_summaries')) {
