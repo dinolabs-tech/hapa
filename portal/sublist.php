@@ -52,7 +52,7 @@ $stmt_date->close();
 
 <!DOCTYPE html>
 <html lang="en">
-<?php include('head.php'); ?>
+ <?php include('head.php'); ?>
   <body>
     <div class="wrapper">
       <!-- Sidebar -->
@@ -117,9 +117,9 @@ $stmt_date->close();
                           while ($row = $result->fetch_row()) {
                               $subject = $row[1]; // Assuming $row[1] is the subject name
 
-                              // Check if the student has already taken this subject
-                              $stmt_check = $conn->prepare("SELECT * FROM mst_result WHERE login = ? AND subject = ?");
-                              $stmt_check->bind_param("ss", $loginid, $subject);
+                              // Check if the student has already taken this subject (using cbt_score table)
+                              $stmt_check = $conn->prepare("SELECT * FROM cbt_score WHERE login = ? AND subject = ? AND term = ? AND session = ?");
+                              $stmt_check->bind_param("ssss", $loginid, $subject, $current_term, $current_session);
                               $stmt_check->execute();
                               $stmt_check->store_result();
                               $already_taken = $stmt_check->num_rows > 0;
@@ -129,20 +129,20 @@ $stmt_date->close();
                                   // If the subject has been taken, create a disabled link with an alert
                                   echo "<a href='#' class='list-group-item list-group-item-action fs-5 text-muted' 
                                         onclick=\"alert('You have already taken the " . htmlspecialchars($subject) . " exam.'); return false;\">" 
-                                      . htmlspecialchars($subject) . " (Already Taken)</a>";
+                                      . htmlspecialchars($subject) . " <span class='badge bg-success float-end'>Completed</span></a>";
                               } elseif ($testdate < $today) {
                                   // If the test date has passed, show a missed test notification
                                   echo "<a href='#' class='list-group-item list-group-item-action fs-5 text-muted' 
                                         onclick=\"alert('Sorry, you missed your test date on " . htmlspecialchars((string)$testdate) . "'); return false;\">" 
-                                      . htmlspecialchars($subject) . " (Missed Test Date)</a>";
+                                      . htmlspecialchars($subject) . " <span class='badge bg-danger float-end'>Missed</span></a>";
                               } elseif ($testdate > $today) {
                                   // If the scheduled test date is in the future, show notification with the test date
                                   echo "<a href='#' class='list-group-item list-group-item-action fs-5 text-muted' 
                                         onclick=\"alert('Sorry, you do not have a test scheduled for today. Please come back on " . htmlspecialchars($testdate) . "'); return false;\">" 
-                                      . htmlspecialchars($subject) . " (Test Not Today)</a>";
+                                      . htmlspecialchars($subject) . " <span class='badge bg-warning text-dark float-end'>Scheduled: " . htmlspecialchars($testdate) . "</span></a>";
                               } else {
-                                  // If test is scheduled for today and exam not yet taken, allow navigation to quiz.php
-                                  echo "<a href='quiz.php?subid=" . urlencode($subject) . "' class='list-group-item list-group-item-action fs-5'>" 
+                                  // If test is scheduled for today and exam not yet taken, allow navigation to cbt.php (modern SPA)
+                                  echo "<a href='cbt.php?subid=" . urlencode($subject) . "' class='list-group-item list-group-item-action fs-5'>" 
                                       . htmlspecialchars($subject) . "</a>";
                               }
                           }
