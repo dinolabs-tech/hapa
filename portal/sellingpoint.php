@@ -458,29 +458,50 @@ $conn->close();
                                     <?php if (isset($_SESSION['selected_student'])): ?>
                                         <h3 class="mb-3">Selected Student</h3>
                                         <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <label for="studentId" class="form-label">Student ID:</label>
-                                                <input type="text" class="form-control" id="studentId" value="<?= htmlspecialchars($_SESSION['selected_student']['regno']) ?>" readonly>
+                                            <div class="col-md-3 text-center mb-3">
+                                                <?php
+                                                // Determine student photo path
+                                                $photo_filename = str_replace('/', '_', $_SESSION['selected_student']['regno']);
+                                                $photo_path = "studentimg/" . $photo_filename . ".jpg";
+                                                if (!file_exists($photo_path)) {
+                                                    $photo_path = "studentimg/default.jpg";
+                                                }
+                                                ?>
+                                                <div class="student-photo-container mx-auto" style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 4px solid #4e73df; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                                                    <img src="<?= htmlspecialchars($photo_path) ?>" 
+                                                         alt="Student Photo" 
+                                                         style="width: 100%; height: 100%; object-fit: cover;"
+                                                         onerror="this.src='studentimg/default.jpg'">
+                                                </div>
+                                                <small class="text-muted d-block mt-2"><?= htmlspecialchars($_SESSION['selected_student']['regno']) ?></small>
                                             </div>
-                                            <div class="col-md-6">
-                                                <label for="studentName" class="form-label">Student Name:</label>
-                                                <input type="text" class="form-control" id="studentName" value="<?= htmlspecialchars($_SESSION['selected_student']['studentname']) ?>" readonly>
-                                            </div>
-                                        </div>
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <label for="studentClass" class="form-label">Class:</label>
-                                                <input type="text" class="form-control" id="studentClass" value="<?= htmlspecialchars($_SESSION['selected_student']['studentclass']) ?>" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="session" class="form-label">Session:</label>
-                                                <input type="text" class="form-control" id="session" value="<?= htmlspecialchars($_SESSION['selected_student']['csession']) ?>" readonly>
-                                            </div>
-                                        </div>
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <label for="balance" class="form-label">Balance:</label>
-                                                <input type="text" class="form-control" id="balance" value="<?= htmlspecialchars($_SESSION['selected_student']['vbalance']) ?>" readonly>
+                                            <div class="col-md-9">
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <label for="studentId" class="form-label">Student ID:</label>
+                                                        <input type="text" class="form-control" id="studentId" value="<?= htmlspecialchars($_SESSION['selected_student']['regno']) ?>" readonly>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="studentName" class="form-label">Student Name:</label>
+                                                        <input type="text" class="form-control" id="studentName" value="<?= htmlspecialchars($_SESSION['selected_student']['studentname']) ?>" readonly>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <label for="studentClass" class="form-label">Class:</label>
+                                                        <input type="text" class="form-control" id="studentClass" value="<?= htmlspecialchars($_SESSION['selected_student']['studentclass']) ?>" readonly>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="session" class="form-label">Session:</label>
+                                                        <input type="text" class="form-control" id="session" value="<?= htmlspecialchars($_SESSION['selected_student']['csession']) ?>" readonly>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <label for="balance" class="form-label">Balance:</label>
+                                                        <input type="text" class="form-control" id="balance" value="<?= htmlspecialchars($_SESSION['selected_student']['vbalance']) ?>" readonly>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     <?php endif; ?>
