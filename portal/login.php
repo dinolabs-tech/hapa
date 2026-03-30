@@ -165,107 +165,205 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Login</title>
-
-    <!-- Fonts and Icons -->
-    <script src="assets/js/plugin/webfont/webfont.min.js"></script>
-    <script>
-        WebFont.load({
-            google: {
-                families: ["Public Sans:300,400,500,600,700"]
-            },
-            custom: {
-                families: [
-                    "Font Awesome 5 Solid",
-                    "Font Awesome 5 Regular",
-                    "Font Awesome 5 Brands",
-                    "simple-line-icons",
-                ],
-                urls: ["assets/css/fonts.min.css"],
-            },
-            active: function() {
-                sessionStorage.fonts = true;
-            },
-        });
-    </script>
-
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="assets/css/plugins.min.css" />
-    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
-    <link rel="stylesheet" href="assets/css/demo.css" />
-
-    <!-- Custom Styles -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - EduHive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            background-image: url('assets/img/g4.jpg');
-            background-size: cover;
-            background-position: center;
-            height: 100vh;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .card {
-            background-color: rgba(0, 0, 0, 0.7);
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            animation: fadeIn 1s ease-in;
-            max-width: 300px;
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            max-width: 900px;
             width: 100%;
+            display: flex;
         }
 
-        .card-body {
-            padding: 2.5rem;
+        /* Left Side - Welcome Section */
+        .welcome-section {
+            background: linear-gradient(135deg, #1572e8, #6861ce);
+            padding: 50px 40px;
+            color: white;
+            width: 350px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-radius: 20px 0 0 20px;
         }
 
-        .error {
-            color: #dc3545;
-            margin-bottom: 1.5rem;
-            font-weight: 500;
+        .welcome-section .icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 36px;
+        }
+
+        .welcome-section h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
             text-align: center;
         }
 
-        .input-group-text {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: none;
+        .welcome-section p {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.7;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .feature-list li span {
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        /* Right Side - Login Form */
+        .form-section {
+            flex: 1;
+            padding: 50px 40px;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #1572e8, #6861ce);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .form-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .form-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
         }
 
         .form-control {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-            border-radius: 5px;
-        }
-
-        .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.7);
+            width: 100%;
+            padding: 14px 16px 14px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
         }
 
         .form-control:focus {
-            background-color: rgba(255, 255, 255, 0.2);
-            box-shadow: none;
-            color: white;
+            outline: none;
+            border-color: #1572e8;
+            box-shadow: 0 0 0 3px rgba(21, 114, 232, 0.1);
         }
 
         .password-wrapper {
             position: relative;
-            flex: 1;
         }
 
         .password-toggle {
             position: absolute;
-            right: 12px;
+            right: 16px;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.7);
+            color: #999;
             cursor: pointer;
             padding: 5px;
             font-size: 14px;
@@ -276,122 +374,227 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .password-toggle:hover {
-            color: white;
+            color: #666;
         }
 
         .password-wrapper .form-control {
-            padding-right: 40px;
+            padding-right: 50px;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-primary {
-            background-color: #007bff;
-            border: none;
-            padding: 0.75rem;
-            font-size: 1.1rem;
-            border-radius: 5px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            background: linear-gradient(135deg, #1572e8, #6861ce);
+            color: white;
         }
 
         .btn-primary:hover {
-            background-color: #0056b3;
             transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(21, 114, 232, 0.4);
         }
 
-        .login-title {
-            color: white;
-            font-family: 'Public Sans', sans-serif;
-            font-weight: 600;
-            font-size: 2rem;
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            font-size: 14px;
         }
 
-        .back-link {
-            color: rgba(255, 255, 255, 0.8);
+        .alert-danger {
+            background: #fee;
+            color: #c0392b;
+            border: 1px solid #fcc;
+        }
+
+        .form-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            font-size: 14px;
+        }
+
+        .form-links a {
+            color: #1572e8;
             text-decoration: none;
-            transition: color 0.3s ease;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .back-link:hover {
-            color: white;
+        .form-links a:hover {
             text-decoration: underline;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            position: relative;
+            color: #999;
+            font-size: 13px;
+        }
+
+        .register-link {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .register-link a {
+            color: #1572e8;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                max-width: 450px;
             }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            .welcome-section {
+                width: 100%;
+                border-radius: 20px 20px 0 0;
+                padding: 30px 20px;
+            }
+
+            .welcome-section h2 {
+                font-size: 24px;
+            }
+
+            .feature-list {
+                display: none;
+            }
+
+            .form-section {
+                padding: 30px 20px;
             }
         }
     </style>
 </head>
-
 <body>
-    <main>
-        <div class="container">
-            <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
-                <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
-                            <div class="card mb-3">
-                                <div class="card-body">
-                                    <h2 class="login-title text-center mb-4">Login</h2>
-                                    <?php if (!empty($login_error)): ?>
-                                        <p class="error"><?php echo htmlspecialchars($login_error); ?></p>
-                                    <?php endif; ?>
-                                    <form method="post" action="login.php">
-                                        <?php echo csrf_field(); ?>
-                                        <div class="input-group mb-3">
-                                            <label for="yourUsername" class="visually-hidden">Username</label>
-                                            <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                            <input type="text" name="username" class="form-control" id="yourUsername" placeholder="Enter Username..." required>
-                                        </div>
-                                        <div class="input-group mb-4">
-                                            <label for="yourPassword" class="visually-hidden">Password</label>
-                                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                            <div class="password-wrapper">
-                                                <input type="password" name="password" class="form-control" id="yourPassword" placeholder="Password" required>
-                                                <button type="button" class="password-toggle" onclick="togglePassword()">
-                                                    <i class="fas fa-eye" id="password-toggle-icon"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <button class="btn btn-primary w-100" type="submit">Login</button>
-                                    </form>
-                                    <div class="text-center mt-3">
-                                        <a href="../index.php" class="back-link">Back to Homepage</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    <div class="login-container">
+        <!-- Left Side - Welcome Section -->
+        <div class="welcome-section">
+            <div class="icon">
+                <i class="fas fa-user-lock"></i>
+            </div>
+            <h2>Welcome Back!</h2>
+            <p>Login to access your EduHive dashboard and manage your school efficiently.</p>
+            
+            <ul class="feature-list">
+                <li>
+                    <span><i class="fas fa-check"></i></span>
+                    Access Student Records
+                </li>
+                <li>
+                    <span><i class="fas fa-check"></i></span>
+                    Generate Results
+                </li>
+                <li>
+                    <span><i class="fas fa-check"></i></span>
+                    Manage Fee Payments
+                </li>
+                <li>
+                    <span><i class="fas fa-check"></i></span>
+                    Track Attendance
+                </li>
+            </ul>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="form-section">
+            <a href="index.php" class="logo">
+                <div class="logo-icon">E</div>
+                <span class="logo-text">EduHive</span>
+            </a>
+
+            <h1 class="form-title">Sign In</h1>
+            <p class="form-subtitle">Enter your credentials to access your account</p>
+
+            <?php if (!empty($login_error)): ?>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <?php echo htmlspecialchars($login_error); ?>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" action="login.php">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="username" id="username" class="form-control" 
+                               placeholder="Enter your username" required autocomplete="username">
                     </div>
                 </div>
-            </section>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-icon password-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="password" id="password" class="form-control" 
+                               placeholder="Enter your password" required autocomplete="current-password">
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <i class="fas fa-eye" id="password-toggle-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+
+            <div class="divider">
+                <span><i class="fas fa-home"></i></span>
+            </div>
+
+            <div class="register-link">
+                <a href="index.php">
+                    </i> Homepage
+                </a>
+            </div>
         </div>
-    </main>
+    </div>
 
-    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-
-    <!-- Core JS Files -->
-    <script src="assets/js/core/jquery-3.7.1.min.js"></script>
-    <script src="assets/js/core/popper.min.js"></script>
-    <script src="assets/js/core/bootstrap.min.js"></script>
-    <!-- jQuery Scrollbar -->
-    <script src="assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
-    <!-- jQuery Sparkline -->
-    <script src="assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
-    <!-- Kaiadmin JS -->
-    <script src="assets/js/kaiadmin.min.js"></script>
-    <!-- Kaiadmin DEMO methods, don't include it in your project! -->
-    <script src="assets/js/setting-demo.js"></script>
-    
-    <!-- Password Toggle Script -->
     <script>
         function togglePassword() {
-            const passwordInput = document.getElementById('yourPassword');
+            const passwordInput = document.getElementById('password');
             const toggleIcon = document.getElementById('password-toggle-icon');
             
             if (passwordInput && toggleIcon) {
@@ -402,5 +605,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </script>
 </body>
-
 </html>
