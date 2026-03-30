@@ -180,7 +180,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+             background-image: url('assets/img/g4.jpg');
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -585,7 +586,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <div class="register-link">
-                <a href="index.php">
+                <a href="../index.php">
                     </i> Homepage
                 </a>
             </div>
