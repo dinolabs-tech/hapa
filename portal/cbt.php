@@ -453,7 +453,7 @@ $userArm = $_SESSION['user_arm'] ?? '';
             container.innerHTML = `
                 <div class="d-flex align-items-start mb-4">
                     <span class="question-number">${index + 1}</span>
-                    <p class="question-text mb-0">${escapeHtml(question.question)}</p>
+                    <div class="question-text mb-0">${question.question}</div>
                 </div>
                 <div class="options-container">
                     ${optionsHtml}
