@@ -120,7 +120,7 @@ if ($is_cbt_result) {
     }
 }
 
-$percentage = round($percentage, 2);
+$percentage = min(round($percentage, 2), 100);
 
 // Determine grade and color based on percentage
 function getGradeAndColor($pct) {
