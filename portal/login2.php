@@ -1,4 +1,5 @@
 <?php
+
 /**
  * EduHive - Login Page
  * Side-by-side layout matching desktop application design
@@ -41,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         // Regenerate CSRF token after verification
         csrf_regenerate();
-        
+
         // Rate limiting for login attempts
         if (!rate_limit_check('login', 5, 300)) {
             $login_error = "Too many login attempts. Please try again in 5 minutes.";
@@ -49,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Get the posted credentials with proper validation
             $user = validate_string($_POST['username'], 1, 50);
             $pass = $_POST['password']; // Don't sanitize password before verification
-            
+
             if ($user === false) {
                 $login_error = "Invalid username format.";
             } else {
@@ -171,6 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -296,6 +298,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: white;
             font-size: 18px;
             font-weight: bold;
+        }
+
+        .logo-icon img {
+            width: 35px;
+            height: 35px;
+            object-fit: contain;
+            /* or cover */
         }
 
         .logo-text {
@@ -513,6 +522,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <!-- Left Side - Welcome Section -->
@@ -522,7 +532,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <h2>Welcome Back!</h2>
             <p>Login to access your EduHive dashboard and manage your school efficiently.</p>
-            
+
             <ul class="feature-list">
                 <li>
                     <span><i class="fas fa-check"></i></span>
@@ -546,8 +556,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <!-- Right Side - Login Form -->
         <div class="form-section">
             <a href="index.php" class="logo">
-                <div class="logo-icon">E</div>
-                <span class="logo-text">EduHive</span>
+                <div class="logo-icon"><img src="assets/img/logo.png" alt=""></div>
+                <span class="logo-text">Hapa College</span>
             </a>
 
             <h1 class="form-title">Sign In</h1>
@@ -566,8 +576,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label for="username">Username</label>
                     <div class="input-icon">
                         <i class="fas fa-user"></i>
-                        <input type="text" name="username" id="username" class="form-control" 
-                               placeholder="Enter your username" required autocomplete="username">
+                        <input type="text" name="username" id="username" class="form-control"
+                            placeholder="Enter your username" required autocomplete="username">
                     </div>
                 </div>
 
@@ -575,8 +585,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label for="password">Password</label>
                     <div class="input-icon password-wrapper">
                         <i class="fas fa-lock"></i>
-                        <input type="password" name="password" id="password" class="form-control" 
-                               placeholder="Enter your password" required autocomplete="current-password">
+                        <input type="password" name="password" id="password" class="form-control"
+                            placeholder="Enter your password" required autocomplete="current-password">
                         <button type="button" class="password-toggle" onclick="togglePassword()">
                             <i class="fas fa-eye" id="password-toggle-icon"></i>
                         </button>
@@ -604,7 +614,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const toggleIcon = document.getElementById('password-toggle-icon');
-            
+
             if (passwordInput && toggleIcon) {
                 const type = passwordInput.type === 'password' ? 'text' : 'password';
                 passwordInput.type = type;
@@ -613,4 +623,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     </script>
 </body>
+
 </html>
