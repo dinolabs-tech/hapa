@@ -261,7 +261,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .logo-icon {
             width: 35px;
             height: 35px;
-            background: linear-gradient(135deg, #1572e8, #6861ce);
+            background: linear-gradient(135deg, #ffffff, #6861ce);
             border-radius: 8px;
             display: flex;
             align-items: center;
