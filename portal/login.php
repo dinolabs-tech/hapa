@@ -532,7 +532,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <i class="fas fa-user-lock"></i>
             </div>
             <h2>Welcome Back!</h2>
-            <p>Login to access your EduHive dashboard and manage your school efficiently.</p>
+            <p>Login to access your Portal dashboard.</p>
 
             <ul class="feature-list">
                 <li>
