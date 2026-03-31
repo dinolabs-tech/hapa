@@ -541,8 +541,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <!-- Right Side - Login Form -->
         <div class="form-section">
             <a href="index.php" class="logo">
-                <div class="logo-icon">E</div>
-                <span class="logo-text">EduHive</span>
+                <div class="logo-icon">H</div>
+                <span class="logo-text">Hapa College</span>
             </a>
 
             <h1 class="form-title">Sign In</h1>
