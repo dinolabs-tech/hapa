@@ -188,8 +188,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            /* background-size: cover; */
+            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+            background-image: url('assets/img/g4.jpg');
+            background-size: cover;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -290,7 +291,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .logo-icon {
             width: 35px;
             height: 35px;
-            background: linear-gradient(135deg, #1572e8, #6861ce);
+            background: linear-gradient(135deg, #ffffff, #6861ce);
             border-radius: 8px;
             display: flex;
             align-items: center;
