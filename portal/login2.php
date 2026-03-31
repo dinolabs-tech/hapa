@@ -517,7 +517,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <!-- Right Side - Login Form -->
         <div class="form-section">
             <a href="index.php" class="logo">
-                <div class="logo-icon"><img src="assets/img/logo.png" alt=""></div>
+                <div class="logo-icon"><img src="assets/img/logo.png" alt="" style="height:50px, width 50px"></div>
                 <span class="logo-text">Hapa College</span>
             </a>
 
