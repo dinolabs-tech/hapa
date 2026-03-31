@@ -9,13 +9,8 @@ ini_set('display_errors', 1);
 session_start();
 $login_error = '';
 
-// Database connection
+// Database connection (includes security helpers)
 include 'db_connection.php';
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
 // Create Database if it doesnt exist
 include 'database_schema.php';
@@ -40,100 +35,134 @@ $check_superuser->close();
 
 // Existing login logic
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get the posted credentials
-    $user = htmlspecialchars($_POST['username'], ENT_QUOTES, 'UTF-8');
-    $pass = htmlspecialchars($_POST['password'], ENT_QUOTES, 'UTF-8');
-
-    // Prepare SQL for student login (selecting status)
-    $stmt1 = $conn->prepare("SELECT id, name, password, class, arm, term, session, status, result FROM students WHERE id=? AND password=?");
-    $stmt1->bind_param("ss", $user, $pass);
-    $stmt1->execute();
-    $stmt1->store_result();
-
-    // Prepare SQL for other users
-    $stmt2 = $conn->prepare("SELECT id, staffname, username, password, role FROM login WHERE username=? AND password=?");
-    $stmt2->bind_param("ss", $user, $pass);
-    $stmt2->execute();
-    $stmt2->store_result();
-
-    // Prepare SQL for Parents
-    $stmt3 = $conn->prepare("SELECT id, name, mobile, email, username, password FROM parent WHERE username=? AND password=?");
-    $stmt3->bind_param("ss", $user, $pass);
-    $stmt3->execute();
-    $stmt3->store_result();
-
-    if ($stmt1->num_rows > 0) {
-        // Student login
-        $stmt1->bind_result($id, $name, $password, $class, $arm, $term, $enrolled_session, $status, $result);
-        $stmt1->fetch();
-
-        // Store the retrieved data in session variables
-        $_SESSION['user_id'] = $id;
-        $_SESSION['name'] = $name;
-        $_SESSION['user_class'] = $class;
-        $_SESSION['user_arm'] = $arm;
-        $_SESSION['term'] = $term;
-        $_SESSION['student_session'] = $enrolled_session;
-        $_SESSION['role'] = 'Student';
-        $_SESSION['access'] = $result;
-
-        // Redirect based on student status
-        if ($status == 0) {
-            header("Location: students.php");
-        } elseif ($status == 1) {
-            $_SESSION['role'] = 'Alumni';
-            header("Location: alumni.php");
-        }
-        exit();
-    } elseif ($stmt2->num_rows > 0) {
-        // Other users login
-        $stmt2->bind_result($id, $staffname, $username, $password, $role);
-        $stmt2->fetch();
-
-        // Set session variables
-        $_SESSION['user_id'] = $id;
-        $_SESSION['role'] = $role;
-        $_SESSION['staffname'] = $staffname;
-        $_SESSION['email'] = '';
-
-        // Redirect based on role
-        switch ($role) {
-            case 'Ceo':
-            case 'Administrator':
-            case 'Teacher':
-            case 'Tuckshop':
-            case 'Admission':
-            case 'Bursary':
-                header("Location: dashboard.php");
-                break;
-            case 'Superuser':
-                header("Location: superdashboard.php");
-                break;
-        }
-        exit();
-    } elseif ($stmt3->num_rows > 0) {
-        // Parent login
-        $stmt3->bind_result($id, $parentname, $mobile, $email, $username, $password);
-        $stmt3->fetch();
-
-        // Store the retrieved data in session variables
-        $_SESSION['user_id'] = $id;
-        $_SESSION['name'] = $parentname;
-        $_SESSION['mobile'] = $mobile;
-        $_SESSION['email'] = $email;
-        $_SESSION['role'] = 'Parent';
-
-        // Redirect to parent page
-        header("Location: parent_dashboard.php");
-        exit();
+    // Verify CSRF token
+    if (!csrf_verify()) {
+        $login_error = "Invalid request. Please refresh the page and try again.";
     } else {
-        $login_error = "Invalid username or password.";
-    }
+        // Regenerate CSRF token after verification
+        csrf_regenerate();
+        
+        // Rate limiting for login attempts
+        if (!rate_limit_check('login', 5, 300)) {
+            $login_error = "Too many login attempts. Please try again in 5 minutes.";
+        } else {
+            // Get the posted credentials with proper validation
+            $user = validate_string($_POST['username'], 1, 50);
+            $pass = $_POST['password']; // Don't sanitize password before verification
+            
+            if ($user === false) {
+                $login_error = "Invalid username format.";
+            } else {
+                // Prepare SQL for student login (selecting status)
+                $stmt1 = $conn->prepare("SELECT id, name, password, class, arm, term, session, status, result FROM students WHERE id=? AND password=?");
+                $stmt1->bind_param("ss", $user, $pass);
+                $stmt1->execute();
+                $stmt1->store_result();
 
-    // Close statements and connection
-    $stmt1->close();
-    $stmt2->close();
-    $stmt3->close();
+                // Prepare SQL for other users
+                $stmt2 = $conn->prepare("SELECT id, staffname, username, password, role FROM login WHERE username=? AND password=?");
+                $stmt2->bind_param("ss", $user, $pass);
+                $stmt2->execute();
+                $stmt2->store_result();
+
+                // Prepare SQL for Parents
+                $stmt3 = $conn->prepare("SELECT id, name, mobile, email, username, password FROM parent WHERE username=? AND password=?");
+                $stmt3->bind_param("ss", $user, $pass);
+                $stmt3->execute();
+                $stmt3->store_result();
+
+                if ($stmt1->num_rows > 0) {
+                    // Student login
+                    $stmt1->bind_result($id, $name, $password, $class, $arm, $term, $enrolled_session, $status, $result);
+                    $stmt1->fetch();
+
+                    // Store the retrieved data in session variables
+                    $_SESSION['user_id'] = $id;
+                    $_SESSION['name'] = $name;
+                    $_SESSION['user_class'] = $class;
+                    $_SESSION['user_arm'] = $arm;
+                    $_SESSION['term'] = $term;
+                    $_SESSION['student_session'] = $enrolled_session;
+                    $_SESSION['role'] = 'Student';
+                    $_SESSION['access'] = $result;
+
+                    // Close statements before redirect
+                    $stmt1->close();
+                    $stmt2->close();
+                    $stmt3->close();
+
+                    // Redirect based on student status
+                    if ($status == 0) {
+                        header("Location: students.php");
+                    } elseif ($status == 1) {
+                        $_SESSION['role'] = 'Alumni';
+                        header("Location: alumni.php");
+                    }
+                    exit();
+                } elseif ($stmt2->num_rows > 0) {
+                    // Other users login
+                    $stmt2->bind_result($id, $staffname, $username, $password, $role);
+                    $stmt2->fetch();
+
+                    // Set session variables
+                    $_SESSION['user_id'] = $id;
+                    $_SESSION['role'] = $role;
+                    $_SESSION['staffname'] = $staffname;
+
+                    // Close statements before redirect
+                    $stmt1->close();
+                    $stmt2->close();
+                    $stmt3->close();
+
+                    // check license expiry
+                    include('check_expiry.php');
+
+                    // Redirect based on role
+                    switch ($role) {
+                        case 'Ceo':
+                        case 'Administrator':
+                        case 'Teacher':
+                        case 'Tuckshop':
+                        case 'Admission':
+                        case 'Bursary':
+                            header("Location: dashboard.php");
+                            break;
+                        case 'Superuser':
+                            header("Location: superdashboard.php");
+                            break;
+                    }
+                    exit();
+                } elseif ($stmt3->num_rows > 0) {
+                    // Parent login
+                    $stmt3->bind_result($id, $parentname, $mobile, $email, $username, $password);
+                    $stmt3->fetch();
+
+                    // Store the retrieved data in session variables
+                    $_SESSION['user_id'] = $id;
+                    $_SESSION['name'] = $parentname;
+                    $_SESSION['mobile'] = $mobile;
+                    $_SESSION['email'] = $email;
+                    $_SESSION['role'] = 'Parent';
+
+                    // Close statements before redirect
+                    $stmt1->close();
+                    $stmt2->close();
+                    $stmt3->close();
+
+                    // Redirect to parent page
+                    header("Location: parent_dashboard.php");
+                    exit();
+                } else {
+                    $login_error = "Invalid username or password.";
+                }
+
+                // Close statements and connection
+                $stmt1->close();
+                $stmt2->close();
+                $stmt3->close();
+            }
+        }
+    }
     $conn->close();
 }
 ?>
@@ -531,7 +560,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="login.php">
+            <form method="POST" action="login2.php">
+                <?php echo csrf_field(); ?>
                 <div class="form-group">
                     <label for="username">Username</label>
                     <div class="input-icon">
