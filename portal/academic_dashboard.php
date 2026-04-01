@@ -127,7 +127,7 @@ while ($row = $top_students_result->fetch_assoc()) {
 }
 
 // Top 10 Performing Senior Students (SSS 1-3, SS 1-3, Year 10-12)
-$senior_classes = "class REGEXP 'SSS[[:space:]]?[123]|SS[[:space:]]?[123]|YEAR[[:space:]]?1[012]'";
+$senior_classes = "class REGEXP '^SSS[[:space:]]?[123]|^SS[[:space:]]?[123]|^YEAR[[:space:]]?1[012]'";
 $top_senior_query = "SELECT id, name, class, arm, ROUND(AVG(average), 2) as average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' AND ($senior_classes) GROUP BY id, name, class, arm ORDER BY AVG(average) DESC LIMIT 10";
 $top_senior_result = $conn->query($top_senior_query);
 $top_senior = [];
