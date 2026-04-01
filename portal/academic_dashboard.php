@@ -118,12 +118,30 @@ while ($row = $risk_result->fetch_assoc()) {
     $risk_data[] = $row;
 }
 
-// Top 10 Performing Students
+// Top 10 Performing Students Overall
 $top_students_query = "SELECT id, name, class, arm, ROUND(AVG(average), 2) as average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' GROUP BY id, name, class, arm ORDER BY AVG(average) DESC LIMIT 10";
 $top_students_result = $conn->query($top_students_query);
 $top_students = [];
 while ($row = $top_students_result->fetch_assoc()) {
     $top_students[] = $row;
+}
+
+// Top 10 Performing Senior Students (SSS 1-3, SS 1-3, Year 10-12)
+$senior_classes = "class REGEXP 'SSS[[:space:]]?[123]|SS[[:space:]]?[123]|YEAR[[:space:]]?1[012]'";
+$top_senior_query = "SELECT id, name, class, arm, ROUND(AVG(average), 2) as average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' AND ($senior_classes) GROUP BY id, name, class, arm ORDER BY AVG(average) DESC LIMIT 10";
+$top_senior_result = $conn->query($top_senior_query);
+$top_senior = [];
+while ($row = $top_senior_result->fetch_assoc()) {
+    $top_senior[] = $row;
+}
+
+// Top 10 Performing Junior Students (JSS 1-3, JS 1-3, Year 7-9)
+$junior_classes = "class REGEXP 'JSS[[:space:]]?[123]|JS[[:space:]]?[123]|YEAR[[:space:]]?[789]'";
+$top_junior_query = "SELECT id, name, class, arm, ROUND(AVG(average), 2) as average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' AND ($junior_classes) GROUP BY id, name, class, arm ORDER BY AVG(average) DESC LIMIT 10";
+$top_junior_result = $conn->query($top_junior_query);
+$top_junior = [];
+while ($row = $top_junior_result->fetch_assoc()) {
+    $top_junior[] = $row;
 }
 
 // Bottom 10 Students
@@ -424,13 +442,13 @@ $at_risk = $at_risk_result->fetch_assoc()['count'] ?? 0;
                         </div>
                     </div>
 
-                    <!-- Top & Bottom Students -->
+                    <!-- Top Performing Students Overall -->
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="card card-round">
                                 <div class="card-header">
                                     <div class="card-head-row">
-                                        <div class="card-title">Top Performing Students</div>
+                                        <div class="card-title">Top Performing Students Overall</div>
                                     </div>
                                 </div>
                                 <div class="card-body">
@@ -460,11 +478,15 @@ $at_risk = $at_risk_result->fetch_assoc()['count'] ?? 0;
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Top Performing Senior & Junior Students -->
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="card card-round">
                                 <div class="card-header">
                                     <div class="card-head-row">
-                                        <div class="card-title">At-Risk Students</div>
+                                        <div class="card-title">Top Performing Students (Senior)</div>
                                     </div>
                                 </div>
                                 <div class="card-body">
@@ -479,15 +501,111 @@ $at_risk = $at_risk_result->fetch_assoc()['count'] ?? 0;
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php $rank = 1;
-                                                foreach ($bottom_students as $student): ?>
+                                                <?php 
+                                                $rank = 1;
+                                                if (count($top_senior) > 0):
+                                                    foreach ($top_senior as $student): ?>
                                                     <tr>
                                                         <td><?php echo $rank++; ?></td>
                                                         <td><?php echo $student['name']; ?></td>
                                                         <td><?php echo $student['class']; ?><?php echo $student['arm']; ?></td>
                                                         <td><?php echo $student['average']; ?>%</td>
                                                     </tr>
-                                                <?php endforeach; ?>
+                                                <?php 
+                                                    endforeach;
+                                                else: ?>
+                                                    <tr>
+                                                        <td colspan="4" class="text-center text-muted">No senior students data available</td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card card-round">
+                                <div class="card-header">
+                                    <div class="card-head-row">
+                                        <div class="card-title">Top Performing Students (Junior)</div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Rank</th>
+                                                    <th>Name</th>
+                                                    <th>Class</th>
+                                                    <th>Score</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php 
+                                                $rank = 1;
+                                                if (count($top_junior) > 0):
+                                                    foreach ($top_junior as $student): ?>
+                                                    <tr>
+                                                        <td><?php echo $rank++; ?></td>
+                                                        <td><?php echo $student['name']; ?></td>
+                                                        <td><?php echo $student['class']; ?><?php echo $student['arm']; ?></td>
+                                                        <td><?php echo $student['average']; ?>%</td>
+                                                    </tr>
+                                                <?php 
+                                                    endforeach;
+                                                else: ?>
+                                                    <tr>
+                                                        <td colspan="4" class="text-center text-muted">No junior students data available</td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- At-Risk Students -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card card-round">
+                                <div class="card-header">
+                                    <div class="card-head-row">
+                                        <div class="card-title">At-Risk Students (Below 40%)</div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Rank</th>
+                                                    <th>Name</th>
+                                                    <th>Class</th>
+                                                    <th>Score</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php 
+                                                $rank = 1;
+                                                if (count($bottom_students) > 0):
+                                                    foreach ($bottom_students as $student): ?>
+                                                    <tr>
+                                                        <td><?php echo $rank++; ?></td>
+                                                        <td><?php echo $student['name']; ?></td>
+                                                        <td><?php echo $student['class']; ?><?php echo $student['arm']; ?></td>
+                                                        <td><?php echo $student['average']; ?>%</td>
+                                                    </tr>
+                                                <?php 
+                                                    endforeach;
+                                                else: ?>
+                                                    <tr>
+                                                        <td colspan="4" class="text-center text-success">No at-risk students found</td>
+                                                    </tr>
+                                                <?php endif; ?>
                                             </tbody>
                                         </table>
                                     </div>
