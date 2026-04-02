@@ -82,37 +82,6 @@ if ($stmt = $conn->prepare($sql)) {
     die("Failed to fetch tuckshop details: " . $conn->error);
 }
 
-// Get the logged-in student's ID from the session
-$student_id = $_SESSION['user_id'];
-// Fetch bursary details for the student
-// Modify the query to filter by id_no (student ID number) instead of id
-$query = "SELECT ef.*, s.name as sname, s.id_no 
-          FROM student_ef_list ef 
-          INNER JOIN student s ON s.id = ef.student_id 
-          WHERE s.id_no = '$student_id'
-          ORDER BY s.name ASC";
-$fees = $conn->query($query);
-
-$fees_records = [];
-if ($fees->num_rows > 0) {
-    while ($row = $fees->fetch_assoc()) {
-        // Calculate the total paid amount for this fee record
-        $paidQuery = "SELECT SUM(amount) as paid FROM payments WHERE ef_id = " . $row['id'];
-        $paidResult = $conn->query($paidQuery);
-        $paidData = $paidResult->fetch_array();
-        $paid = isset($paidData['paid']) ? $paidData['paid'] : 0;
-        $balance = $row['total_fee'] - $paid;
-        
-        // Add calculated fields to the row array
-        $row['paid'] = $paid;
-        $row['balance'] = $balance;
-        
-        // Store the record
-        $fees_records[] = $row;
-    }
-}
-
-
  
 // Fetch CGPA for each term ==========================
 $cgpa_data = [];
