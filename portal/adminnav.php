@@ -57,7 +57,7 @@
             <div class="collapse" id="students">
               <ul class="nav nav-collapse">
                 <li>
-                  <a href="registerstudents.php">
+                  <a href="student_mod.php">
                     <span class="sub-item">Enroll</span>
                   </a>
                 </li>
