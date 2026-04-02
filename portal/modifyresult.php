@@ -441,11 +441,6 @@ $stmt->close();
 
                 </div>
             </div>
-            <script>
-                document.querySelector('button[type="reset"]').addEventListener('click', function() {
-                    document.getElementById('myForm').reset();
-                });
-            </script>
             <?php include('footer.php'); ?>
         </div>
 

@@ -166,154 +166,164 @@
 </script>
 
 <!-- ADMIN CHART============================= -->
+<?php if (isset($classesJson) && isset($datasetsJson)): ?>
 <script>
   // Retrieve the PHP-generated data.
   var classes = <?php echo $classesJson; ?>;
   var datasetsData = <?php echo $datasetsJson; ?>;
 
   // Get the canvas context.
-  var ctx = document.getElementById("adminChart").getContext("2d");
+  var adminChartCanvas = document.getElementById("adminChart");
+  var myChartLegendDiv = document.getElementById("myChartLegend");
+  
+  // Only proceed if both elements exist
+  if (adminChartCanvas && myChartLegendDiv && datasetsData.length > 0) {
+    var ctx = adminChartCanvas.getContext("2d");
 
-  // Pre-defined color gradients for the chart (will be cycled if more arms exist).
-  var colorOptions = [{
-      stroke: ['#177dff', '#80b6f4'],
-      fill: ['rgba(23, 125, 255, 0.7)', 'rgba(128, 182, 244, 0.3)']
-    },
-    {
-      stroke: ['#f3545d', '#ff8990'],
-      fill: ['rgba(243, 84, 93, 0.7)', 'rgba(255, 137, 144, 0.3)']
-    },
-    {
-      stroke: ['#fdaf4b', '#ffc478'],
-      fill: ['rgba(253, 175, 75, 0.7)', 'rgba(255, 196, 120, 0.3)']
-    }
-  ];
-
-  // Loop through each dataset to assign gradient colors.
-  for (var i = 0; i < datasetsData.length; i++) {
-    var gradientStroke = ctx.createLinearGradient(500, 0, 100, 0);
-    var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
-    var colors = colorOptions[i % colorOptions.length];
-
-    gradientStroke.addColorStop(0, colors.stroke[0]);
-    gradientStroke.addColorStop(1, colors.stroke[1]);
-
-    gradientFill.addColorStop(0, colors.fill[0]);
-    gradientFill.addColorStop(1, colors.fill[1]);
-
-    // Assign gradient properties and other dataset settings.
-    datasetsData[i].borderColor = gradientStroke;
-    datasetsData[i].pointBackgroundColor = gradientStroke;
-    datasetsData[i].backgroundColor = gradientFill;
-    datasetsData[i].fill = true;
-    datasetsData[i].borderWidth = 1;
-  }
-
-  // Build the chart data.
-  var chartData = {
-    labels: classes,
-    datasets: datasetsData
-  };
-
-  // Create the Chart.js line chart.
-  var studentChart = new Chart(ctx, {
-    type: "line",
-    data: chartData,
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      legend: {
-        display: false // Disable the default legend (we're using a custom HTML legend).
+    // Pre-defined color gradients for the chart (will be cycled if more arms exist).
+    var colorOptions = [{
+        stroke: ['#177dff', '#80b6f4'],
+        fill: ['rgba(23, 125, 255, 0.7)', 'rgba(128, 182, 244, 0.3)']
       },
-      tooltips: {
-        bodySpacing: 4,
-        mode: "nearest",
-        intersect: 0,
-        position: "nearest",
-        xPadding: 10,
-        yPadding: 10,
-        caretPadding: 10
+      {
+        stroke: ['#f3545d', '#ff8990'],
+        fill: ['rgba(243, 84, 93, 0.7)', 'rgba(255, 137, 144, 0.3)']
       },
-      layout: {
-        padding: {
-          left: 15,
-          right: 15,
-          top: 15,
-          bottom: 15
-        }
-      },
-      scales: {
-        yAxes: [{
-          ticks: {
-            fontColor: "rgba(0,0,0,0.5)",
-            fontStyle: "500",
-            beginAtZero: true,
-            maxTicksLimit: 5,
-            padding: 20
-          },
-          gridLines: {
-            drawTicks: false,
-            display: false
-          }
-        }],
-        xAxes: [{
-          gridLines: {
-            zeroLineColor: "transparent"
-          },
-          ticks: {
-            padding: 20,
-            fontColor: "rgba(0,0,0,0.5)",
-            fontStyle: "500"
-          }
-        }]
-      },
-      // Custom HTML legend generation.
-      legendCallback: function(chart) {
-        var text = [];
-        text.push('<ul class="' + chart.id + '-legend html-legend">');
-        for (var i = 0; i < chart.data.datasets.length; i++) {
-          text.push('<li><span style="background-color:' + chart.data.datasets[i].legendColor + '"></span>');
-          if (chart.data.datasets[i].label) {
-            text.push(chart.data.datasets[i].label);
-          }
-          text.push("</li>");
-        }
-        text.push("</ul>");
-        return text.join("");
+      {
+        stroke: ['#fdaf4b', '#ffc478'],
+        fill: ['rgba(253, 175, 75, 0.7)', 'rgba(255, 196, 120, 0.3)']
       }
+    ];
+
+    // Loop through each dataset to assign gradient colors.
+    for (var i = 0; i < datasetsData.length; i++) {
+      var gradientStroke = ctx.createLinearGradient(500, 0, 100, 0);
+      var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
+      var colors = colorOptions[i % colorOptions.length];
+
+      gradientStroke.addColorStop(0, colors.stroke[0]);
+      gradientStroke.addColorStop(1, colors.stroke[1]);
+
+      gradientFill.addColorStop(0, colors.fill[0]);
+      gradientFill.addColorStop(1, colors.fill[1]);
+
+      // Assign gradient properties and other dataset settings.
+      datasetsData[i].borderColor = gradientStroke;
+      datasetsData[i].pointBackgroundColor = gradientStroke;
+      datasetsData[i].backgroundColor = gradientFill;
+      datasetsData[i].fill = true;
+      datasetsData[i].borderWidth = 1;
     }
-  });
 
-  // Insert the custom legend into the container with ID "myChartLegend".
-  document.getElementById("myChartLegend").innerHTML = studentChart.generateLegend();
+    // Build the chart data.
+    var chartData = {
+      labels: classes,
+      datasets: datasetsData
+    };
 
-  // Bind click events on the legend items to toggle dataset visibility.
-  var legendItems = document.getElementById("myChartLegend").getElementsByTagName("li");
-  for (var i = 0; i < legendItems.length; i++) {
-    legendItems[i].addEventListener("click", function(event) {
-      var index = Array.prototype.indexOf.call(legendItems, event.target.closest("li"));
-      var meta = studentChart.getDatasetMeta(index);
-      meta.hidden = meta.hidden === null ? !studentChart.data.datasets[index].hidden : null;
-      studentChart.update();
+    // Create the Chart.js line chart.
+    var studentChart = new Chart(ctx, {
+      type: "line",
+      data: chartData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          display: false // Disable the default legend (we're using a custom HTML legend).
+        },
+        tooltips: {
+          bodySpacing: 4,
+          mode: "nearest",
+          intersect: 0,
+          position: "nearest",
+          xPadding: 10,
+          yPadding: 10,
+          caretPadding: 10
+        },
+        layout: {
+          padding: {
+            left: 15,
+            right: 15,
+            top: 15,
+            bottom: 15
+          }
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              fontColor: "rgba(0,0,0,0.5)",
+              fontStyle: "500",
+              beginAtZero: true,
+              maxTicksLimit: 5,
+              padding: 20
+            },
+            gridLines: {
+              drawTicks: false,
+              display: false
+            }
+          }],
+          xAxes: [{
+            gridLines: {
+              zeroLineColor: "transparent"
+            },
+            ticks: {
+              padding: 20,
+              fontColor: "rgba(0,0,0,0.5)",
+              fontStyle: "500"
+            }
+          }]
+        },
+        // Custom HTML legend generation.
+        legendCallback: function(chart) {
+          var text = [];
+          text.push('<ul class="' + chart.id + '-legend html-legend">');
+          for (var i = 0; i < chart.data.datasets.length; i++) {
+            text.push('<li><span style="background-color:' + chart.data.datasets[i].legendColor + '"></span>');
+            if (chart.data.datasets[i].label) {
+              text.push(chart.data.datasets[i].label);
+            }
+            text.push("</li>");
+          }
+          text.push("</ul>");
+          return text.join("");
+        }
+      }
     });
+
+    // Insert the custom legend into the container with ID "myChartLegend".
+    myChartLegendDiv.innerHTML = studentChart.generateLegend();
+
+    // Bind click events on the legend items to toggle dataset visibility.
+    var legendItems = myChartLegendDiv.getElementsByTagName("li");
+    for (var i = 0; i < legendItems.length; i++) {
+      legendItems[i].addEventListener("click", function(event) {
+        var index = Array.prototype.indexOf.call(legendItems, event.target.closest("li"));
+        var meta = studentChart.getDatasetMeta(index);
+        meta.hidden = meta.hidden === null ? !studentChart.data.datasets[index].hidden : null;
+        studentChart.update();
+      });
+    }
   }
 </script>
+<?php endif; ?>
 
 <!-- PERSONAL AI ====================================== -->
 <script>
   // Typewriter effect for the message
   const msgElem = document.getElementById('message');
-  const fullText = msgElem.getAttribute('data-message');
-  let index = 0;
+  if (msgElem) {
+    const fullText = msgElem.getAttribute('data-message');
+    let index = 0;
 
-  function typeWriter() {
-    if (index < fullText.length) {
-      msgElem.innerHTML += fullText.charAt(index);
-      index++;
-      setTimeout(typeWriter, 50);
+    function typeWriter() {
+      if (index < fullText.length) {
+        msgElem.innerHTML += fullText.charAt(index);
+        index++;
+        setTimeout(typeWriter, 50);
+      }
     }
+    typeWriter();
   }
-  typeWriter();
 </script>
 
 <!-- ADMIN VIEW STUDENTS ============================ -->
@@ -479,133 +489,141 @@
 
 
 <!-- STUDENT ACADEMIC CHART ========================== -->
+<?php if (isset($termsJson) && isset($datasetsJson)): ?>
 <script>
   // Retrieve PHP-generated data
   var terms = <?php echo $termsJson; ?>;
   var datasetsData = <?php echo $datasetsJson; ?>;
 
   // Get canvas context
-  var ctx = document.getElementById("adminChart").getContext("2d");
+  var academicChartCanvas = document.getElementById("adminChart");
+  var academicChartLegendDiv = document.getElementById("myChartLegend");
+  
+  // Only proceed if both elements exist
+  if (academicChartCanvas && academicChartLegendDiv && datasetsData.length > 0) {
+    var ctx = academicChartCanvas.getContext("2d");
 
-  // Pre-defined color gradients (cycled for multiple sessions)
-  var colorOptions = [{
-      stroke: ['#177dff', '#80b6f4'],
-      fill: ['rgba(23, 125, 255, 0.7)', 'rgba(128, 182, 244, 0.3)']
-    },
-    {
-      stroke: ['#f3545d', '#ff8990'],
-      fill: ['rgba(243, 84, 93, 0.7)', 'rgba(255, 137, 144, 0.3)']
-    },
-    {
-      stroke: ['#fdaf4b', '#ffc478'],
-      fill: ['rgba(253, 175, 75, 0.7)', 'rgba(255, 196, 120, 0.3)']
-    }
-  ];
-
-  // Assign gradient colors to datasets
-  for (var i = 0; i < datasetsData.length; i++) {
-    var gradientStroke = ctx.createLinearGradient(500, 0, 100, 0);
-    var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
-    var colors = colorOptions[i % colorOptions.length];
-
-    gradientStroke.addColorStop(0, colors.stroke[0]);
-    gradientStroke.addColorStop(1, colors.stroke[1]);
-    gradientFill.addColorStop(0, colors.fill[0]);
-    gradientFill.addColorStop(1, colors.fill[1]);
-
-    datasetsData[i].borderColor = gradientStroke;
-    datasetsData[i].pointBackgroundColor = gradientStroke;
-    datasetsData[i].backgroundColor = gradientFill;
-    datasetsData[i].fill = true;
-    datasetsData[i].borderWidth = 1;
-    datasetsData[i].legendColor = colors.stroke[0]; // For custom legend
-  }
-
-  // Build chart data
-  var chartData = {
-    labels: terms,
-    datasets: datasetsData
-  };
-
-  // Create Chart.js line chart
-  var studentChart = new Chart(ctx, {
-    type: "line",
-    data: chartData,
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      legend: {
-        display: false // Using custom HTML legend
+    // Pre-defined color gradients (cycled for multiple sessions)
+    var colorOptions = [{
+        stroke: ['#177dff', '#80b6f4'],
+        fill: ['rgba(23, 125, 255, 0.7)', 'rgba(128, 182, 244, 0.3)']
       },
-      tooltips: {
-        bodySpacing: 4,
-        mode: "nearest",
-        intersect: 0,
-        position: "nearest",
-        xPadding: 10,
-        yPadding: 10,
-        caretPadding: 10
+      {
+        stroke: ['#f3545d', '#ff8990'],
+        fill: ['rgba(243, 84, 93, 0.7)', 'rgba(255, 137, 144, 0.3)']
       },
-      layout: {
-        padding: {
-          left: 15,
-          right: 15,
-          top: 15,
-          bottom: 15
-        }
-      },
-      scales: {
-        yAxes: [{
-          ticks: {
-            fontColor: "rgba(0,0,0,0.5)",
-            fontStyle: "500",
-            beginAtZero: true,
-            maxTicksLimit: 5,
-            padding: 20
-          },
-          gridLines: {
-            drawTicks: false,
-            display: false
-          }
-        }],
-        xAxes: [{
-          gridLines: {
-            zeroLineColor: "transparent"
-          },
-          ticks: {
-            padding: 20,
-            fontColor: "rgba(0,0,0,0.5)",
-            fontStyle: "500"
-          }
-        }]
-      },
-      legendCallback: function(chart) {
-        var text = [];
-        text.push('<ul class="' + chart.id + '-legend html-legend">');
-        for (var i = 0; i < chart.data.datasets.length; i++) {
-          text.push('<li><span style="background-color:' + chart.data.datasets[i].legendColor + '"></span>');
-          if (chart.data.datasets[i].label) {
-            text.push(chart.data.datasets[i].label);
-          }
-          text.push("</li>");
-        }
-        text.push("</ul>");
-        return text.join("");
+      {
+        stroke: ['#fdaf4b', '#ffc478'],
+        fill: ['rgba(253, 175, 75, 0.7)', 'rgba(255, 196, 120, 0.3)']
       }
+    ];
+
+    // Assign gradient colors to datasets
+    for (var i = 0; i < datasetsData.length; i++) {
+      var gradientStroke = ctx.createLinearGradient(500, 0, 100, 0);
+      var gradientFill = ctx.createLinearGradient(500, 0, 100, 0);
+      var colors = colorOptions[i % colorOptions.length];
+
+      gradientStroke.addColorStop(0, colors.stroke[0]);
+      gradientStroke.addColorStop(1, colors.stroke[1]);
+      gradientFill.addColorStop(0, colors.fill[0]);
+      gradientFill.addColorStop(1, colors.fill[1]);
+
+      datasetsData[i].borderColor = gradientStroke;
+      datasetsData[i].pointBackgroundColor = gradientStroke;
+      datasetsData[i].backgroundColor = gradientFill;
+      datasetsData[i].fill = true;
+      datasetsData[i].borderWidth = 1;
+      datasetsData[i].legendColor = colors.stroke[0]; // For custom legend
     }
-  });
 
-  // Insert custom legend
-  document.getElementById("myChartLegend").innerHTML = studentChart.generateLegend();
+    // Build chart data
+    var chartData = {
+      labels: terms,
+      datasets: datasetsData
+    };
 
-  // Toggle dataset visibility on legend click
-  var legendItems = document.getElementById("myChartLegend").getElementsByTagName("li");
-  for (var i = 0; i < legendItems.length; i++) {
-    legendItems[i].addEventListener("click", function(event) {
-      var index = Array.prototype.indexOf.call(legendItems, event.target.closest("li"));
-      var meta = studentChart.getDatasetMeta(index);
-      meta.hidden = meta.hidden === null ? !studentChart.data.datasets[index].hidden : null;
-      studentChart.update();
+    // Create Chart.js line chart
+    var studentChart = new Chart(ctx, {
+      type: "line",
+      data: chartData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+          display: false // Using custom HTML legend
+        },
+        tooltips: {
+          bodySpacing: 4,
+          mode: "nearest",
+          intersect: 0,
+          position: "nearest",
+          xPadding: 10,
+          yPadding: 10,
+          caretPadding: 10
+        },
+        layout: {
+          padding: {
+            left: 15,
+            right: 15,
+            top: 15,
+            bottom: 15
+          }
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              fontColor: "rgba(0,0,0,0.5)",
+              fontStyle: "500",
+              beginAtZero: true,
+              maxTicksLimit: 5,
+              padding: 20
+            },
+            gridLines: {
+              drawTicks: false,
+              display: false
+            }
+          }],
+          xAxes: [{
+            gridLines: {
+              zeroLineColor: "transparent"
+            },
+            ticks: {
+              padding: 20,
+              fontColor: "rgba(0,0,0,0.5)",
+              fontStyle: "500"
+            }
+          }]
+        },
+        legendCallback: function(chart) {
+          var text = [];
+          text.push('<ul class="' + chart.id + '-legend html-legend">');
+          for (var i = 0; i < chart.data.datasets.length; i++) {
+            text.push('<li><span style="background-color:' + chart.data.datasets[i].legendColor + '"></span>');
+            if (chart.data.datasets[i].label) {
+              text.push(chart.data.datasets[i].label);
+            }
+            text.push("</li>");
+          }
+          text.push("</ul>");
+          return text.join("");
+        }
+      }
     });
+
+    // Insert custom legend
+    academicChartLegendDiv.innerHTML = studentChart.generateLegend();
+
+    // Toggle dataset visibility on legend click
+    var legendItems = academicChartLegendDiv.getElementsByTagName("li");
+    for (var i = 0; i < legendItems.length; i++) {
+      legendItems[i].addEventListener("click", function(event) {
+        var index = Array.prototype.indexOf.call(legendItems, event.target.closest("li"));
+        var meta = studentChart.getDatasetMeta(index);
+        meta.hidden = meta.hidden === null ? !studentChart.data.datasets[index].hidden : null;
+        studentChart.update();
+      });
+    }
   }
 </script>
+<?php endif; ?>
