@@ -57,12 +57,12 @@
             <div class="collapse" id="students">
               <ul class="nav nav-collapse">
                 <li>
-                  <a href="student_mod.php">
+                  <a href="registerstudents.php">
                     <span class="sub-item">Enroll</span>
                   </a>
                 </li>
                 <li>
-                  <a href="modifystudents.php">
+                  <a href="student_mod.php">
                     <span class="sub-item">Modify</span>
                   </a>
                 </li>
