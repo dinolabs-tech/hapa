@@ -4,109 +4,91 @@ include('components/admin_logic.php');
 // MODIFY STUDENTS =============================
 // Handle form submission for updating student record and image
 if (isset($_POST['update'])) {
-    // Validate CSRF token
-    if (!csrf_verify_and_regenerate()) {
-        die("<div class='alert alert-danger'>Invalid request. Please try again.</div>");
-    }
-    
-    // Validate and collect student information from form
-    $id = validate_id($_POST['id']);
-    if ($id === false) {
-        die("<div class='alert alert-danger'>Invalid student ID.</div>");
-    }
-    
-    $name = validate_string($_POST['name'], 1, 255);
-    $gender = validate_enum($_POST['gender'], ['Male', 'Female']);
-    $dob_from_form = validate_date($_POST['dob'], 'Y-m-d');
-    $dob = $dob_from_form ? date('d/m/Y', strtotime($dob_from_form)) : '';
-    $placeob = validate_string($_POST['placeob'], 0, 255);
-    $address = validate_string($_POST['address'], 1, 500);
-    $religion = validate_enum($_POST['religion'], ['Christianity', 'Islam', 'Traditional', 'Other']);
-    $state = validate_string($_POST['state'], 0, 100);
-    $lga = validate_string($_POST['lga'], 0, 100);
-    $class = validate_string($_POST['class'], 1, 50);
-    $arm = validate_string($_POST['arm'], 1, 50);
-    $session_val = validate_string($_POST['session'], 1, 50);
-    $term = validate_enum($_POST['term'], ['1st Term', '2nd Term', '3rd Term']);
-    $schoolname = validate_string($_POST['schoolname'], 0, 255);
-    $schooladdress = validate_string($_POST['schooladdress'], 0, 500);
-    $hobbies = validate_string($_POST['hobbies'], 0, 255);
-    $lastclass = validate_string($_POST['lastclass'] ?? '', 0, 50);
-    $sickle = validate_enum($_POST['sickle'], ['Yes', 'No', '']);
-    $challenge = validate_string($_POST['challenge'], 0, 255);
-    $emergency = validate_enum($_POST['emergency'], ['Yes', 'No', '']);
-    $familydoc = validate_string($_POST['familydoc'], 0, 255);
-    $docaddress = validate_string($_POST['docaddress'], 0, 500);
-    $docmobile = validate_phone($_POST['docmobile']);
-    $polio = validate_enum($_POST['polio'], ['Yes', 'No', '']);
-    $tuberculosis = validate_enum($_POST['tuberculosis'], ['Yes', 'No', '']);
-    $measles = validate_enum($_POST['measles'], ['Yes', 'No', '']);
-    $tetanus = validate_enum($_POST['tetanus'], ['Yes', 'No', '']);
-    $whooping = validate_enum($_POST['whooping'], ['Yes', 'No', '']);
-    $gname = validate_string($_POST['gname'], 1, 255);
-    $mobile = validate_phone($_POST['mobile']);
-    $goccupation = validate_string($_POST['goccupation'], 0, 255);
-    $gaddress = validate_string($_POST['gaddress'], 0, 500);
-    $grelationship = validate_enum($_POST['grelationship'], ['Father', 'Mother', 'Other', '']);
-    $hostel = validate_enum($_POST['hostel'], ['Day', 'Boarding', '']);
-    $bloodtype = validate_enum($_POST['bloodtype'] ?? '', ['AA', 'AS', 'AC', 'SS', 'SC', '']);
-    $bloodgroup = validate_enum($_POST['bloodgroup'] ?? '', ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', '']);
-    $height = validate_string($_POST['height'], 0, 20);
-    $weight = validate_string($_POST['weight'], 0, 20);
-    $password = validate_string($_POST['password'], 1, 255);
+    // Collect student information from form
+    $id = $_POST['id'];
+    $name = $_POST['name'];
+    $gender = $_POST['gender'];
+    $dob_from_form = $_POST['dob'];
+    $dob = !empty($dob_from_form) ? date('d/m/Y', strtotime($dob_from_form)) : '';
+    $placeob = $_POST['placeob'];
+    $address = $_POST['address'];
+    $religion = $_POST['religion'];
+    $state = $_POST['state'];
+    $lga = $_POST['lga'];
+    $class = $_POST['class'];
+    $arm = $_POST['arm'];
+    $session_val = $_POST['session'];
+    $term = $_POST['term'];
+    $schoolname = $_POST['schoolname'];
+    $schooladdress = $_POST['schooladdress'];
+    $hobbies = $_POST['hobbies'];
+    $lastclass = isset($_POST['lastclass']) ? $_POST['lastclass'] : ''; // Line 25
+    $sickle = $_POST['sickle'];
+    $challenge = $_POST['challenge'];
+    $emergency = $_POST['emergency'];
+    $familydoc = $_POST['familydoc'];
+    $docaddress = $_POST['docaddress'];
+    $docmobile = $_POST['docmobile'];
+    $polio = $_POST['polio'];
+    $tuberculosis = $_POST['tuberculosis'];
+    $measles = $_POST['measles'];
+    $tetanus = $_POST['tetanus'];
+    $whooping = $_POST['whooping'];
+    $gname = $_POST['gname'];
+    $mobile = $_POST['mobile'];
+    $goccupation = $_POST['goccupation'];
+    $gaddress = $_POST['gaddress'];
+    $grelationship = $_POST['grelationship'];
+    $hostel = $_POST['hostel'];
+    $bloodtype = isset($_POST['bloodtype']) ? $_POST['bloodtype'] : ''; // Line 43
+    $bloodgroup = isset($_POST['bloodgroup']) ? $_POST['bloodgroup'] : ''; // Line 44
+    $height = $_POST['height'];
+    $weight = $_POST['weight'];
+    $password = $_POST['password'];
 
-    // Update student record using prepared statement
-    $stmt = $conn->prepare("UPDATE students SET 
-                name=?, 
-                gender=?, 
-                dob=?,
-                placeob=?, 
-                address=?, 
-                religion=?, 
-                state=?, 
-                lga=?, 
-                class=?, 
-                arm=?, 
-                session=?, 
-                term=?, 
-                schoolname=?, 
-                schooladdress=?, 
-                hobbies=?, 
-                lastclass=?, 
-                sickle=?, 
-                challenge=?, 
-                emergency=?, 
-                familydoc=?, 
-                docaddress=?, 
-                docmobile=?, 
-                polio=?, 
-                tuberculosis=?, 
-                measles=?, 
-                tetanus=?, 
-                whooping=?, 
-                gname=?, 
-                mobile=?, 
-                goccupation=?, 
-                gaddress=?, 
-                grelationship=?, 
-                hostel=?, 
-                bloodtype=?, 
-                bloodgroup=?, 
-                height=?, 
-                weight=?, 
-                password=?
-            WHERE id=?");
-    
-    $stmt->bind_param("sssssssssssssssssssssssssssssssssssssss", 
-        $name, $gender, $dob, $placeob, $address, $religion, $state, $lga, 
-        $class, $arm, $session_val, $term, $schoolname, $schooladdress, $hobbies, 
-        $lastclass, $sickle, $challenge, $emergency, $familydoc, $docaddress, 
-        $docmobile, $polio, $tuberculosis, $measles, $tetanus, $whooping, 
-        $gname, $mobile, $goccupation, $gaddress, $grelationship, $hostel, 
-        $bloodtype, $bloodgroup, $height, $weight, $password, $id);
+    // Update student record
+    $sql = "UPDATE students SET 
+                name='$name', 
+                gender='$gender', 
+                dob='$dob',
+                placeob='$placeob', 
+                address='$address', 
+                religion='$religion', 
+                state='$state', 
+                lga='$lga', 
+                class='$class', 
+                arm='$arm', 
+                session='$session_val', 
+                term='$term', 
+                schoolname='$schoolname', 
+                schooladdress='$schooladdress', 
+                hobbies='$hobbies', 
+                lastclass='$lastclass', 
+                sickle='$sickle', 
+                challenge='$challenge', 
+                emergency='$emergency', 
+                familydoc='$familydoc', 
+                docaddress='$docaddress', 
+                docmobile='$docmobile', 
+                polio='$polio', 
+                tuberculosis='$tuberculosis', 
+                measles='$measles', 
+                tetanus='$tetanus', 
+                whooping='$whooping', 
+                gname='$gname', 
+                mobile='$mobile', 
+                goccupation='$goccupation', 
+                gaddress='$gaddress', 
+                grelationship='$grelationship', 
+                hostel='$hostel', 
+                bloodtype='$bloodtype', 
+                bloodgroup='$bloodgroup', 
+                height='$height', 
+                weight='$weight', 
+                password='$password'
+            WHERE id='$id'";
 
-    if ($stmt->execute() === TRUE) {
-        $stmt->close();
+    if ($conn->query($sql) === TRUE) {
         // Process student image if a new file is provided
         if (isset($_FILES["formFile"]) && $_FILES["formFile"]["error"] !== UPLOAD_ERR_NO_FILE) {
             $targetDir = "studentimg/"; // Upload folder
@@ -151,69 +133,43 @@ if (isset($_POST['update'])) {
 
 // Handle deletion of a student record
 if (isset($_GET['delete'])) {
-    $id = validate_id($_GET['delete']);
-    if ($id === false) {
-        die("<div class='alert alert-danger'>Invalid student ID.</div>");
-    }
-    $stmt = $conn->prepare("DELETE FROM students WHERE id=?");
-    $stmt->bind_param("s", $id);
-    if ($stmt->execute()) {
-        $stmt->close();
+    $id = $_GET['delete'];
+    $sql = "DELETE FROM students WHERE id='$id'";
+    if ($conn->query($sql) === TRUE) {
         header("Location: " . $_SERVER['PHP_SELF']);
         exit;
     } else {
-        echo "Error: " . htmlspecialchars($stmt->error);
-        $stmt->close();
+        echo "Error: " . $conn->error;
     }
 }
 
 // Search query for student based on ID or name
-$searchTerm = '';
-$students = [];
+$searchQuery = "";
 if (isset($_POST['search'])) {
-    $searchTerm = validate_string($_POST['searchTerm'], 0, 100);
-    if ($searchTerm !== false && $searchTerm !== '') {
-        $searchParam = '%' . $searchTerm . '%';
-        $stmt = $conn->prepare("SELECT * FROM students WHERE name LIKE ? OR id LIKE ?");
-        $stmt->bind_param("ss", $searchParam, $searchParam);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        while ($row = $result->fetch_assoc()) {
-            $students[] = $row;
-        }
-        $stmt->close();
-    } else {
-        // If no valid search term, fetch all students
-        $result = $conn->query("SELECT * FROM students");
-        if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $students[] = $row;
-            }
-        }
-    }
-} else {
-    // Fetch student records
-    $result = $conn->query("SELECT * FROM students");
-    if ($result && $result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $students[] = $row;
-        }
+    $searchTerm = $_POST['searchTerm'];
+    $searchQuery = "WHERE name LIKE '%$searchTerm%' OR id LIKE '%$searchTerm%'";
+}
+
+// Fetch student records
+$sql = "SELECT * FROM students $searchQuery";
+$result = $conn->query($sql);
+
+// Convert result set into an array so it can be looped over safely later
+$students = [];
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $students[] = $row;
     }
 }
 
 // Fetch student details for editing if an ID is passed in the URL
 $studentDetails = null;
 if (isset($_GET['edit'])) {
-    $id = validate_id($_GET['edit']);
-    if ($id !== false) {
-        $stmt = $conn->prepare("SELECT * FROM students WHERE id=?");
-        $stmt->bind_param("s", $id);
-        $stmt->execute();
-        $studentResult = $stmt->get_result();
-        if ($studentResult->num_rows > 0) {
-            $studentDetails = $studentResult->fetch_assoc();
-        }
-        $stmt->close();
+    $id = $_GET['edit'];
+    $studentSql = "SELECT * FROM students WHERE id='$id'";
+    $studentResult = $conn->query($studentSql);
+    if ($studentResult->num_rows > 0) {
+        $studentDetails = $studentResult->fetch_assoc();
     }
 }
 
@@ -241,11 +197,43 @@ if (($armresult) && ($armresult->num_rows > 0)) {
 
 // Close database connection
 $nigerian_states = [
-    "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno",
-    "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "FCT - Abuja", "Gombe",
-    "Imo", "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos",
-    "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto",
-    "Taraba", "Yobe", "Zamfara"
+    "Abia",
+    "Adamawa",
+    "Akwa Ibom",
+    "Anambra",
+    "Bauchi",
+    "Bayelsa",
+    "Benue",
+    "Borno",
+    "Cross River",
+    "Delta",
+    "Ebonyi",
+    "Edo",
+    "Ekiti",
+    "Enugu",
+    "FCT - Abuja",
+    "Gombe",
+    "Imo",
+    "Jigawa",
+    "Kaduna",
+    "Kano",
+    "Katsina",
+    "Kebbi",
+    "Kogi",
+    "Kwara",
+    "Lagos",
+    "Nasarawa",
+    "Niger",
+    "Ogun",
+    "Ondo",
+    "Osun",
+    "Oyo",
+    "Plateau",
+    "Rivers",
+    "Sokoto",
+    "Taraba",
+    "Yobe",
+    "Zamfara"
 ];
 $conn->close();
 ?>
@@ -301,7 +289,7 @@ $conn->close();
                                                 <input type="hidden" name="id" value="<?php echo $studentDetails['id']; ?>">
                                                 <div class="col-md-6">
                                                     <input
-                                                    style="border-color: red;"
+                                                        style="border-color: red;"
                                                         class="form-control form-control"
                                                         type="text"
                                                         name="name"
@@ -318,7 +306,7 @@ $conn->close();
                                                 </div>
                                                 <div class="col-md-2">
                                                     <input
-                                                    style="border-color: red;"
+                                                        style="border-color: red;"
                                                         class="form-control form-control"
                                                         type="date"
                                                         name="dob"
@@ -328,7 +316,7 @@ $conn->close();
                                                 </div>
                                                 <div class="col-md-2">
                                                     <input
-                                                    style="border-color: red;"
+                                                        style="border-color: red;"
                                                         class="form-control form-control"
                                                         type="text"
                                                         name="placeob"
@@ -336,7 +324,7 @@ $conn->close();
                                                         placeholder="Place of Birth">
                                                 </div>
                                                 <div class="col-md-2">
-                                                    <select class="form-control form-select" name="religion"style="border-color: red;"  required>
+                                                    <select class="form-control form-select" name="religion" style="border-color: red;" required>
                                                         <option value="" disabled>Select Religion</option>
                                                         <option value="Christianity" <?php if ($studentDetails['religion'] == 'Christianity') echo 'selected'; ?>>Christianity</option>
                                                         <option value="Islam" <?php if ($studentDetails['religion'] == 'Islam') echo 'selected'; ?>>Islam</option>
@@ -346,7 +334,7 @@ $conn->close();
                                                 </div>
                                                 <div class="col-md-6">
                                                     <input
-                                                    style="border-color: red;"
+                                                        style="border-color: red;"
                                                         class="form-control form-control"
                                                         type="text"
                                                         name="address"
@@ -355,33 +343,33 @@ $conn->close();
                                                         required>
                                                 </div>
                                                 <div class="col-md-2">
-    <select class="form-control form-select" name="state" id="state" style="border-color: red;" required>
-        <option value="" disabled>Select State</option>
-        <?php
-        // Normalize the student's state for case-insensitive comparison
-        $currentState = !empty($studentDetails['state']) ? strtolower(trim($studentDetails['state'])) : '';
-        
-        foreach ($nigerian_states as $state_option) {
-            // Normalize state option for comparison
-            $state_value = htmlspecialchars($state_option, ENT_QUOTES, 'UTF-8');
-            $selected = ($currentState === strtolower($state_option)) ? 'selected' : '';
-            echo '<option value="' . $state_value . '" ' . $selected . '>' . $state_value . '</option>';
-        }
-        ?>
-    </select>
-</div>
-                                               <div class="col-md-2">
-    <select class="form-control form-select" name="lga" id="lga" style="border-color: red;" required>
-        <option value="" disabled>Select LGA</option>
-        <?php
-        // Fallback: Show the student's LGA if available
-        if (!empty($studentDetails['lga'])) {
-            $lga_value = htmlspecialchars($studentDetails['lga'], ENT_QUOTES, 'UTF-8');
-            echo '<option value="' . $lga_value . '" selected>' . $lga_value . '</option>';
-        }
-        ?>
-    </select>
-</div>
+                                                    <select class="form-control form-select" name="state" id="state" style="border-color: red;" required>
+                                                        <option value="" disabled>Select State</option>
+                                                        <?php
+                                                        // Normalize the student's state for case-insensitive comparison
+                                                        $currentState = !empty($studentDetails['state']) ? strtolower(trim($studentDetails['state'])) : '';
+
+                                                        foreach ($nigerian_states as $state_option) {
+                                                            // Normalize state option for comparison
+                                                            $state_value = htmlspecialchars($state_option, ENT_QUOTES, 'UTF-8');
+                                                            $selected = ($currentState === strtolower($state_option)) ? 'selected' : '';
+                                                            echo '<option value="' . $state_value . '" ' . $selected . '>' . $state_value . '</option>';
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <select class="form-control form-select" name="lga" id="lga" style="border-color: red;" required>
+                                                        <option value="" disabled>Select LGA</option>
+                                                        <?php
+                                                        // Fallback: Show the student's LGA if available
+                                                        if (!empty($studentDetails['lga'])) {
+                                                            $lga_value = htmlspecialchars($studentDetails['lga'], ENT_QUOTES, 'UTF-8');
+                                                            echo '<option value="' . $lga_value . '" selected>' . $lga_value . '</option>';
+                                                        }
+                                                        ?>
+                                                    </select>
+                                                </div>
                                                 <div class="col-md-2">
                                                     <select class="form-control form-select" name="class" style="border-color: red;" required>
                                                         <option value="" disabled>Select Class</option>
@@ -407,14 +395,13 @@ $conn->close();
                                                 <div class="col-md-2">
 
                                                     <input
-                                                    style="border-color: red;"
+                                                        style="border-color: red;"
                                                         class="form-control form-control"
                                                         type="text"
                                                         name="session"
                                                         value="<?php echo $studentDetails['session']; ?>"
                                                         placeholder="Current Session"
-                                                        required
-                                                        >
+                                                        required>
                                                 </div>
                                                 <div class="col-md-2">
                                                     <select class="form-control form-select" name="term" style="border-color: red;" required>
@@ -435,8 +422,8 @@ $conn->close();
                                                 <h5 class="card-title"><span> Parent / Guardian Information </span></h5>
                                                 <div class="col-md-2">
                                                     <input
-                                                    style="border-color: red;"
-                                                    required
+                                                        style="border-color: red;"
+                                                        required
                                                         class="form-control form-control"
                                                         type="text"
                                                         name="gname"
@@ -445,8 +432,8 @@ $conn->close();
                                                 </div>
                                                 <div class="col-md-2">
                                                     <input
-                                                    style="border-color: red;"
-                                                    required
+                                                        style="border-color: red;"
+                                                        required
                                                         class="form-control form-control"
                                                         type="text"
                                                         name="mobile"
@@ -503,7 +490,7 @@ $conn->close();
                                                         value="<?php echo $studentDetails['hobbies']; ?>"
                                                         placeholder="Hobbies">
                                                 </div>
-                                                 <div class="col-md-2">
+                                                <div class="col-md-2">
                                                     <select class="form-control form-select" name="lastclass" id="lastclass">
                                                         <option selected value="" disabled>Select Last Class</option>
                                                         <option value="JSS 1"  <?= ($studentDetails['lastclass'] == 'JSS 1') ? 'selected' : '' ?>>JSS 1</option>
@@ -523,21 +510,18 @@ $conn->close();
                                                 <hr width="100%">
                                                 <h5 class="card-title"><span> Medical Information </span></h5>
                                                 <div class="col-md-3">
-                                                    <select class="form-control form-select" name="bloodtype">
-                                                        <option value="" disabled <?= empty($studentDetails['bloodtype']) ? 'selected' : '' ?>>Blood Genotype</option>
+                                                    <select name="bloodtype" id="bloodtype" class="form-control form-select">
+                                                        <option value="" disabled selected>Blood Genotype</option>
                                                         <option value="AA" <?= ($studentDetails['bloodtype'] == 'AA') ? 'selected' : '' ?>>AA</option>
-                                                        <option value="AS" <?= ($studentDetails['bloodtype'] == 'AS') ? 'selected' : '' ?>>AS</option>
-                                                        <option value="AC" <?= ($studentDetails['bloodtype'] == 'AC') ? 'selected' : '' ?>>AC</option>
-                                                        <option value="SS" <?= ($studentDetails['bloodtype'] == 'SS') ? 'selected' : '' ?>>SS</option>
-                                                        <option value="SC+" <?= ($studentDetails['bloodtype'] == 'SC') ? 'selected' : '' ?>>SC</option>
+                                                        <option value="AS"  <?= ($studentDetails['bloodtype'] == 'AS') ? 'selected' : '' ?>>AS</option>
+                                                        <option value="AC"  <?= ($studentDetails['bloodtype'] == 'AC') ? 'selected' : '' ?>>AC</option>
+                                                        <option value="SS"  <?= ($studentDetails['bloodtype'] == 'SS') ? 'selected' : '' ?>>SS</option>
+                                                        <option value="SC"  <?= ($studentDetails['bloodtype'] == 'SC') ? 'selected' : '' ?>>SC</option>
                                                     </select>
-                                                    
-                                                 
-
                                                 </div>
                                                 <div class="col-md-3">
                                                     <select class="form-control form-select" name="bloodgroup">
-                                                        <option value="" disabled <?= empty($studentDetails['bloodgroup']) ? 'selected' : '' ?>>Blood Type</option>
+                                                        <option value="" disabled <?= empty($studentDetails['bloodgroup']) ? 'selected' : '' ?>>Select Blood Group</option>
                                                         <option value="A+" <?= ($studentDetails['bloodgroup'] == 'A+') ? 'selected' : '' ?>>A+</option>
                                                         <option value="A-" <?= ($studentDetails['bloodgroup'] == 'A-') ? 'selected' : '' ?>>A−</option>
                                                         <option value="B+" <?= ($studentDetails['bloodgroup'] == 'B+') ? 'selected' : '' ?>>B+</option>
@@ -565,48 +549,48 @@ $conn->close();
                                                         value="<?php echo $studentDetails['weight']; ?>"
                                                         placeholder="Weight">
                                                 </div>
-                                                <!--<strong>-->
-                                                <!--    <p>Have you been immunized against any of the following?</p>-->
-                                                <!--</strong>-->
-                                                <div class="col-md-2" style="display:none;">
+                                                <strong>
+                                                    <p>Have you been immunized against any of the following?</p>
+                                                </strong>
+                                                <div class="col-md-2">
                                                     <select class="form-control form-select" name="polio">
                                                         <option value="" disabled>Polio</option>
                                                         <option value="Yes" <?php if ($studentDetails['polio'] == 'Yes') echo 'selected'; ?>>Yes</option>
                                                         <option value="No" <?php if ($studentDetails['polio'] == 'No') echo 'selected'; ?>>No</option>
                                                     </select>
                                                 </div>
-                                                <div class="col-md-2" style="display:none;">
+                                                <div class="col-md-2">
                                                     <select class="form-control form-select" name="tuberculosis">
                                                         <option value="" disabled>Tuberculosis</option>
                                                         <option value="Yes" <?php if ($studentDetails['tuberculosis'] == 'Yes') echo 'selected'; ?>>Yes</option>
                                                         <option value="No" <?php if ($studentDetails['tuberculosis'] == 'No') echo 'selected'; ?>>No</option>
                                                     </select>
                                                 </div>
-                                                <div class="col-md-2" style="display:none;">
+                                                <div class="col-md-2">
                                                     <select class="form-control form-select" name="measles">
                                                         <option value="" disabled>Measles</option>
                                                         <option value="Yes" <?php if ($studentDetails['measles'] == 'Yes') echo 'selected'; ?>>Yes</option>
                                                         <option value="No" <?php if ($studentDetails['measles'] == 'No') echo 'selected'; ?>>No</option>
                                                     </select>
                                                 </div>
-                                                <div class="col-md-2" style="display:none;">
+                                                <div class="col-md-2">
                                                     <select class="form-control form-select" name="tetanus">
                                                         <option value="" disabled>Tetanus</option>
                                                         <option value="Yes" <?php if ($studentDetails['tetanus'] == 'Yes') echo 'selected'; ?>>Yes</option>
                                                         <option value="No" <?php if ($studentDetails['tetanus'] == 'No') echo 'selected'; ?>>No</option>
                                                     </select>
                                                 </div>
-                                                <div class="col-md-2" style="display:none;">
+                                                <div class="col-md-2">
                                                     <select class="form-control form-select" name="whooping">
                                                         <option value="" disabled>Whooping</option>
                                                         <option value="Yes" <?php if ($studentDetails['whooping'] == 'Yes') echo 'selected'; ?>>Yes</option>
                                                         <option value="No" <?php if ($studentDetails['whooping'] == 'No') echo 'selected'; ?>>No</option>
                                                     </select>
                                                 </div>
-                                                <!--<strong>-->
-                                                <!--    <p>If "No"</p>-->
-                                                <!--</strong>-->
-                                                <div class="col-md-2" style="display:none;">
+                                                <strong>
+                                                    <p>If "No"</p>
+                                                </strong>
+                                                <div class="col-md-2">
                                                     <input
                                                         class="form-control form-control"
                                                         type="text"
@@ -614,7 +598,7 @@ $conn->close();
                                                         value="<?php echo $studentDetails['familydoc']; ?>"
                                                         placeholder="Family Doctor">
                                                 </div>
-                                                <div class="col-md-2" style="display:none;">
+                                                <div class="col-md-2">
                                                     <input
                                                         class="form-control form-control"
                                                         type="text"
@@ -622,7 +606,7 @@ $conn->close();
                                                         value="<?php echo $studentDetails['docmobile']; ?>"
                                                         placeholder="Doctor's Mobile">
                                                 </div>
-                                                <div class="col-md-8" style="display:none;">
+                                                <div class="col-md-8">
                                                     <input
                                                         class="form-control form-control"
                                                         type="text"
@@ -630,39 +614,32 @@ $conn->close();
                                                         value="<?php echo $studentDetails['docaddress']; ?>"
                                                         placeholder="Doctor's Address">
                                                 </div>
-                                                <!--<strong>-->
-                                                <!--    <p>Does your ward have:</p>-->
-                                                <!--</strong>-->
-                                                <div class="col-md-2" style="display:none;">
+                                                <strong>
+                                                    <p>Does your ward have:</p>
+                                                </strong>
+                                                <div class="col-md-2">
                                                     <select class="form-control form-select" name="sickle">
                                                         <option value="" disabled>Sickle Cell</option>
                                                         <option value="Yes" <?php if ($studentDetails['sickle'] == 'Yes') echo 'selected'; ?>>Yes</option>
                                                         <option value="No" <?php if ($studentDetails['sickle'] == 'No') echo 'selected'; ?>>No</option>
                                                     </select>
                                                 </div>
-                                                <div class="col-md-2" style="display:none;">
-                                                     <input
-                                                        class="form-control form-control"
-                                                        type="text"
-                                                        name="challenge"
-                                                        value="<?php echo $studentDetails['challenge']; ?>"
-                                                        placeholder="challenge">
-                                                        
-                                                    <!--<select class="form-control form-select" name="challenge" id="challenge" aria-label="Default select example">-->
-                                                    <!--    <option value="" disabled <?= empty($studentDetails['challenge']) ? 'selected' : '' ?>>Any of the following challenges</option>-->
-                                                    <!--    <option value="None" <?= ($studentDetails['challenge'] == 'None') ? 'selected' : '' ?>>None</option>-->
-                                                    <!--    <option value="Polio" <?= ($studentDetails['challenge'] == 'Polio') ? 'selected' : '' ?>>Polio</option>-->
-                                                    <!--    <option value="Measles" <?= ($studentDetails['challenge'] == 'Measles') ? 'selected' : '' ?>>Measles</option>-->
-                                                    <!--    <option value="Tuberculosis" <?= ($studentDetails['challenge'] == 'Tuberculosis') ? 'selected' : '' ?>>Tuberculosis</option>-->
-                                                    <!--    <option value="Tetanus" <?= ($studentDetails['challenge'] == 'Tetanus') ? 'selected' : '' ?>>Tetanus</option>-->
-                                                    <!--    <option value="Whooping Cough" <?= ($studentDetails['challenge'] == 'Whooping Cough') ? 'selected' : '' ?>>Whooping Cough</option>-->
-                                                    <!--</select>-->
+                                                <div class="col-md-2">
+                                                    <select class="form-control form-select" name="challenge" id="challenge" aria-label="Default select example">
+                                                        <option value="" disabled <?= empty($studentDetails['challenge']) ? 'selected' : '' ?>>Any of the following challenges</option>
+                                                        <option value="None" <?= ($studentDetails['challenge'] == 'None') ? 'selected' : '' ?>>None</option>
+                                                        <option value="Polio" <?= ($studentDetails['challenge'] == 'Polio') ? 'selected' : '' ?>>Polio</option>
+                                                        <option value="Measles" <?= ($studentDetails['challenge'] == 'Measles') ? 'selected' : '' ?>>Measles</option>
+                                                        <option value="Tuberculosis" <?= ($studentDetails['challenge'] == 'Tuberculosis') ? 'selected' : '' ?>>Tuberculosis</option>
+                                                        <option value="Tetanus" <?= ($studentDetails['challenge'] == 'Tetanus') ? 'selected' : '' ?>>Tetanus</option>
+                                                        <option value="Whooping Cough" <?= ($studentDetails['challenge'] == 'Whooping Cough') ? 'selected' : '' ?>>Whooping Cough</option>
+                                                    </select>
 
                                                 </div>
-                                                <!--<strong>-->
-                                                <!--    <p>In emergencies, are we permitted to take your ward to the hospital?</p>-->
-                                                <!--</strong>-->
-                                                <div class="col-md-2" style="display:none;">
+                                                <strong>
+                                                    <p>In emergencies, are we permitted to take your ward to the hospital?</p>
+                                                </strong>
+                                                <div class="col-md-2">
                                                     <select class="form-control form-select" name="emergency">
                                                         <option value="" disabled>Emergency</option>
                                                         <option value="Yes" <?php if ($studentDetails['emergency'] == 'Yes') echo 'selected'; ?>>Yes</option>
@@ -680,8 +657,8 @@ $conn->close();
                                                 <h5 class="card-title"><span> Student's Login Password </span></h5>
                                                 <div class="col-md-2">
                                                     <input
-                                                    style="border-color: red;"
-                                                    required
+                                                        style="border-color: red;"
+                                                        required
                                                         class="form-control form-control"
                                                         type="password"
                                                         name="password"
@@ -715,7 +692,7 @@ $conn->close();
                                 <div class="card-body pb-0">
                                     <div class="mb-4 mt-2">
                                         <div class="table-responsive">
-                                            <table id="basic-datatables" class="display table table-striped table-hover">
+                                            <table id="multi-filter-select" class="display table table-striped table-hover">
                                                 <thead>
                                                     <tr>
                                                         <th>ID</th>
@@ -735,9 +712,9 @@ $conn->close();
                                                                 <td><?php echo htmlspecialchars($student['dob']); ?></td>
                                                                 <td><?php echo htmlspecialchars($student['class']); ?></td>
                                                                 <td><?php echo htmlspecialchars($student['arm']); ?></td>
-                                                                <td>
-                                                                  <a href="?edit=<?php echo $student['id']; ?>" class="btn btn-warning btn-sm mb-3"> <i class="fas fa-edit"></i></a>
-                                                                    <a href="?delete=<?php echo $student['id']; ?>" class="btn btn-danger btn-sm mb-3" onclick="return confirm('Are you sure you want to delete this record?')"><i class="fas fa-trash"></i></a>
+                                                                <td class="d-flex">
+                                                                    <a href="?edit=<?php echo $student['id']; ?>" class="btn btn-warning me-3 btn-icon btn-round ps-1"> <i class="fas fa-edit"></i></a>
+                                                                    <a href="?delete=<?php echo $student['id']; ?>" class="btn btn-danger btn-icon btn-round" onclick="return confirm('Are you sure you want to delete this record?')"><i class="fas fa-trash"></i></a>
                                                                 </td>
                                                             </tr>
                                                         <?php endforeach; ?>
@@ -758,126 +735,126 @@ $conn->close();
                 </div>
             </div>
             <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var stateSelect = document.getElementById('state');
-    var lgaSelect = document.getElementById('lga');
-    var initialState = '<?php echo addslashes($studentDetails['state'] ?? ''); ?>';
-    var initialLga = '<?php echo addslashes($studentDetails['lga'] ?? ''); ?>';
+                document.addEventListener('DOMContentLoaded', function() {
+                    var stateSelect = document.getElementById('state');
+                    var lgaSelect = document.getElementById('lga');
+                    var initialState = '<?php echo addslashes($studentDetails['state'] ?? ''); ?>';
+                    var initialLga = '<?php echo addslashes($studentDetails['lga'] ?? ''); ?>';
 
-    // Function to fetch and populate LGAs when the state changes
-    function populateLgasOnChange(state) {
-        lgaSelect.innerHTML = ''; // Always clear when state changes
-        var defaultOption = document.createElement('option');
-        defaultOption.value = "";
-        defaultOption.textContent = "Select LGA";
-        defaultOption.disabled = true;
-        defaultOption.selected = true; // Select default when state changes
-        lgaSelect.appendChild(defaultOption);
+                    // Function to fetch and populate LGAs when the state changes
+                    function populateLgasOnChange(state) {
+                        lgaSelect.innerHTML = ''; // Always clear when state changes
+                        var defaultOption = document.createElement('option');
+                        defaultOption.value = "";
+                        defaultOption.textContent = "Select LGA";
+                        defaultOption.disabled = true;
+                        defaultOption.selected = true; // Select default when state changes
+                        lgaSelect.appendChild(defaultOption);
 
-        if (!state) {
-            return;
-        }
+                        if (!state) {
+                            return;
+                        }
 
-        fetch('get_lgas.php?state=' + encodeURIComponent(state))
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch LGAs');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Remove the "Select LGA" option if LGAs are successfully fetched
-                if (data.length > 0) {
-                    lgaSelect.removeChild(defaultOption);
-                }
+                        fetch('get_lgas.php?state=' + encodeURIComponent(state))
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Failed to fetch LGAs');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                // Remove the "Select LGA" option if LGAs are successfully fetched
+                                if (data.length > 0) {
+                                    lgaSelect.removeChild(defaultOption);
+                                }
 
-                data.forEach(function(lga) {
-                    var option = document.createElement('option');
-                    option.value = lga;
-                    option.textContent = lga;
-                    lgaSelect.appendChild(option);
-                });
-                // If no LGAs were fetched, ensure "Select LGA" remains selected
-                if (data.length === 0) {
-                    defaultOption.selected = true;
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching LGAs:', error);
-                lgaSelect.innerHTML = '<option value="" disabled selected>Error loading LGAs</option>';
-            });
-    }
+                                data.forEach(function(lga) {
+                                    var option = document.createElement('option');
+                                    option.value = lga;
+                                    option.textContent = lga;
+                                    lgaSelect.appendChild(option);
+                                });
+                                // If no LGAs were fetched, ensure "Select LGA" remains selected
+                                if (data.length === 0) {
+                                    defaultOption.selected = true;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error fetching LGAs:', error);
+                                lgaSelect.innerHTML = '<option value="" disabled selected>Error loading LGAs</option>';
+                            });
+                    }
 
-    // Function to handle initial population on page load
-    function populateLgasOnLoad(state, lga) {
-        if (!state) {
-            lgaSelect.innerHTML = '<option value="" disabled selected>Select LGA</option>';
-            return;
-        }
+                    // Function to handle initial population on page load
+                    function populateLgasOnLoad(state, lga) {
+                        if (!state) {
+                            lgaSelect.innerHTML = '<option value="" disabled selected>Select LGA</option>';
+                            return;
+                        }
 
-        fetch('get_lgas.php?state=' + encodeURIComponent(state))
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch LGAs');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Remove the initial "Select LGA" option if it exists and is not the pre-selected LGA
-                let defaultOption = lgaSelect.querySelector('option[value=""][disabled]');
-                if (defaultOption && !defaultOption.selected) {
-                    lgaSelect.removeChild(defaultOption);
-                }
+                        fetch('get_lgas.php?state=' + encodeURIComponent(state))
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Failed to fetch LGAs');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                // Remove the initial "Select LGA" option if it exists and is not the pre-selected LGA
+                                let defaultOption = lgaSelect.querySelector('option[value=""][disabled]');
+                                if (defaultOption && !defaultOption.selected) {
+                                    lgaSelect.removeChild(defaultOption);
+                                }
 
-                const normalizedInitialLga = lga ? lga.toLowerCase() : '';
-                let initialLgaFoundInFetched = false;
+                                const normalizedInitialLga = lga ? lga.toLowerCase() : '';
+                                let initialLgaFoundInFetched = false;
 
-                data.forEach(function(fetchedLga) {
-                    // Only add if it's not the initialLga (which is already present from PHP)
-                    if (normalizedInitialLga !== fetchedLga.toLowerCase()) {
-                        var option = document.createElement('option');
-                        option.value = fetchedLga;
-                        option.textContent = fetchedLga;
-                        lgaSelect.appendChild(option);
+                                data.forEach(function(fetchedLga) {
+                                    // Only add if it's not the initialLga (which is already present from PHP)
+                                    if (normalizedInitialLga !== fetchedLga.toLowerCase()) {
+                                        var option = document.createElement('option');
+                                        option.value = fetchedLga;
+                                        option.textContent = fetchedLga;
+                                        lgaSelect.appendChild(option);
+                                    } else {
+                                        initialLgaFoundInFetched = true;
+                                    }
+                                });
+
+                                // If initialLga was provided by PHP but not found in the fetched list, it means it's already there.
+                                // If it was found in the fetched list, ensure it's selected.
+                                if (initialLga && initialLgaFoundInFetched) {
+                                    // Ensure the PHP-rendered option is still selected
+                                    let phpRenderedOption = lgaSelect.querySelector(`option[value="${lga}"]`);
+                                    if (phpRenderedOption) {
+                                        phpRenderedOption.selected = true;
+                                    }
+                                } else if (!initialLga && data.length === 0) {
+                                    // If no initial LGA and no LGAs fetched, ensure "Select LGA" is selected
+                                    lgaSelect.innerHTML = '<option value="" disabled selected>Select LGA</option>';
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error fetching LGAs:', error);
+                                // If error on initial load, ensure the LGA dropdown is not empty
+                                if (lgaSelect.options.length <= 1 && !initialLga) { // Only if no initial LGA was set by PHP
+                                    lgaSelect.innerHTML = '<option value="" disabled selected>Error loading LGAs</option>';
+                                }
+                            });
+                    }
+
+                    // Initial population on page load
+                    if (initialState) {
+                        populateLgasOnLoad(initialState, initialLga);
                     } else {
-                        initialLgaFoundInFetched = true;
+                        // If no initial state, ensure "Select LGA" is the default
+                        lgaSelect.innerHTML = '<option value="" disabled selected>Select LGA</option>';
                     }
+
+                    stateSelect.addEventListener('change', function() {
+                        populateLgasOnChange(this.value);
+                    });
                 });
-
-                // If initialLga was provided by PHP but not found in the fetched list, it means it's already there.
-                // If it was found in the fetched list, ensure it's selected.
-                if (initialLga && initialLgaFoundInFetched) {
-                    // Ensure the PHP-rendered option is still selected
-                    let phpRenderedOption = lgaSelect.querySelector(`option[value="${lga}"]`);
-                    if (phpRenderedOption) {
-                        phpRenderedOption.selected = true;
-                    }
-                } else if (!initialLga && data.length === 0) {
-                    // If no initial LGA and no LGAs fetched, ensure "Select LGA" is selected
-                    lgaSelect.innerHTML = '<option value="" disabled selected>Select LGA</option>';
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching LGAs:', error);
-                // If error on initial load, ensure the LGA dropdown is not empty
-                if (lgaSelect.options.length <= 1 && !initialLga) { // Only if no initial LGA was set by PHP
-                    lgaSelect.innerHTML = '<option value="" disabled selected>Error loading LGAs</option>';
-                }
-            });
-    }
-
-    // Initial population on page load
-    if (initialState) {
-        populateLgasOnLoad(initialState, initialLga);
-    } else {
-        // If no initial state, ensure "Select LGA" is the default
-        lgaSelect.innerHTML = '<option value="" disabled selected>Select LGA</option>';
-    }
-
-    stateSelect.addEventListener('change', function() {
-        populateLgasOnChange(this.value);
-    });
-});
             </script>
             <?php include('footer.php'); ?>
         </div>
