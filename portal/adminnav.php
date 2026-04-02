@@ -62,7 +62,7 @@
                   </a>
                 </li>
                 <li>
-                  <a href="modifystudents.php">
+                  <a href="editstudents.php">
                     <span class="sub-item">Modify</span>
                   </a>
                 </li>
