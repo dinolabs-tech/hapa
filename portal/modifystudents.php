@@ -1,5 +1,5 @@
 <?php
-// include('components/admin_logic.php');
+include('components/admin_logic.php');
 
 // MODIFY STUDENTS =============================
 // Handle form submission for updating student record and image
