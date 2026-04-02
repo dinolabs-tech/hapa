@@ -1,3 +1,271 @@
+<?php
+include('components/admin_logic.php');
+
+// =============================
+// UPDATE STUDENT
+// =============================
+if (isset($_POST['update'])) {
+
+    $id = intval($_POST['id']);
+    $name = trim($_POST['name']);
+    $gender = $_POST['gender'];
+    $dob = !empty($_POST['dob']) ? date('Y-m-d', strtotime($_POST['dob'])) : null;
+
+    $placeob = $_POST['placeob'];
+    $address = $_POST['address'];
+    $religion = $_POST['religion'];
+    $state = $_POST['state'];
+    $lga = $_POST['lga'];
+    $class = $_POST['class'];
+    $arm = $_POST['arm'];
+    $session_val = $_POST['session'];
+    $term = $_POST['term'];
+    $schoolname = $_POST['schoolname'];
+    $schooladdress = $_POST['schooladdress'];
+    $hobbies = $_POST['hobbies'];
+    $lastclass = $_POST['lastclass'] ?? '';
+    $sickle = $_POST['sickle'];
+    $challenge = $_POST['challenge'];
+    $emergency = $_POST['emergency'];
+    $familydoc = $_POST['familydoc'];
+    $docaddress = $_POST['docaddress'];
+    $docmobile = $_POST['docmobile'];
+    $polio = $_POST['polio'];
+    $tuberculosis = $_POST['tuberculosis'];
+    $measles = $_POST['measles'];
+    $tetanus = $_POST['tetanus'];
+    $whooping = $_POST['whooping'];
+    $gname = $_POST['gname'];
+    $mobile = $_POST['mobile'];
+    $goccupation = $_POST['goccupation'];
+    $gaddress = $_POST['gaddress'];
+    $grelationship = $_POST['grelationship'];
+    $hostel = $_POST['hostel'];
+    $bloodtype = $_POST['bloodtype'] ?? '';
+    $bloodgroup = $_POST['bloodgroup'] ?? '';
+    $height = $_POST['height'];
+    $weight = $_POST['weight'];
+
+    // Hash password only if provided
+    $password = !empty($_POST['password'])
+        ? password_hash($_POST['password'], PASSWORD_DEFAULT)
+        : null;
+
+    // =============================
+    // UPDATE QUERY (Prepared)
+    // =============================
+    if ($password) {
+        $stmt = $conn->prepare("UPDATE students SET 
+            name=?, gender=?, dob=?, placeob=?, address=?, religion=?, state=?, lga=?, 
+            class=?, arm=?, session=?, term=?, schoolname=?, schooladdress=?, hobbies=?, 
+            lastclass=?, sickle=?, challenge=?, emergency=?, familydoc=?, docaddress=?, 
+            docmobile=?, polio=?, tuberculosis=?, measles=?, tetanus=?, whooping=?, 
+            gname=?, mobile=?, goccupation=?, gaddress=?, grelationship=?, hostel=?, 
+            bloodtype=?, bloodgroup=?, height=?, weight=?, password=? 
+            WHERE id=?");
+
+        $stmt->bind_param(
+            "sssssssssssssssssssssssssssssssssssssssi",
+            $name,
+            $gender,
+            $dob,
+            $placeob,
+            $address,
+            $religion,
+            $state,
+            $lga,
+            $class,
+            $arm,
+            $session_val,
+            $term,
+            $schoolname,
+            $schooladdress,
+            $hobbies,
+            $lastclass,
+            $sickle,
+            $challenge,
+            $emergency,
+            $familydoc,
+            $docaddress,
+            $docmobile,
+            $polio,
+            $tuberculosis,
+            $measles,
+            $tetanus,
+            $whooping,
+            $gname,
+            $mobile,
+            $goccupation,
+            $gaddress,
+            $grelationship,
+            $hostel,
+            $bloodtype,
+            $bloodgroup,
+            $height,
+            $weight,
+            $password,
+            $id
+        );
+    } else {
+        $stmt = $conn->prepare("UPDATE students SET 
+            name=?, gender=?, dob=?, placeob=?, address=?, religion=?, state=?, lga=?, 
+            class=?, arm=?, session=?, term=?, schoolname=?, schooladdress=?, hobbies=?, 
+            lastclass=?, sickle=?, challenge=?, emergency=?, familydoc=?, docaddress=?, 
+            docmobile=?, polio=?, tuberculosis=?, measles=?, tetanus=?, whooping=?, 
+            gname=?, mobile=?, goccupation=?, gaddress=?, grelationship=?, hostel=?, 
+            bloodtype=?, bloodgroup=?, height=?, weight=? 
+            WHERE id=?");
+
+        $stmt->bind_param(
+            "ssssssssssssssssssssssssssssssssssssssi",
+            $name,
+            $gender,
+            $dob,
+            $placeob,
+            $address,
+            $religion,
+            $state,
+            $lga,
+            $class,
+            $arm,
+            $session_val,
+            $term,
+            $schoolname,
+            $schooladdress,
+            $hobbies,
+            $lastclass,
+            $sickle,
+            $challenge,
+            $emergency,
+            $familydoc,
+            $docaddress,
+            $docmobile,
+            $polio,
+            $tuberculosis,
+            $measles,
+            $tetanus,
+            $whooping,
+            $gname,
+            $mobile,
+            $goccupation,
+            $gaddress,
+            $grelationship,
+            $hostel,
+            $bloodtype,
+            $bloodgroup,
+            $height,
+            $weight,
+            $id
+        );
+    }
+
+    if ($stmt->execute()) {
+
+        // =============================
+        // IMAGE UPLOAD
+        // =============================
+        if (!empty($_FILES["formFile"]["name"])) {
+
+            $targetDir = "studentimg/";
+            $ext = strtolower(pathinfo($_FILES["formFile"]["name"], PATHINFO_EXTENSION));
+            $allowed = ['jpg', 'jpeg'];
+
+            if (in_array($ext, $allowed) && $_FILES["formFile"]["size"] <= 500 * 1024) {
+
+                if (!is_dir($targetDir)) {
+                    mkdir($targetDir, 0755, true);
+                }
+
+                $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', $id) . "." . $ext;
+                $targetFile = $targetDir . $filename;
+
+                move_uploaded_file($_FILES["formFile"]["tmp_name"], $targetFile);
+            }
+        }
+
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+    } else {
+        echo "Update failed: " . $stmt->error;
+    }
+}
+
+// =============================
+// DELETE (POST ONLY)
+// =============================
+if (isset($_POST['delete_id'])) {
+
+    $id = intval($_POST['delete_id']);
+
+    $stmt = $conn->prepare("DELETE FROM students WHERE id=?");
+    $stmt->bind_param("i", $id);
+
+    if ($stmt->execute()) {
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+    } else {
+        echo "Delete failed";
+    }
+}
+
+// =============================
+// SEARCH
+// =============================
+$students = [];
+
+if (isset($_POST['search'])) {
+
+    $searchTerm = "%" . $_POST['searchTerm'] . "%";
+
+    $stmt = $conn->prepare("SELECT * FROM students WHERE name LIKE ? OR id LIKE ?");
+    $stmt->bind_param("ss", $searchTerm, $searchTerm);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+} else {
+    $result = $conn->query("SELECT * FROM students");
+}
+
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $students[] = $row;
+    }
+}
+
+// =============================
+// FETCH FOR EDIT
+// =============================
+$studentDetails = null;
+
+if (isset($_GET['edit'])) {
+    $id = intval($_GET['edit']);
+
+    $stmt = $conn->prepare("SELECT * FROM students WHERE id=?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+
+    $studentDetails = $stmt->get_result()->fetch_assoc();
+}
+
+// =============================
+// LOAD CLASS + ARM
+// =============================
+$classes = [];
+$arms = [];
+
+$res = $conn->query("SELECT DISTINCT class FROM class");
+while ($row = $res->fetch_assoc()) {
+    $classes[] = $row['class'];
+}
+
+$res = $conn->query("SELECT DISTINCT arm FROM arm");
+while ($row = $res->fetch_assoc()) {
+    $arms[] = $row['arm'];
+}
+
+// =============================
+$conn->close();
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -254,7 +522,7 @@
                                                 <div class="col-md-2">
                                                     <select class="form-control form-select" name="lastclass" id="lastclass">
                                                         <option selected value="" disabled>Select Last Class</option>
-                                                        <option value="JSS 1"  <?= ($studentDetails['lastclass'] == 'JSS 1') ? 'selected' : '' ?>>JSS 1</option>
+                                                        <option value="JSS 1" <?= ($studentDetails['lastclass'] == 'JSS 1') ? 'selected' : '' ?>>JSS 1</option>
                                                         <option value="JSS 2" <?= ($studentDetails['lastclass'] == 'JSS 2') ? 'selected' : '' ?>>JSS 2</option>
                                                         <option value="JSS 3" <?= ($studentDetails['lastclass'] == 'JSS 3') ? 'selected' : '' ?>>JSS 3</option>
                                                         <option value="SSS 1" <?= ($studentDetails['lastclass'] == 'SSS 1') ? 'selected' : '' ?>>SSS 1</option>
@@ -274,10 +542,10 @@
                                                     <select name="bloodtype" id="bloodtype" class="form-control form-select">
                                                         <option value="" disabled selected>Blood Genotype</option>
                                                         <option value="AA" <?= ($studentDetails['bloodtype'] == 'AA') ? 'selected' : '' ?>>AA</option>
-                                                        <option value="AS"  <?= ($studentDetails['bloodtype'] == 'AS') ? 'selected' : '' ?>>AS</option>
-                                                        <option value="AC"  <?= ($studentDetails['bloodtype'] == 'AC') ? 'selected' : '' ?>>AC</option>
-                                                        <option value="SS"  <?= ($studentDetails['bloodtype'] == 'SS') ? 'selected' : '' ?>>SS</option>
-                                                        <option value="SC"  <?= ($studentDetails['bloodtype'] == 'SC') ? 'selected' : '' ?>>SC</option>
+                                                        <option value="AS" <?= ($studentDetails['bloodtype'] == 'AS') ? 'selected' : '' ?>>AS</option>
+                                                        <option value="AC" <?= ($studentDetails['bloodtype'] == 'AC') ? 'selected' : '' ?>>AC</option>
+                                                        <option value="SS" <?= ($studentDetails['bloodtype'] == 'SS') ? 'selected' : '' ?>>SS</option>
+                                                        <option value="SC" <?= ($studentDetails['bloodtype'] == 'SC') ? 'selected' : '' ?>>SC</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-md-3">
@@ -464,6 +732,7 @@
                                                         <th>Actions</th>
                                                     </tr>
                                                 </thead>
+
                                                 <tbody>
                                                     <?php if (!empty($students)): ?>
                                                         <?php foreach ($students as $student): ?>
@@ -473,15 +742,36 @@
                                                                 <td><?php echo htmlspecialchars($student['dob']); ?></td>
                                                                 <td><?php echo htmlspecialchars($student['class']); ?></td>
                                                                 <td><?php echo htmlspecialchars($student['arm']); ?></td>
+
                                                                 <td class="d-flex">
-                                                                    <a href="?edit=<?php echo $student['id']; ?>" class="btn btn-warning me-3 btn-icon btn-round ps-1"> <i class="fas fa-edit"></i></a>
-                                                                    <a href="?delete=<?php echo $student['id']; ?>" class="btn btn-danger btn-icon btn-round" onclick="return confirm('Are you sure you want to delete this record?')"><i class="fas fa-trash"></i></a>
+
+                                                                    <!-- EDIT BUTTON -->
+                                                                    <a href="?edit=<?php echo urlencode($student['id']); ?>"
+                                                                        class="btn btn-warning me-3 btn-icon btn-round ps-1">
+                                                                        <i class="fas fa-edit"></i>
+                                                                    </a>
+
+                                                                    <!-- DELETE BUTTON (SAFE - POST) -->
+                                                                    <form method="POST"
+                                                                        onsubmit="return confirm('Are you sure you want to delete this record?');"
+                                                                        style="display:inline-block; margin:0; padding:0;">
+
+                                                                        <input type="hidden"
+                                                                            name="delete_id"
+                                                                            value="<?php echo htmlspecialchars($student['id']); ?>">
+
+                                                                        <button type="submit"
+                                                                            class="btn btn-danger btn-icon btn-round">
+                                                                            <i class="fas fa-trash"></i>
+                                                                        </button>
+                                                                    </form>
+
                                                                 </td>
                                                             </tr>
                                                         <?php endforeach; ?>
                                                     <?php else: ?>
                                                         <tr>
-                                                            <td colspan="6">No data available in table.</td>
+                                                            <td colspan="6" class="text-center">No data available in table.</td>
                                                         </tr>
                                                     <?php endif; ?>
                                                 </tbody>
