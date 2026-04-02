@@ -39,25 +39,23 @@ if (isset($_POST['run_process'])) {
         // Step 3: If previous term exists, copy last term average to lastcum
         if (!empty($previousterm)) {
             $sql = "
-                UPDATE mastersheet AS second_term
-                JOIN mastersheet AS first_term ON
-                    second_term.id = first_term.id AND
-                    second_term.name = first_term.name AND
-                    second_term.subject = first_term.subject AND
-                    second_term.class = first_term.class AND
-                    second_term.arm = first_term.arm AND
-                    second_term.csession = first_term.csession
-                SET second_term.lastcum = first_term.average
-                WHERE first_term.term = '$previousterm' AND
-                      second_term.term = '$term' AND
-                      second_term.csession = '$session'";
+        UPDATE mastersheet AS second_term
+        JOIN mastersheet AS first_term 
+            ON second_term.id = first_term.id
+            AND second_term.subject = first_term.subject
+            AND first_term.term = '$previousterm'
+            AND first_term.csession = '$session'
+        SET second_term.lastcum = first_term.average
+        WHERE second_term.term = '$term'
+        AND second_term.csession = '$session'
+    ";
             $conn->query($sql);
         }
 
         // Step 4: Calculate average considering lastcum
         $conn->query("UPDATE mastersheet SET average = CASE WHEN lastcum = 0 THEN total ELSE (total + lastcum) / 2 END WHERE term = '$term' AND csession = '$session'");
 
-      
+
         // Step 5: Grade assignment (JSS uses old grading, SSS uses WAEC grading)
         $conn->query("UPDATE mastersheet SET grade = 
     CASE 
