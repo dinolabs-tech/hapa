@@ -236,8 +236,8 @@ foreach ($students as $student_id) {
         FROM (
             SELECT
                 id,
-                SUM(total) AS overall_total,
-                RANK() OVER (ORDER BY SUM(total) DESC) AS position
+                AVG(average) AS overall_average,
+                RANK() OVER (ORDER BY AVG(average) DESC) AS position
             FROM mastersheet
             WHERE class = '{$sd['class']}'
             AND arm = '{$sd['arm']}'
