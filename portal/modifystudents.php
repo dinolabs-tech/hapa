@@ -1,4 +1,271 @@
+<?php
+include('components/admin_logic.php');
 
+// =============================
+// UPDATE STUDENT
+// =============================
+if (isset($_POST['update'])) {
+
+    $id = intval($_POST['id']);
+    $name = trim($_POST['name']);
+    $gender = $_POST['gender'];
+    $dob = !empty($_POST['dob']) ? date('Y-m-d', strtotime($_POST['dob'])) : null;
+
+    $placeob = $_POST['placeob'];
+    $address = $_POST['address'];
+    $religion = $_POST['religion'];
+    $state = $_POST['state'];
+    $lga = $_POST['lga'];
+    $class = $_POST['class'];
+    $arm = $_POST['arm'];
+    $session_val = $_POST['session'];
+    $term = $_POST['term'];
+    $schoolname = $_POST['schoolname'];
+    $schooladdress = $_POST['schooladdress'];
+    $hobbies = $_POST['hobbies'];
+    $lastclass = $_POST['lastclass'] ?? '';
+    $sickle = $_POST['sickle'];
+    $challenge = $_POST['challenge'];
+    $emergency = $_POST['emergency'];
+    $familydoc = $_POST['familydoc'];
+    $docaddress = $_POST['docaddress'];
+    $docmobile = $_POST['docmobile'];
+    $polio = $_POST['polio'];
+    $tuberculosis = $_POST['tuberculosis'];
+    $measles = $_POST['measles'];
+    $tetanus = $_POST['tetanus'];
+    $whooping = $_POST['whooping'];
+    $gname = $_POST['gname'];
+    $mobile = $_POST['mobile'];
+    $goccupation = $_POST['goccupation'];
+    $gaddress = $_POST['gaddress'];
+    $grelationship = $_POST['grelationship'];
+    $hostel = $_POST['hostel'];
+    $bloodtype = $_POST['bloodtype'] ?? '';
+    $bloodgroup = $_POST['bloodgroup'] ?? '';
+    $height = $_POST['height'];
+    $weight = $_POST['weight'];
+
+    // Hash password only if provided
+    $password = !empty($_POST['password'])
+        ? password_hash($_POST['password'], PASSWORD_DEFAULT)
+        : null;
+
+    // =============================
+    // UPDATE QUERY (Prepared)
+    // =============================
+    if ($password) {
+        $stmt = $conn->prepare("UPDATE students SET 
+            name=?, gender=?, dob=?, placeob=?, address=?, religion=?, state=?, lga=?, 
+            class=?, arm=?, session=?, term=?, schoolname=?, schooladdress=?, hobbies=?, 
+            lastclass=?, sickle=?, challenge=?, emergency=?, familydoc=?, docaddress=?, 
+            docmobile=?, polio=?, tuberculosis=?, measles=?, tetanus=?, whooping=?, 
+            gname=?, mobile=?, goccupation=?, gaddress=?, grelationship=?, hostel=?, 
+            bloodtype=?, bloodgroup=?, height=?, weight=?, password=? 
+            WHERE id=?");
+
+        $stmt->bind_param(
+            "sssssssssssssssssssssssssssssssssssssssi",
+            $name,
+            $gender,
+            $dob,
+            $placeob,
+            $address,
+            $religion,
+            $state,
+            $lga,
+            $class,
+            $arm,
+            $session_val,
+            $term,
+            $schoolname,
+            $schooladdress,
+            $hobbies,
+            $lastclass,
+            $sickle,
+            $challenge,
+            $emergency,
+            $familydoc,
+            $docaddress,
+            $docmobile,
+            $polio,
+            $tuberculosis,
+            $measles,
+            $tetanus,
+            $whooping,
+            $gname,
+            $mobile,
+            $goccupation,
+            $gaddress,
+            $grelationship,
+            $hostel,
+            $bloodtype,
+            $bloodgroup,
+            $height,
+            $weight,
+            $password,
+            $id
+        );
+    } else {
+        $stmt = $conn->prepare("UPDATE students SET 
+            name=?, gender=?, dob=?, placeob=?, address=?, religion=?, state=?, lga=?, 
+            class=?, arm=?, session=?, term=?, schoolname=?, schooladdress=?, hobbies=?, 
+            lastclass=?, sickle=?, challenge=?, emergency=?, familydoc=?, docaddress=?, 
+            docmobile=?, polio=?, tuberculosis=?, measles=?, tetanus=?, whooping=?, 
+            gname=?, mobile=?, goccupation=?, gaddress=?, grelationship=?, hostel=?, 
+            bloodtype=?, bloodgroup=?, height=?, weight=? 
+            WHERE id=?");
+
+        $stmt->bind_param(
+            "ssssssssssssssssssssssssssssssssssssssi",
+            $name,
+            $gender,
+            $dob,
+            $placeob,
+            $address,
+            $religion,
+            $state,
+            $lga,
+            $class,
+            $arm,
+            $session_val,
+            $term,
+            $schoolname,
+            $schooladdress,
+            $hobbies,
+            $lastclass,
+            $sickle,
+            $challenge,
+            $emergency,
+            $familydoc,
+            $docaddress,
+            $docmobile,
+            $polio,
+            $tuberculosis,
+            $measles,
+            $tetanus,
+            $whooping,
+            $gname,
+            $mobile,
+            $goccupation,
+            $gaddress,
+            $grelationship,
+            $hostel,
+            $bloodtype,
+            $bloodgroup,
+            $height,
+            $weight,
+            $id
+        );
+    }
+
+    if ($stmt->execute()) {
+
+        // =============================
+        // IMAGE UPLOAD
+        // =============================
+        if (!empty($_FILES["formFile"]["name"])) {
+
+            $targetDir = "studentimg/";
+            $ext = strtolower(pathinfo($_FILES["formFile"]["name"], PATHINFO_EXTENSION));
+            $allowed = ['jpg', 'jpeg'];
+
+            if (in_array($ext, $allowed) && $_FILES["formFile"]["size"] <= 500 * 1024) {
+
+                if (!is_dir($targetDir)) {
+                    mkdir($targetDir, 0755, true);
+                }
+
+                $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', $id) . "." . $ext;
+                $targetFile = $targetDir . $filename;
+
+                move_uploaded_file($_FILES["formFile"]["tmp_name"], $targetFile);
+            }
+        }
+
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+    } else {
+        echo "Update failed: " . $stmt->error;
+    }
+}
+
+// =============================
+// DELETE (POST ONLY)
+// =============================
+if (isset($_POST['delete_id'])) {
+
+    $id = intval($_POST['delete_id']);
+
+    $stmt = $conn->prepare("DELETE FROM students WHERE id=?");
+    $stmt->bind_param("i", $id);
+
+    if ($stmt->execute()) {
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+    } else {
+        echo "Delete failed";
+    }
+}
+
+// =============================
+// SEARCH
+// =============================
+$students = [];
+
+if (isset($_POST['search'])) {
+
+    $searchTerm = "%" . $_POST['searchTerm'] . "%";
+
+    $stmt = $conn->prepare("SELECT * FROM students WHERE name LIKE ? OR id LIKE ?");
+    $stmt->bind_param("ss", $searchTerm, $searchTerm);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+} else {
+    $result = $conn->query("SELECT * FROM students");
+}
+
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $students[] = $row;
+    }
+}
+
+// =============================
+// FETCH FOR EDIT
+// =============================
+$studentDetails = null;
+
+if (isset($_GET['edit'])) {
+    $id = intval($_GET['edit']);
+
+    $stmt = $conn->prepare("SELECT * FROM students WHERE id=?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+
+    $studentDetails = $stmt->get_result()->fetch_assoc();
+}
+
+// =============================
+// LOAD CLASS + ARM
+// =============================
+$classes = [];
+$arms = [];
+
+$res = $conn->query("SELECT DISTINCT class FROM class");
+while ($row = $res->fetch_assoc()) {
+    $classes[] = $row['class'];
+}
+
+$res = $conn->query("SELECT DISTINCT arm FROM arm");
+while ($row = $res->fetch_assoc()) {
+    $arms[] = $row['arm'];
+}
+
+// =============================
+$conn->close();
+?>
 
 <!DOCTYPE html>
 <html lang="en">
