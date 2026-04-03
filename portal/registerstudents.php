@@ -86,9 +86,20 @@ if (isset($_POST['register']) || isset($_POST['update'])) {
     $stmt = executeQuery($conn, $query, [$name, $dob, $class, $arm, $password, $id], 'ssssss');
     $register_message = $stmt ? 'Student record updated successfully.' : 'Error updating student record.';
   } else {
-    $query = "INSERT INTO students (id, name, gender, dob, placeob, address, religion, state, lga, class, arm,session, term,schoolname,schooladdress,hobbies,lastclass,sickle,challenge,emergency,familydoc,docaddress,docmobile,polio,tuberculosis,measles,tetanus,whooping,gname,mobile,goccupation,gaddress,grelationship,hostel,bloodtype,bloodgroup,height,weight, password) VALUES (?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-    $stmt = executeQuery($conn, $query, [$id, $name, $gender, $dob, $placeob, $address, $religion, $state, $lga, $class, $arm, $session, $term, $schoolname, $schooladdress, $hobbies, $lastclass, $sickle, $challenge, $emergency, $familydoc, $docaddress, $docmobile, $polio, $tuberculosis, $measles, $tetanus, $whooping, $gname, $mobile, $goccupation, $gaddress, $grelationship, $hostel, $bloodtype, $bloodgroup, $height, $weight, $password], 'sssssssssssssssssssssssssssssssssssssss');
-    $register_message = $stmt ? 'Student registered successfully.' : 'Error registering student.';
+    // Check if student ID already exists
+    $checkStmt = $conn->prepare("SELECT id FROM students WHERE id = ?");
+    $checkStmt->bind_param("s", $id);
+    $checkStmt->execute();
+    $checkResult = $checkStmt->get_result();
+    
+    if ($checkResult->num_rows > 0) {
+      $register_message = 'Error: Student ID already exists. Please use a different ID.';
+    } else {
+      $query = "INSERT INTO students (id, name, gender, dob, placeob, address, religion, state, lga, class, arm,session, term,schoolname,schooladdress,hobbies,lastclass,sickle,challenge,emergency,familydoc,docaddress,docmobile,polio,tuberculosis,measles,tetanus,whooping,gname,mobile,goccupation,gaddress,grelationship,hostel,bloodtype,bloodgroup,height,weight, password) VALUES (?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+      $stmt = executeQuery($conn, $query, [$id, $name, $gender, $dob, $placeob, $address, $religion, $state, $lga, $class, $arm, $session, $term, $schoolname, $schooladdress, $hobbies, $lastclass, $sickle, $challenge, $emergency, $familydoc, $docaddress, $docmobile, $polio, $tuberculosis, $measles, $tetanus, $whooping, $gname, $mobile, $goccupation, $gaddress, $grelationship, $hostel, $bloodtype, $bloodgroup, $height, $weight, $password], 'sssssssssssssssssssssssssssssssssssssss');
+      $register_message = $stmt ? 'Student registered successfully.' : 'Error registering student.';
+    }
+    $checkStmt->close();
   }
 
 
@@ -145,7 +156,12 @@ if (isset($_POST['bulk_upload']) && isset($_FILES['student_file'])) {
 
   if ($file_ext === 'csv' && ($handle = fopen($file, 'r')) !== false) {
     fgetcsv($handle); // Skip header
+    $inserted_count = 0;
+    $duplicate_ids = [];
+    $row_number = 1;
+    
     while (($data = fgetcsv($handle, 1000, ",")) !== false) {
+      $row_number++;
       $id = $conn->real_escape_string($data[0]);
       $name = $conn->real_escape_string($data[1]);
       $dob = $conn->real_escape_string($data[2]);
@@ -153,11 +169,30 @@ if (isset($_POST['bulk_upload']) && isset($_FILES['student_file'])) {
       $arm = $conn->real_escape_string($data[4]);
       $password = $conn->real_escape_string($data[5]);
 
-      $query = "INSERT INTO students (id, name, dob, class, arm, password) VALUES (?, ?, ?, ?, ?, ?)";
-      executeQuery($conn, $query, [$id, $name, $dob, $class, $arm, $password], 'ssssss');
+      // Check if student ID already exists
+      $checkStmt = $conn->prepare("SELECT id FROM students WHERE id = ?");
+      $checkStmt->bind_param("s", $id);
+      $checkStmt->execute();
+      $checkResult = $checkStmt->get_result();
+      
+      if ($checkResult->num_rows > 0) {
+        $duplicate_ids[] = $id . " (row $row_number)";
+      } else {
+        $query = "INSERT INTO students (id, name, dob, class, arm, password) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = executeQuery($conn, $query, [$id, $name, $dob, $class, $arm, $password], 'ssssss');
+        if ($stmt) {
+          $inserted_count++;
+        }
+      }
+      $checkStmt->close();
     }
     fclose($handle);
-    $bulk_message = 'Bulk upload successful.';
+    
+    // Build result message
+    $bulk_message = "Bulk upload completed. $inserted_count student(s) registered successfully.";
+    if (!empty($duplicate_ids)) {
+      $bulk_message .= " The following ID(s) already exist and were skipped: " . implode(', ', $duplicate_ids);
+    }
   } else {
     $bulk_message = 'Invalid file. Please upload a valid CSV file.';
   }

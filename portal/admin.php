@@ -186,6 +186,16 @@ if (isset($_POST['term_submit'])) {
       $stmt2->bind_param("s", $term);
       if ($stmt2->execute()) {
           $stmt2->close();
+          
+          // Also update the question table with the new term
+          $stmt3 = $conn->prepare("UPDATE question SET term = ?");
+          if ($stmt3 === false) {
+              die("Error preparing question update: " . $conn->error);
+          }
+          $stmt3->bind_param("s", $term);
+          $stmt3->execute();
+          $stmt3->close();
+          
           // Redirect back to the same page to refresh
           header("Location: " . $_SERVER['PHP_SELF']);
           exit;
@@ -228,6 +238,16 @@ if (isset($_POST['currentsession_submit'])) {
       $stmt2->bind_param("s", $csession);
       if ($stmt2->execute()) {
           $stmt2->close();
+          
+          // Also update the question table with the new session
+          $stmt3 = $conn->prepare("UPDATE question SET session = ?");
+          if ($stmt3 === false) {
+              die("Error preparing question update: " . $conn->error);
+          }
+          $stmt3->bind_param("s", $csession);
+          $stmt3->execute();
+          $stmt3->close();
+          
           // Redirect back to the same page to refresh
           header("Location: " . $_SERVER['PHP_SELF']);
           exit;
