@@ -14,9 +14,11 @@ $gname = "";
 $mobile = "";
 
 if (isset($_POST['username']) && isset($_POST['password'])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $student_id = $_POST['student_id'];
+    $username = $_POST['username'] ?? "";
+    $password = $_POST['password'] ?? "";
+    $email = $_POST['email'] ?? "";
+    $mobile = $_POST['mobile'] ?? "";
+    $student_id = $_POST['student_id'] ?? "";
 
     // Get gname and mobile from students table
     $sql = "SELECT gname, mobile FROM students WHERE id = '$student_id'";
@@ -41,7 +43,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
                 $success = "Username already exists.";
             } else {
                 // Insert the new parent into the database
-                $sql = "INSERT INTO parent (username, password, name, mobile) VALUES ('$username', '$password', '$gname', '$mobile')";
+                $sql = "INSERT INTO parent (student_id, username, password, name, mobile, email) VALUES ('$student_id', '$username', '$password', '$gname', '$mobile', '$email')";
                 if ($conn->query($sql) === TRUE) {
                     $success = "Parent registered successfully.";
                 } else {
@@ -100,7 +102,7 @@ $stmt->close();
 
             <div class="container">
                 <div class="page-inner">
-                    <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4 d-none d-lg-block">
+                    <div class="d-flex align-items-left d-none d-lg-block align-items-md-center flex-column flex-md-row pt-2 pb-4">
                         <div>
                             <h3 class="fw-bold mb-3">Register Parents</h3>
                             <ol class="breadcrumb">
@@ -126,6 +128,7 @@ $stmt->close();
                                         <table id="basic-datatables" class="table table-striped table-bordered">
                                             <thead>
                                                 <tr>
+                                                    <th>Student ID</th>
                                                     <th>Student Name</th>
                                                     <th>Guardian Name</th>
                                                     <th>Mobile</th>
@@ -144,6 +147,7 @@ $stmt->close();
                                                 if ($result && $result->num_rows > 0) {
                                                     while ($row = $result->fetch_assoc()) { ?>
                                                         <tr>
+                                                            <td><?= htmlspecialchars($row['id']) ?></td>
                                                             <td><?= htmlspecialchars($row['name']) ?></td>
                                                             <td><?= htmlspecialchars($row['gname']) ?></td>
                                                             <td><?= htmlspecialchars($row['mobile']) ?></td>
@@ -178,30 +182,30 @@ $stmt->close();
                                             <div class="card-title">Register Parent</div>
                                         </div>
 
-                                        <form method="POST">
+                                        <form method="POST" class="row g-2">
                                             <input type="hidden" name="student_id"
                                                 value="<?= htmlspecialchars($student_id) ?>">
-                                            <div class="mb-3">
+                                            <div class="col-md-6">
                                                 <label for="gname" class="form-label">Name:</label>
                                                 <input type="text" id="gname" name="gname" class="form-control"
                                                     value="<?= htmlspecialchars($gname) ?>" readonly>
                                             </div>
-                                            <div class="mb-3">
+                                            <div class="col-md-6">
                                                 <label for="mobile" class="form-label">Mobile:</label>
                                                 <input type="text" id="mobile" name="mobile" class="form-control"
                                                     value="<?= htmlspecialchars($mobile) ?>" readonly>
                                             </div>
-                                            <div class="mb-3">
+                                            <div class="col-md-6">
                                                 <label for="username" class="form-label">Username:</label>
                                                 <input type="text" id="username" name="username" class="form-control"
                                                     required>
                                             </div>
-                                            <div class="mb-3">
+                                            <div class="col-md-6">
                                                 <label for="password" class="form-label">Password:</label>
                                                 <input type="password" id="password" name="password" class="form-control"
                                                     required>
                                             </div>
-                                            <button type="submit" class="btn btn-primary">Register</button>
+                                            <button type="submit" class="btn btn-primary btn-icon btn-round"><i class="fas fa-save"></i></button>
                                         </form>
 
 

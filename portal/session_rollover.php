@@ -6,7 +6,6 @@ ini_set('',1);
 include('components/admin_logic.php');
 require_once('helpers/audit.php');
 require_once('helpers/money.php');
-require_once('helpers/database_locks.php');
 
 
 // Fetch current session from database
@@ -25,6 +24,8 @@ if ($action === 'preview' && $_SERVER['REQUEST_METHOD'] === 'GET') {
   if ($session === '' || $current_term === '' || $new_term === '') {
     $alerts[] = ['danger', 'Session, current term, and new term required.'];
   } else {
+    $include_mandatory = isset($_GET['include_mandatory']) ? true : false;
+    
     $sql = "SELECT s.id, s.name, s.class, s.arm, s.term, s.session,
                 SUM(sfi.amount - sfi.paid_amount) AS outstanding,
                 (SELECT SUM(fsi.amount) FROM fee_structure_items fsi
@@ -42,7 +43,11 @@ if ($action === 'preview' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     $preview = [];
     $total_carryover = 0;
     while ($row = $res->fetch_assoc()) {
-      $row['combined'] = $row['outstanding'] + ($row['mandatory_sum'] ?? 0);
+      if ($include_mandatory) {
+        $row['combined'] = $row['outstanding'] + ($row['mandatory_sum'] ?? 0);
+      } else {
+        $row['combined'] = $row['outstanding'];
+      }
       $row['outstanding_display'] = money_format_naira($row['outstanding']);
       $row['combined_display'] = money_format_naira($row['combined']);
       $preview[] = $row;
@@ -57,30 +62,26 @@ if ($action === 'execute' && $_SERVER['REQUEST_METHOD'] === 'GET') {
   if ($session === '' || $current_term === '' || $new_term === '') {
     $alerts[] = ['danger', 'Session, current term, and new term required.'];
   } else {
-    // Acquire advisory lock for rollover operation
-    $lockName = "session_rollover_{$session}";
-    if (!acquireLock($mysqli, $lockName, 30)) {
-      $alerts[] = ['danger', 'Another rollover operation is in progress. Please try again later.'];
-    } else {
-      $mysqli->begin_transaction();
-      try {
-        // Get students with outstanding fees - WITH FOR UPDATE LOCK
-        $sql = "SELECT s.id, s.name, SUM(sfi.amount - sfi.paid_amount) AS outstanding
-                      FROM students s
-                      JOIN student_fees sf ON s.id = sf.student_id AND sf.status = 'active'
-                      JOIN student_fee_items sfi ON sf.id = sfi.student_fee_id
-                      WHERE s.session = ? AND s.term = ? AND sfi.amount > sfi.paid_amount
-                      GROUP BY s.id
-                      FOR UPDATE";
-        $stmt = $mysqli->prepare($sql);
-        $stmt->bind_param('ss', $session, $current_term);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $students = [];
-        while ($row = $res->fetch_assoc()) {
-          $students[] = $row;
-        }
-        $stmt->close();
+    $include_mandatory = isset($_GET['include_mandatory']) ? true : false;
+    
+    $mysqli->begin_transaction();
+    try {
+      // Get students with outstanding fees
+      $sql = "SELECT s.id, s.name, SUM(sfi.amount - sfi.paid_amount) AS outstanding
+                    FROM students s
+                    JOIN student_fees sf ON s.id = sf.student_id AND sf.status = 'active'
+                    JOIN student_fee_items sfi ON sf.id = sfi.student_fee_id
+                    WHERE s.session = ? AND s.term = ? AND sfi.amount > sfi.paid_amount
+                    GROUP BY s.id";
+      $stmt = $mysqli->prepare($sql);
+      $stmt->bind_param('ss', $session, $current_term);
+      $stmt->execute();
+      $res = $stmt->get_result();
+      $students = [];
+      while ($row = $res->fetch_assoc()) {
+        $students[] = $row;
+      }
+      $stmt->close();
 
       foreach ($students as $student) {
         $student_id = $student['id'];
@@ -93,14 +94,18 @@ if ($action === 'execute' && $_SERVER['REQUEST_METHOD'] === 'GET') {
         $fee_structure_id = $stmt->get_result()->fetch_assoc()['fee_structure_id'];
         $stmt->close();
 
-        // Get sum of mandatory fees
-        $stmt = $mysqli->prepare("SELECT SUM(fsi.amount) as mandatory_sum FROM fee_structure_items fsi JOIN fee_items fi ON fsi.fee_item_id = fi.id WHERE fsi.fee_structure_id = ? AND fi.mandatory = 1");
-        $stmt->bind_param('i', $fee_structure_id);
-        $stmt->execute();
-        $mandatory_sum = $stmt->get_result()->fetch_assoc()['mandatory_sum'] ?? 0;
-        $stmt->close();
-
-        $combined_amount = $outstanding + $mandatory_sum;
+        $combined_amount = $outstanding;
+        
+        if ($include_mandatory) {
+          // Get sum of mandatory fees
+          $stmt = $mysqli->prepare("SELECT SUM(fsi.amount) as mandatory_sum FROM fee_structure_items fsi JOIN fee_items fi ON fsi.fee_item_id = fi.id WHERE fsi.fee_structure_id = ? AND fi.mandatory = 1");
+          $stmt->bind_param('i', $fee_structure_id);
+          $stmt->execute();
+          $mandatory_sum = $stmt->get_result()->fetch_assoc()['mandatory_sum'] ?? 0;
+          $stmt->close();
+          
+          $combined_amount = $outstanding + $mandatory_sum;
+        }
 
         // Update student term
         $stmt = $mysqli->prepare("UPDATE students SET term = ? WHERE id = ?");
@@ -114,14 +119,15 @@ if ($action === 'execute' && $_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt->execute();
         $stmt->close();
 
-        // Zero out all current outstanding
-        $stmt = $mysqli->prepare("UPDATE student_fee_items SET paid_amount = amount WHERE student_fee_id = (SELECT id FROM student_fees WHERE student_id = ? AND status = 'active' LIMIT 1)");
+        // Close outstanding balances correctly: add only the missing amount to paid_amount
+        // This preserves actual payment history while marking items as fully settled
+        $stmt = $mysqli->prepare("UPDATE student_fee_items SET paid_amount = amount WHERE student_fee_id = (SELECT id FROM student_fees WHERE student_id = ? AND status = 'active' LIMIT 1) AND paid_amount < amount");
         $stmt->bind_param('s', $student_id);
         $stmt->execute();
         $stmt->close();
 
-        // Set mandatory fee items to combined amount (distributed proportionally), paid_amount = 0
-        if ($mandatory_sum > 0) {
+        // Only update mandatory fees if checkbox is selected
+        if ($include_mandatory && $mandatory_sum > 0) {
           // Update mandatory fee items with proportional amounts
           $stmt = $mysqli->prepare("UPDATE student_fee_items sfi
             JOIN fee_structure_items fsi ON sfi.fee_item_id = fsi.fee_item_id AND fsi.fee_structure_id = ?
@@ -130,6 +136,13 @@ if ($action === 'execute' && $_SERVER['REQUEST_METHOD'] === 'GET') {
             WHERE sfi.student_fee_id = (SELECT id FROM student_fees WHERE student_id = ? AND status = 'active' LIMIT 1)
             AND fi.mandatory = 1");
           $stmt->bind_param('iiis', $fee_structure_id, $mandatory_sum, $combined_amount, $student_id);
+          $stmt->execute();
+          $stmt->close();
+        } else {
+          // Only carry over balance: create single carryover fee item
+          $stmt = $mysqli->prepare("INSERT INTO student_fee_items (student_fee_id, fee_item_id, amount, paid_amount) 
+            VALUES ((SELECT id FROM student_fees WHERE student_id = ? AND status = 'active' LIMIT 1), 0, ?, 0)");
+          $stmt->bind_param('si', $student_id, $outstanding);
           $stmt->execute();
           $stmt->close();
         }
@@ -141,17 +154,18 @@ if ($action === 'execute' && $_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt->close();
 
         // Audit log
-        audit_log('term_rollover', 'student', $student_id, ['term' => $current_term], ['term' => $new_term, 'combined_carryover' => $combined_amount]);
+        audit_log('term_rollover', 'student', $student_id, 
+          ['term' => $current_term, 'include_mandatory' => $include_mandatory], 
+          ['term' => $new_term, 'combined_carryover' => $combined_amount]
+        );
       }
 
-        $mysqli->commit();
-        releaseLock($mysqli, $lockName);
-        $alerts[] = ['success', 'Term rollover executed successfully.'];
-      } catch (Exception $e) {
-        $mysqli->rollback();
-        releaseLock($mysqli, $lockName);
-        $alerts[] = ['danger', 'Error executing term rollover: ' . $e->getMessage()];
-      }
+      $mysqli->commit();
+      $mode = $include_mandatory ? 'with mandatory fees' : 'balance only';
+      $alerts[] = ['success', "Term rollover executed successfully ({$mode})."];
+    } catch (Exception $e) {
+      $mysqli->rollback();
+      $alerts[] = ['danger', 'Error executing term rollover: ' . $e->getMessage()];
     }
   }
 }
@@ -218,7 +232,18 @@ if ($action === 'execute' && $_SERVER['REQUEST_METHOD'] === 'GET') {
                   </select>
                 </div>
 
-                <div class="col-md-5 d-flex gap-2">
+                <div class="col-md-3">
+                  <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="include_mandatory" name="include_mandatory">
+                    <label class="form-check-label" for="include_mandatory">
+                      Include Mandatory Fees for Next Term
+                    </label>
+                    <div class="form-text text-muted small">
+                      Uncheck to only carry over outstanding balance without adding new mandatory fees
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12 align-items-center justify-content-center d-flex gap-2">
                   <button name="action" value="preview" class="btn btn-primary rounded-5" type="submit">Preview Rollover</button>
                   <button name="action" value="execute" class="btn btn-danger rounded-5" type="submit">Execute Rollover</button>
                 </div>

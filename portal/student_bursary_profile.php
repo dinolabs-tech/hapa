@@ -27,15 +27,24 @@ if (!$student) {
   exit;
 }
 
-// Fetch assigned fees
+// Fetch assigned fees with actual calculated totals including carryover
 $fees = [];
-$stmt = $mysqli->prepare("SELECT sf.id, fs.name, fs.class, fs.arm, fs.term, fs.session, fs.hostel_type, fs.total_amount FROM student_fees sf 
+$stmt = $mysqli->prepare("SELECT sf.id, fs.name, fs.class, fs.arm, sf.term, sf.session, fs.hostel_type, fs.total_amount as base_fee_amount FROM student_fees sf 
 JOIN fee_structures fs ON sf.fee_structure_id = fs.id WHERE sf.student_id = ? AND sf.status='active' AND sf.term = ? AND sf.session = ?");
 $stmt->bind_param('sss', $student_id, $current_term, $current_session);
 $stmt->execute();
 $res = $stmt->get_result();
 while ($row = $res->fetch_assoc()) {
-  $row['total_amount_display'] = money_format_naira($row['total_amount']);
+  // Calculate actual total from student fee items (includes carryover)
+  $stmt2 = $mysqli->prepare("SELECT SUM(amount) as actual_total FROM student_fee_items WHERE student_fee_id = ?");
+  $stmt2->bind_param('i', $row['id']);
+  $stmt2->execute();
+  $actual_total = $stmt2->get_result()->fetch_assoc()['actual_total'] ?? 0;
+  $stmt2->close();
+  
+  $row['base_fee_amount_display'] = money_format_naira($row['base_fee_amount']);
+  $row['actual_total'] = $actual_total;
+  $row['total_amount_display'] = money_format_naira($actual_total);
   $fees[] = $row;
 }
 $stmt->close();
@@ -335,6 +344,24 @@ $stmt->close();
                           <td><?= $fee['total_amount_display'] ?></td>
                         </tr>
                       <?php endforeach; ?>
+
+                      <?php 
+                      // Display carryover from transactions table
+                      $stmt = $mysqli->prepare("SELECT amount, created_at FROM transactions WHERE student_id = ? AND type = 'carryover' AND term = ? AND session = ? ORDER BY created_at DESC LIMIT 1");
+                      $stmt->bind_param('sss', $student_id, $current_term, $current_session);
+                      $stmt->execute();
+                      $carryover = $stmt->get_result()->fetch_assoc();
+                      $stmt->close();
+                      
+                      if ($carryover && $carryover['amount'] > 0): 
+                      ?>
+                        <tr class="table-warning">
+                          <td><strong>✅ Carryover Balance</strong></td>
+                          <td colspan="4"><small class="text-muted">Brought forward from previous term</small></td>
+                          <td><small class="text-muted"><?= date('Y-m-d H:i', strtotime($carryover['created_at'])) ?></small></td>
+                          <td><strong><?= money_format_naira($carryover['amount']) ?></strong></td>
+                        </tr>
+                      <?php endif; ?>
                     </tbody>
                   </table>
                 </div>
