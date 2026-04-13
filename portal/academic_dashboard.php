@@ -68,7 +68,7 @@ while ($row = $subject_perf_result->fetch_assoc()) {
 }
 
 // Performance Trend (across terms for selected session)
-$trend_query = "SELECT term, AVG(average) as avg FROM mastersheet WHERE csession = '$selected_session' GROUP BY term ORDER BY FIELD(term, 'First', 'Second', 'Third')";
+$trend_query = "SELECT term, AVG(average) as avg FROM mastersheet WHERE csession = '$selected_session' GROUP BY term ORDER BY FIELD(term, '1st Term', '2nd Term', '3rd Term')";
 $trend_result = $conn->query($trend_query);
 $trend_labels = [];
 $trend_data = [];
@@ -91,6 +91,7 @@ GROUP BY TRIM(UPPER(subject))
 ORDER BY subject
 ";
 
+
 $breakdown_result = $conn->query($breakdown_query);
 $breakdown_data = [];
 while ($row = $breakdown_result->fetch_assoc()) {
@@ -98,12 +99,12 @@ while ($row = $breakdown_result->fetch_assoc()) {
 }
 
 // Attendance Overview
-$attendance_query = "SELECT AVG((dayspresent / (dayspresent + daysabsent)) * 100) as rate FROM classcomments WHERE csession = '$selected_session' AND term = '$selected_term' AND (dayspresent + daysabsent) > 0";
+$attendance_query = "SELECT AVG(CASE WHEN status = 1 THEN 1 ELSE 0 END) * 100 as rate FROM attendance WHERE session_id = '$selected_session' AND term_id = '$selected_term'";
 $attendance_result = $conn->query($attendance_query);
 $attendance_rate = round($attendance_result->fetch_assoc()['rate'] ?? 0, 2);
 
 // Chronic Absenteeism (students with attendance < 70%)
-$chronic_query = "SELECT id, name, class, arm, ((dayspresent / (dayspresent + daysabsent)) * 100) as rate FROM classcomments WHERE csession = '$selected_session' AND term = '$selected_term' AND (dayspresent + daysabsent) > 0 HAVING rate < 70 ORDER BY rate ASC LIMIT 10";
+$chronic_query = "SELECT student_id, name, class, arm, (SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100 as rate FROM attendance WHERE session_id = '$selected_session' AND term_id = '$selected_term' GROUP BY student_id, name, class, arm HAVING rate < 70 ORDER BY rate ASC LIMIT 10";
 $chronic_result = $conn->query($chronic_query);
 $chronic_data = [];
 while ($row = $chronic_result->fetch_assoc()) {
@@ -127,8 +128,36 @@ while ($row = $top_students_result->fetch_assoc()) {
 }
 
 // Top 10 Performing Senior Students (SSS 1-3, SS 1-3, Year 10-12)
-$senior_classes = "class REGEXP '^SSS[[:space:]]?[123]|^SS[[:space:]]?[123]|^YEAR[[:space:]]?1[012]'";
-$top_senior_query = "SELECT id, name, class, arm, ROUND(AVG(average), 2) as average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' AND ($senior_classes) GROUP BY id, name, class, arm ORDER BY AVG(average) DESC LIMIT 10";
+$top_senior_query = "
+SELECT id, name, class, arm, ROUND(AVG(average), 2) as average 
+FROM mastersheet 
+WHERE csession = '$selected_session' 
+AND term = '$selected_term'
+AND (
+    class LIKE 'SSS 1%' OR
+    class LIKE 'SSS 2%' OR
+    class LIKE 'SSS 3%' OR
+    class LIKE 'SSS1%' OR
+    class LIKE 'SSS2%' OR
+    class LIKE 'SSS3%' OR
+    class LIKE 'SS 1%' OR
+    class LIKE 'SS 2%' OR
+    class LIKE 'SS 3%' OR
+    class LIKE 'SSS1%' OR
+    class LIKE 'SSS2%' OR
+    class LIKE 'SSS3%' OR
+    class LIKE 'YEAR 10%' OR
+    class LIKE 'YEAR 11%' OR
+    class LIKE 'YEAR 12%' OR
+    class LIKE 'YEAR10%' OR
+    class LIKE 'YEAR11%' OR
+    class LIKE 'YEAR12%'
+)
+GROUP BY id, name, class, arm 
+ORDER BY AVG(average) DESC 
+LIMIT 10
+";
+
 $top_senior_result = $conn->query($top_senior_query);
 $top_senior = [];
 while ($row = $top_senior_result->fetch_assoc()) {
@@ -136,8 +165,36 @@ while ($row = $top_senior_result->fetch_assoc()) {
 }
 
 // Top 10 Performing Junior Students (JSS 1-3, JS 1-3, Year 7-9)
-$junior_classes = "class REGEXP 'JSS[[:space:]]?[123]|JS[[:space:]]?[123]|YEAR[[:space:]]?[789]'";
-$top_junior_query = "SELECT id, name, class, arm, ROUND(AVG(average), 2) as average FROM mastersheet WHERE csession = '$selected_session' AND term = '$selected_term' AND ($junior_classes) GROUP BY id, name, class, arm ORDER BY AVG(average) DESC LIMIT 10";
+$top_junior_query = "
+SELECT id, name, class, arm, ROUND(AVG(average), 2) as average 
+FROM mastersheet 
+WHERE csession = '$selected_session' 
+AND term = '$selected_term'
+AND (
+    class LIKE 'JSS 1%' OR
+    class LIKE 'JSS 2%' OR
+    class LIKE 'JSS 3%' OR
+    class LIKE 'JSSS1%' OR
+    class LIKE 'JSSS2%' OR
+    class LIKE 'JSSS3%' OR
+    class LIKE 'JS 1%' OR
+    class LIKE 'JS 2%' OR
+    class LIKE 'JS 3%' OR
+    class LIKE 'JS1%' OR
+    class LIKE 'JSS2%' OR
+    class LIKE 'JSS3%' OR
+    class LIKE 'YEAR 7%' OR
+    class LIKE 'YEAR 8%' OR
+    class LIKE 'YEAR 9%' OR
+    class LIKE 'YEAR7%' OR
+    class LIKE 'YEAR8%' OR
+    class LIKE 'YEAR9%'
+)
+GROUP BY id, name, class, arm 
+ORDER BY AVG(average) DESC 
+LIMIT 10
+";
+
 $top_junior_result = $conn->query($top_junior_query);
 $top_junior = [];
 while ($row = $top_junior_result->fetch_assoc()) {
@@ -161,6 +218,7 @@ $at_risk_query = "SELECT COUNT(*) as count FROM (
 ) as at_risk_students";
 $at_risk_result = $conn->query($at_risk_query);
 $at_risk = $at_risk_result->fetch_assoc()['count'] ?? 0;
+
 ?>
 
 <!DOCTYPE html>
