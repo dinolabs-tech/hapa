@@ -113,12 +113,6 @@ if ($action === 'execute' && $_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt->execute();
         $stmt->close();
 
-        // Update existing student_fees term to new_term (reuse fee structure)
-        $stmt = $mysqli->prepare("UPDATE student_fees SET term = ? WHERE student_id = ? AND status = 'active'");
-        $stmt->bind_param('ss', $new_term, $student_id);
-        $stmt->execute();
-        $stmt->close();
-
         // Close outstanding balances correctly: add only the missing amount to paid_amount
         // This preserves actual payment history while marking items as fully settled
         $stmt = $mysqli->prepare("UPDATE student_fee_items SET paid_amount = amount WHERE student_fee_id = (SELECT id FROM student_fees WHERE student_id = ? AND status = 'active' LIMIT 1) AND paid_amount < amount");

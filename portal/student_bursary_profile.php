@@ -29,23 +29,34 @@ if (!$student) {
 
 // Fetch assigned fees with actual calculated totals including carryover
 $fees = [];
-$stmt = $mysqli->prepare("SELECT sf.id, fs.name, fs.class, fs.arm, sf.term, sf.session, fs.hostel_type, fs.total_amount as base_fee_amount FROM student_fees sf 
+$stmt = $mysqli->prepare("SELECT sf.id, fs.name, fs.class, fs.arm, sf.term, sf.session, fs.hostel_type, fs.total_amount as base_fee_amount, sf.assigned_at FROM student_fees sf 
 JOIN fee_structures fs ON sf.fee_structure_id = fs.id WHERE sf.student_id = ? AND sf.status='active' AND sf.term = ? AND sf.session = ?");
 $stmt->bind_param('sss', $student_id, $current_term, $current_session);
 $stmt->execute();
 $res = $stmt->get_result();
 while ($row = $res->fetch_assoc()) {
   // Calculate actual total from student fee items (includes carryover)
-  $stmt2 = $mysqli->prepare("SELECT SUM(amount) as actual_total FROM student_fee_items WHERE student_fee_id = ?");
+  $stmt2 = $mysqli->prepare("SELECT COUNT(*) as item_count, SUM(amount) as actual_total FROM student_fee_items WHERE student_fee_id = ?");
   $stmt2->bind_param('i', $row['id']);
   $stmt2->execute();
-  $actual_total = $stmt2->get_result()->fetch_assoc()['actual_total'] ?? 0;
+  $fee_data = $stmt2->get_result()->fetch_assoc();
+  $actual_total = $fee_data['actual_total'] ?? 0;
+  $item_count = $fee_data['item_count'] ?? 0;
   $stmt2->close();
+
+  // Check if we have actually assigned new fee items (not just carryover)
+  $stmt3 = $mysqli->prepare("SELECT COUNT(*) as regular_items FROM student_fee_items WHERE student_fee_id = ? AND fee_item_id > 0");
+  $stmt3->bind_param('i', $row['id']);
+  $stmt3->execute();
+  $regular_items = $stmt3->get_result()->fetch_assoc()['regular_items'] ?? 0;
+  $stmt3->close();
   
-  $row['base_fee_amount_display'] = money_format_naira($row['base_fee_amount']);
+  // Only show this fee if there are ACTUALLY assigned items (not just carryover)
+ if ($regular_items > 0 && $actual_total > 0) {
   $row['actual_total'] = $actual_total;
   $row['total_amount_display'] = money_format_naira($actual_total);
   $fees[] = $row;
+}
 }
 $stmt->close();
 
@@ -329,11 +340,22 @@ $stmt->close();
                         <th>Term</th>
                         <th>Session</th>
                         <th>Hostel</th>
-                        <th>Total</th>
+                        <th>Assigned Total</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <?php foreach ($fees as $fee): ?>
+                      <?php 
+                      // Display carryover from transactions table FIRST
+                      $stmt = $mysqli->prepare("SELECT amount, created_at FROM transactions WHERE student_id = ? AND type = 'carryover' AND term = ? AND session = ? ORDER BY created_at DESC LIMIT 1");
+                      $stmt->bind_param('sss', $student_id, $current_term, $current_session);
+                      $stmt->execute();
+                      $carryover = $stmt->get_result()->fetch_assoc();
+                      $stmt->close();
+                      
+                      $has_carryover = ($carryover && $carryover['amount'] > 0);
+                      
+                      // Always show regular fees that were actually assigned for current term
+                      foreach ($fees as $fee): ?>
                         <tr>
                           <td><?= htmlspecialchars($fee['name']) ?></td>
                           <td><?= htmlspecialchars($fee['class']) ?></td>
@@ -343,17 +365,10 @@ $stmt->close();
                           <td><?= htmlspecialchars($fee['hostel_type']) ?></td>
                           <td><?= $fee['total_amount_display'] ?></td>
                         </tr>
-                      <?php endforeach; ?>
-
-                      <?php 
-                      // Display carryover from transactions table
-                      $stmt = $mysqli->prepare("SELECT amount, created_at FROM transactions WHERE student_id = ? AND type = 'carryover' AND term = ? AND session = ? ORDER BY created_at DESC LIMIT 1");
-                      $stmt->bind_param('sss', $student_id, $current_term, $current_session);
-                      $stmt->execute();
-                      $carryover = $stmt->get_result()->fetch_assoc();
-                      $stmt->close();
+                      <?php endforeach;
                       
-                      if ($carryover && $carryover['amount'] > 0): 
+                      // Always show carryover when it exists
+                      if ($has_carryover): 
                       ?>
                         <tr class="table-warning">
                           <td><strong>✅ Carryover Balance</strong></td>
