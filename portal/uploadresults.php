@@ -46,120 +46,133 @@ function fetch_term_average($conn, $id, $selected_subject, $selected_class, $sel
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   try {
     if (isset($_POST['bulk_submit']) && isset($_FILES["csv_file"])) {
-      // Handle CSV upload for bulk results
-      if (($handle = fopen($_FILES["csv_file"]["tmp_name"], "r")) !== FALSE) {
-        // Skip the header row
-        fgetcsv($handle);
 
-        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-          // Assuming columns are: ID, Name, CA1, CA2, Exam
-          if (count($data) == 5) {
+      // Check if results already exist for this combination
+      $check_stmt = $conn->prepare("SELECT COUNT(*) FROM mastersheet WHERE subject=? AND class=? AND arm=? AND term=? AND csession=?");
+      $check_stmt->bind_param("sssss", $selected_subject, $selected_class, $selected_arm, $current_term, $current_session);
+      $check_stmt->execute();
+      $check_stmt->bind_result($existing_count);
+      $check_stmt->fetch();
+      $check_stmt->close();
+
+      if ($existing_count > 0) {
+        $class_messages[] = "<div class='alert alert-warning'><strong>Warning!</strong> Result has already been uploaded for Class: $selected_class, Arm: $selected_arm, Term: $current_term, Session: $current_session and Subject: $selected_subject. Delete existing records first before uploading again.</div>";
+      } else {
+
+        // Handle CSV upload for bulk results
+        if (($handle = fopen($_FILES["csv_file"]["tmp_name"], "r")) !== FALSE) {
+          // Skip the header row
+          fgetcsv($handle);
+
+          while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+            // Assuming columns are: ID, Name, CA1, CA2, Exam
+            if (count($data) == 5) {
 
 
-            $id = $data[0];
-            $name = $data[1];
-            $ca1 = $data[2];
-            $ca2 = $data[3];
-            $exam = $data[4];
+              $id = $data[0];
+              $name = $data[1];
+              $ca1 = $data[2];
+              $ca2 = $data[3];
+              $exam = $data[4];
 
-            // Calculate total
-            $total = ceil($ca1 + $ca2 + $exam);
+              // Calculate total
+              $total = ceil($ca1 + $ca2 + $exam);
 
-            // Fetch last cumulative average and calculate current average
-            $lastcum = 0;
-            if ($current_term == '2nd Term') {
-              $lastcum = fetch_term_average($conn, $id, $selected_subject, $selected_class, $selected_arm, '1st Term', $current_session);
-            } elseif ($current_term == '3rd Term') {
-              $lastcum = fetch_term_average($conn, $id, $selected_subject, $selected_class, $selected_arm, '2nd Term', $current_session);
-            }
-            // If lastcum is 0, bring the total forward; otherwise, calculate the average normally.
-            if ($lastcum == 0) {
-              $average = $total;
-            } else {
-              $average = ceil(($total + $lastcum) / 2);
-            }
-
-            // Determine grade and remark based on class
-            if (in_array($selected_class, ['SSS 1', 'SSS 2', 'SSS 3'])) {
-              // SSS grading
-              if ($average >= 75) {
-                $grade = 'A1';
-                $remark = 'EXCELLENT';
-              } elseif ($average >= 70) {
-                $grade = 'B2';
-                $remark = 'VERY GOOD';
-              } elseif ($average >= 65) {
-                $grade = 'B3';
-                $remark = 'GOOD';
-              } elseif ($average >= 60) {
-                $grade = 'C4';
-                $remark = 'GOOD';
-              } elseif ($average >= 55) {
-                $grade = 'C5';
-                $remark = 'AVERAGE';
-              } elseif ($average >= 50) {
-                $grade = 'C6';
-                $remark = 'AVERAGE';
-              } elseif ($average >= 45) {
-                $grade = 'D7';
-                $remark = 'PASS';
-              } elseif ($average >= 40) {
-                $grade = 'E8';
-                $remark = 'PASS';
-              } else {
-                $grade = 'F9';
-                $remark = 'FAIL';
+              // Fetch last cumulative average and calculate current average
+              $lastcum = 0;
+              if ($current_term == '2nd Term') {
+                $lastcum = fetch_term_average($conn, $id, $selected_subject, $selected_class, $selected_arm, '1st Term', $current_session);
+              } elseif ($current_term == '3rd Term') {
+                $lastcum = fetch_term_average($conn, $id, $selected_subject, $selected_class, $selected_arm, '2nd Term', $current_session);
               }
-            } else {
-              // JSS grading
-              if ($average >= 70) {
-                $grade = 'A';
-                $remark = 'EXCELLENT';
-              } elseif ($average >= 60) {
-                $grade = 'B';
-                $remark = 'GOOD';
-              } elseif ($average >= 50) {
-                $grade = 'C';
-                $remark = 'AVERAGE';
-              } elseif ($average >= 45) {
-                $grade = 'D';
-                $remark = 'BELOW AVERAGE';
-              } elseif ($average >= 40) {
-                $grade = 'E';
-                $remark = 'POOR';
+              // If lastcum is 0, bring the total forward; otherwise, calculate the average normally.
+              if ($lastcum == 0) {
+                $average = $total;
               } else {
-                $grade = 'F';
-                $remark = 'FAIL';
+                $average = ceil(($total + $lastcum) / 2);
               }
-            }
+
+              // Determine grade and remark based on class
+              if (in_array($selected_class, ['SSS 1', 'SSS 2', 'SSS 3'])) {
+                // SSS grading
+                if ($average >= 75) {
+                  $grade = 'A1';
+                  $remark = 'EXCELLENT';
+                } elseif ($average >= 70) {
+                  $grade = 'B2';
+                  $remark = 'VERY GOOD';
+                } elseif ($average >= 65) {
+                  $grade = 'B3';
+                  $remark = 'GOOD';
+                } elseif ($average >= 60) {
+                  $grade = 'C4';
+                  $remark = 'GOOD';
+                } elseif ($average >= 55) {
+                  $grade = 'C5';
+                  $remark = 'AVERAGE';
+                } elseif ($average >= 50) {
+                  $grade = 'C6';
+                  $remark = 'AVERAGE';
+                } elseif ($average >= 45) {
+                  $grade = 'D7';
+                  $remark = 'PASS';
+                } elseif ($average >= 40) {
+                  $grade = 'E8';
+                  $remark = 'PASS';
+                } else {
+                  $grade = 'F9';
+                  $remark = 'FAIL';
+                }
+              } else {
+                // JSS grading
+                if ($average >= 70) {
+                  $grade = 'A';
+                  $remark = 'EXCELLENT';
+                } elseif ($average >= 60) {
+                  $grade = 'B';
+                  $remark = 'GOOD';
+                } elseif ($average >= 50) {
+                  $grade = 'C';
+                  $remark = 'AVERAGE';
+                } elseif ($average >= 45) {
+                  $grade = 'D';
+                  $remark = 'BELOW AVERAGE';
+                } elseif ($average >= 40) {
+                  $grade = 'E';
+                  $remark = 'POOR';
+                } else {
+                  $grade = 'F';
+                  $remark = 'FAIL';
+                }
+              }
 
 
 
-            // Placeholder for position, needs actual implementation for position logic
-            $position = 1;
+              // Placeholder for position, needs actual implementation for position logic
+              $position = 1;
 
-            // Insert or update record in mastersheet
-            $stmt = $conn->prepare("INSERT INTO mastersheet (id, name, ca1, ca2, exam, total, average, grade, subject, csession, class, arm, term, remark, position, lastcum) 
+              // Insert or update record in mastersheet
+              $stmt = $conn->prepare("INSERT INTO mastersheet (id, name, ca1, ca2, exam, total, average, grade, subject, csession, class, arm, term, remark, position, lastcum) 
                                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
 
-            if ($stmt === false) {
-              die('MySQL prepare error: ' . $conn->error);
-            }
+              if ($stmt === false) {
+                die('MySQL prepare error: ' . $conn->error);
+              }
 
-            $stmt->bind_param("ssssssssssssssss", $id, $name, $ca1, $ca2, $exam, $total, $average, $grade, $selected_subject, $current_session, $selected_class, $selected_arm, $current_term, $remark, $position, $lastcum);
+              $stmt->bind_param("ssssssssssssssss", $id, $name, $ca1, $ca2, $exam, $total, $average, $grade, $selected_subject, $current_session, $selected_class, $selected_arm, $current_term, $remark, $position, $lastcum);
 
-            if ($stmt->execute()) {
-              $class_messages[] = "Record for ID $id processed successfully.";
-            } else {
-              $class_messages[] = "Error processing record for ID $id: " . $stmt->error;
+              if ($stmt->execute()) {
+                $class_messages[] = "Record for ID $id processed successfully.";
+              } else {
+                $class_messages[] = "Error processing record for ID $id: " . $stmt->error;
+              }
             }
           }
-        }
-        fclose($handle);
+          fclose($handle);
 
-        // >>> After CSV upload is done, now update the ranks automatically <<<
-        $calculaterankQuery = "
+          // >>> After CSV upload is done, now update the ranks automatically <<<
+          $calculaterankQuery = "
           UPDATE mastersheet m
         JOIN (
             SELECT 
@@ -181,10 +194,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         SET m.position = ranks.position;
          ";
 
-        if ($conn->query($calculaterankQuery) === TRUE) {
-          // $class_messages[] = "Positions updated successfully.";
-        } else {
-          $class_messages[] = "Error updating positions: " . $conn->error;
+          if ($conn->query($calculaterankQuery) === TRUE) {
+            // $class_messages[] = "Positions updated successfully.";
+          } else {
+            $class_messages[] = "Error updating positions: " . $conn->error;
+          }
         }
       }
     }
