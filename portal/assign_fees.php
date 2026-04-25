@@ -2,7 +2,6 @@
 include('components/admin_logic.php');
 require_once('helpers/audit.php');
 require_once('helpers/money.php');
-require_once('helpers/database_locks.php');
 
 $alerts = [];
 $action = $_POST['action'] ?? null;
@@ -81,19 +80,39 @@ if ($action === 'assign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $current_term = $mysqli->query("SELECT cterm FROM currentterm LIMIT 1")->fetch_assoc()['cterm'] ?? '1st Term';
     $current_session = $mysqli->query("SELECT csession FROM currentsession LIMIT 1")->fetch_assoc()['csession'] ?? '2024/2025';
     
+    // Get the name of the fee structure we are trying to assign
+    $fee_structure = $mysqli->query("SELECT name FROM fee_structures WHERE id = $structure_id")->fetch_assoc();
+    $fee_name = $fee_structure['name'];
+    
     $mysqli->begin_transaction();
     try {
       foreach ($student_ids as $sid) {
         $sid = $sid;
         
-        // Check if already assigned - WITH FOR UPDATE LOCK inside transaction
-        $stmt = $mysqli->prepare("SELECT id FROM student_fees WHERE student_id=? AND fee_structure_id=? AND status='active' FOR UPDATE");
+        // Check 1: If same exact structure is already assigned
+        $stmt = $mysqli->prepare("SELECT * FROM student_fees WHERE student_id=? AND fee_structure_id=? AND status='active'");
         $stmt->bind_param('si', $sid, $structure_id);
         $stmt->execute();
         $exists = $stmt->get_result()->fetch_assoc();
         $stmt->close();
-        
         if ($exists) continue; // skip already assigned
+        
+        // Check 2: If ANY fee structure with the SAME NAME is already assigned to this student for same term/session
+        $stmt = $mysqli->prepare("
+          SELECT sf.id 
+          FROM student_fees sf
+          JOIN fee_structures fs ON sf.fee_structure_id = fs.id
+          WHERE sf.student_id=? 
+          AND fs.name = ? 
+          AND sf.term = ? 
+          AND sf.session = ? 
+          AND sf.status='active'
+        ");
+        $stmt->bind_param('ssss', $sid, $fee_name, $current_term, $current_session);
+        $stmt->execute();
+        $duplicate_name = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        if ($duplicate_name) continue; // skip, same fee name already assigned
 
         $stmt = $mysqli->prepare("INSERT INTO student_fees (student_id, fee_structure_id, term, session) VALUES (?, ?, ?, ?)");
         $stmt->bind_param('siss', $sid, $structure_id, $current_term, $current_session);
@@ -131,14 +150,11 @@ if ($action === 'unassign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
       foreach ($student_ids as $sid) {
         $sid = $sid;
-        
-        // Use FOR UPDATE to lock the row during check
-        $stmt = $mysqli->prepare("SELECT * FROM student_fees WHERE student_id=? AND fee_structure_id=? AND status='active' FOR UPDATE");
+        $stmt = $mysqli->prepare("SELECT * FROM student_fees WHERE student_id=? AND fee_structure_id=? AND status='active'");
         $stmt->bind_param('si', $sid, $structure_id);
         $stmt->execute();
         $sf = $stmt->get_result()->fetch_assoc();
         $stmt->close();
-        
         if ($sf) {
           $before = $sf;
           
@@ -282,7 +298,7 @@ if ($action === 'unassign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                       <select name="structure_id" class="form-select form-control" required>
                         <option value="" selected disabled>Select Fee Structure</option>
                         <?php foreach ($structures as $s): ?>
-                          <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?> (<?= htmlspecialchars($s['class']) ?>/<?= htmlspecialchars($s['arm']) ?>/<?= htmlspecialchars($s['term']) ?>/<?= htmlspecialchars($s['session']) ?>/<?= htmlspecialchars($s['hostel_type']) ?>)</option>
+                          <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?> - <?= htmlspecialchars($s['class']) ?> <?= htmlspecialchars($s['arm']) ?> | <?= htmlspecialchars($s['term']) ?> | <?= htmlspecialchars($s['session']) ?> | <?= htmlspecialchars($s['hostel_type'] ?: 'Day/Boarding') ?></option>
                         <?php endforeach; ?>
                       </select>
                     </div>
