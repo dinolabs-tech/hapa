@@ -6,11 +6,10 @@ include('components/admin_logic.php');
 // =============================
 if (isset($_POST['update'])) {
 
-    $id = intval($_POST['id']);
-    $name = trim($_POST['name']);
+    $id = $_POST['id'];
+    $name = $_POST['name'];
     $gender = $_POST['gender'];
     $dob = !empty($_POST['dob']) ? date('Y-m-d', strtotime($_POST['dob'])) : null;
-
     $placeob = $_POST['placeob'];
     $address = $_POST['address'];
     $religion = $_POST['religion'];
@@ -46,147 +45,77 @@ if (isset($_POST['update'])) {
     $height = $_POST['height'];
     $weight = $_POST['weight'];
 
-    // Hash password only if provided
-    $password = !empty($_POST['password'])
-        ? password_hash($_POST['password'], PASSWORD_DEFAULT)
+    // ✅ Hash password (only if provided)
+    $password = !empty($_POST['password']) 
+        ? password_hash($_POST['password'], PASSWORD_DEFAULT) 
         : null;
 
-    // =============================
-    // UPDATE QUERY (Prepared)
-    // =============================
-    if ($password) {
-        $stmt = $conn->prepare("UPDATE students SET 
-            name=?, gender=?, dob=?, placeob=?, address=?, religion=?, state=?, lga=?, 
-            class=?, arm=?, session=?, term=?, schoolname=?, schooladdress=?, hobbies=?, 
-            lastclass=?, sickle=?, challenge=?, emergency=?, familydoc=?, docaddress=?, 
-            docmobile=?, polio=?, tuberculosis=?, measles=?, tetanus=?, whooping=?, 
-            gname=?, mobile=?, goccupation=?, gaddress=?, grelationship=?, hostel=?, 
-            bloodtype=?, bloodgroup=?, height=?, weight=?, password=? 
-            WHERE id=?");
+    // ✅ Prepared statement
+    $sql = "UPDATE students SET 
+        name=?, gender=?, dob=?, placeob=?, address=?, religion=?, state=?, lga=?, 
+        class=?, arm=?, session=?, term=?, schoolname=?, schooladdress=?, hobbies=?, 
+        lastclass=?, sickle=?, challenge=?, emergency=?, familydoc=?, docaddress=?, 
+        docmobile=?, polio=?, tuberculosis=?, measles=?, tetanus=?, whooping=?, 
+        gname=?, mobile=?, goccupation=?, gaddress=?, grelationship=?, hostel=?, 
+        bloodtype=?, bloodgroup=?, height=?, weight=?";
 
+    // Add password only if set
+    if ($password !== null) {
+        $sql .= ", password=?";
+    }
+
+    $sql .= " WHERE id=?";
+
+    $stmt = $conn->prepare($sql);
+
+    // Bind params dynamically
+    if ($password !== null) {
         $stmt->bind_param(
             "sssssssssssssssssssssssssssssssssssssssi",
-            $name,
-            $gender,
-            $dob,
-            $placeob,
-            $address,
-            $religion,
-            $state,
-            $lga,
-            $class,
-            $arm,
-            $session_val,
-            $term,
-            $schoolname,
-            $schooladdress,
-            $hobbies,
-            $lastclass,
-            $sickle,
-            $challenge,
-            $emergency,
-            $familydoc,
-            $docaddress,
-            $docmobile,
-            $polio,
-            $tuberculosis,
-            $measles,
-            $tetanus,
-            $whooping,
-            $gname,
-            $mobile,
-            $goccupation,
-            $gaddress,
-            $grelationship,
-            $hostel,
-            $bloodtype,
-            $bloodgroup,
-            $height,
-            $weight,
-            $password,
-            $id
+            $name, $gender, $dob, $placeob, $address, $religion, $state, $lga,
+            $class, $arm, $session_val, $term, $schoolname, $schooladdress, $hobbies,
+            $lastclass, $sickle, $challenge, $emergency, $familydoc, $docaddress,
+            $docmobile, $polio, $tuberculosis, $measles, $tetanus, $whooping,
+            $gname, $mobile, $goccupation, $gaddress, $grelationship, $hostel,
+            $bloodtype, $bloodgroup, $height, $weight, $password, $id
         );
     } else {
-        $stmt = $conn->prepare("UPDATE students SET 
-            name=?, gender=?, dob=?, placeob=?, address=?, religion=?, state=?, lga=?, 
-            class=?, arm=?, session=?, term=?, schoolname=?, schooladdress=?, hobbies=?, 
-            lastclass=?, sickle=?, challenge=?, emergency=?, familydoc=?, docaddress=?, 
-            docmobile=?, polio=?, tuberculosis=?, measles=?, tetanus=?, whooping=?, 
-            gname=?, mobile=?, goccupation=?, gaddress=?, grelationship=?, hostel=?, 
-            bloodtype=?, bloodgroup=?, height=?, weight=? 
-            WHERE id=?");
-
         $stmt->bind_param(
             "ssssssssssssssssssssssssssssssssssssssi",
-            $name,
-            $gender,
-            $dob,
-            $placeob,
-            $address,
-            $religion,
-            $state,
-            $lga,
-            $class,
-            $arm,
-            $session_val,
-            $term,
-            $schoolname,
-            $schooladdress,
-            $hobbies,
-            $lastclass,
-            $sickle,
-            $challenge,
-            $emergency,
-            $familydoc,
-            $docaddress,
-            $docmobile,
-            $polio,
-            $tuberculosis,
-            $measles,
-            $tetanus,
-            $whooping,
-            $gname,
-            $mobile,
-            $goccupation,
-            $gaddress,
-            $grelationship,
-            $hostel,
-            $bloodtype,
-            $bloodgroup,
-            $height,
-            $weight,
-            $id
+            $name, $gender, $dob, $placeob, $address, $religion, $state, $lga,
+            $class, $arm, $session_val, $term, $schoolname, $schooladdress, $hobbies,
+            $lastclass, $sickle, $challenge, $emergency, $familydoc, $docaddress,
+            $docmobile, $polio, $tuberculosis, $measles, $tetanus, $whooping,
+            $gname, $mobile, $goccupation, $gaddress, $grelationship, $hostel,
+            $bloodtype, $bloodgroup, $height, $weight, $id
         );
     }
 
     if ($stmt->execute()) {
 
-        // =============================
-        // IMAGE UPLOAD
-        // =============================
+        // ✅ File upload (same logic, just slightly safer)
         if (!empty($_FILES["formFile"]["name"])) {
 
             $targetDir = "studentimg/";
+            $sanitizedID = preg_replace("/[^a-zA-Z0-9_-]/", "_", $id);
             $ext = strtolower(pathinfo($_FILES["formFile"]["name"], PATHINFO_EXTENSION));
-            $allowed = ['jpg', 'jpeg'];
 
-            if (in_array($ext, $allowed) && $_FILES["formFile"]["size"] <= 500 * 1024) {
+            if (in_array($ext, ['jpg', 'jpeg']) && $_FILES["formFile"]["size"] <= 500 * 1024) {
 
                 if (!is_dir($targetDir)) {
                     mkdir($targetDir, 0755, true);
                 }
 
-                $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', $id) . "." . $ext;
-                $targetFile = $targetDir . $filename;
-
+                $targetFile = $targetDir . $sanitizedID . "." . $ext;
                 move_uploaded_file($_FILES["formFile"]["tmp_name"], $targetFile);
             }
         }
 
         header("Location: " . $_SERVER['PHP_SELF']);
         exit;
+
     } else {
-        echo "Update failed: " . $stmt->error;
+        echo "Error: " . $stmt->error;
     }
 }
 
