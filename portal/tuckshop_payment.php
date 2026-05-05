@@ -79,8 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['amount'])) {
                     $stmt->close();
                 }
 
-                // Insert transaction
-                $stmt = $mysqli->prepare("INSERT INTO transactions (student_id, type, amount, reference, term, session) VALUES (?, 'tuckshop_deposit', ?, ?, ?, ?)");
+                // Insert transaction - use ON DUPLICATE KEY UPDATE to avoid unique constraint error
+                $stmt = $mysqli->prepare("INSERT INTO transactions (student_id, type, amount, reference, term, session) VALUES (?, 'tuckshop_deposit', ?, ?, ?, ?) ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount), reference = CONCAT(reference, ', ', VALUES(reference))");
                 $stmt->bind_param('sdsss', $student_id, $amount, $reference, $current_term, $current_session);
                 $stmt->execute();
                 $transaction_id = $stmt->insert_id;
