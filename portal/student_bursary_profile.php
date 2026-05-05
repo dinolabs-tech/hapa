@@ -115,6 +115,8 @@ foreach ($fee_items as $fi) {
   $total_paid += $fi['paid_amount'];
   $outstanding += ($fi['amount'] - $fi['paid_amount']);
 }
+// Deduct total discounts from outstanding balance
+$outstanding = max(0, $outstanding - $total_discounts);
 
 // Calculate overall totals for current session (across all terms)
 $session_total_paid = 0;
@@ -132,6 +134,8 @@ while ($row = $res->fetch_assoc()) {
   $session_total_paid += $row['paid_amount'];
   $session_outstanding += ($row['amount'] - $row['paid_amount']);
 }
+// Deduct total discounts from session outstanding balance
+$session_outstanding = max(0, $session_outstanding - $total_discounts);
 $stmt->close();
 ?>
 
