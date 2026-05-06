@@ -1031,8 +1031,7 @@ $tables = [
         related_id INT,
         term VARCHAR(32) NOT NULL,
         session VARCHAR(32) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE KEY `unique_exam` (`student_id`, `term`, `session`)
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
     ",
 
@@ -1166,6 +1165,22 @@ if (tableExists($conn, 'payment_allocations')) {
         }
     }
 }
+
+
+// Remove broken unique constraint from transactions table (fix duplicate payment error)
+if (tableExists($conn, 'transactions')) {
+    // Check if bad unique index exists
+    $result = $conn->query("SHOW INDEX FROM `transactions` WHERE Key_name = 'unique_exam'");
+    if ($result && $result->num_rows > 0) {
+        $drop_sql = "ALTER TABLE `transactions` DROP INDEX `unique_exam`";
+        if ($conn->query($drop_sql) === TRUE) {
+            error_log("Successfully removed bad unique_exam constraint from transactions table");
+        } else {
+            error_log("Error removing unique_exam constraint: " . $conn->error);
+        }
+    }
+}
+
 
 // // Add performance indexes for bursary tables
 // $bursaryIndexes = [

@@ -187,9 +187,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['amount'])) {
       }
 
       // Ledger entry
-      $stmt = $mysqli->prepare("INSERT INTO transactions (student_id, type, amount, reference, related_id, term, session) VALUES (?, 'payment', ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount), reference = CONCAT(reference, ', ', VALUES(reference)), related_id = VALUES(related_id)");
+      $stmt = $mysqli->prepare("INSERT INTO transactions (student_id, type, amount, reference, related_id, term, session) VALUES (?, 'payment', ?, ?, ?, ?, ?)");
       $stmt->bind_param('sisiss', $student_id, $amount, $receipt_number, $payment_id, $current_term, $current_session);
-      $stmt->execute();
+      if (!$stmt->execute()) throw new Exception('Error recording transaction ledger.');
       $stmt->close();
 
       // Overpayment: credit/refund logic (not implemented here, but log)
