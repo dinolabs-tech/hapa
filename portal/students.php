@@ -54,14 +54,14 @@ include('components/birthday_logic.php');
 
           </div>
 
-          <!-- PERSONAL AI ============================ -->
+          <!-- DinoPilot ============================ -->
           <div class="row">
 
             <div class="col-md-4">
               <div class="card card-primary card-round bubble-shadow">
                 <div class="card-header">
                   <div class="card-head-row">
-                    <div class="card-title">Personal AI</div>
+                    <div class="card-title">DinoPilot</div>
                   </div>
                 </div>
                 <div class="card-body pb-0">

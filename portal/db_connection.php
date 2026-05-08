@@ -15,6 +15,12 @@ $username = "hapacoll_root";
 $password = "foxtrot2november";
 $dbname = "hapacoll_portal";
 
+// Local development configuration (commented out)
+// $servername = "localhost";
+// $username = "root";
+// $password = "";
+// $dbname = "eduhive";
+
 // Create connection with error reporting
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 try {
@@ -33,11 +39,4 @@ $mysqli = $conn;
 require_once __DIR__ . '/helpers/security.php';
 require_once __DIR__ . '/helpers/InputValidator.php';
 
-// Local development configuration (commented out)
-// $servername = "localhost";
-// $username = "root";
-// $password = "";
-// $dbname = "portal";
-// $conn = new mysqli($servername, $username, $password, $dbname);
-// $mysqli = $conn;
 ?>
