@@ -5,8 +5,10 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+  <meta name="description" content="EduHive Learning Management System" />
+  <meta name="description" content="EduHive LMS" />
   <link rel="icon" href="assets/img/kaiadmin/d-icon.ico" type="image/x-icon" />
-
+  <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
   <!-- Fonts and icons -->
   <script src="assets/js/plugin/webfont/webfont.min.js"></script>
   <script>
@@ -37,6 +39,9 @@
   <!-- CSS Just for demo purpose, don't include it in your project -->
   <link rel="stylesheet" href="assets/css/demo.css" />
   <link rel="stylesheet" href="components/students_style.css" />
+
+  <!-- Chart.js Library -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
 
 
   <style>
@@ -172,206 +177,235 @@
       border-radius: 5px;
       cursor: pointer;
     }
+
+    .alumni-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+}
+
+.alumni-modal-content {
+  background: #fff;
+  width: 60%;
+  margin: 8% auto;
+  padding: 20px;
+  border-radius: 10px;
+  position: relative;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.close-modal {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 22px;
+  cursor: pointer;
+}
   </style>
 
 
-  <!-- Dinopilot chatbot script -->
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<!-- Dinopilot chatbot script -->
+<style>
 
-    body {
-      background: #f0f2f5;
-      font-family: Arial, sans-serif;
-      min-height: 200vh;
-    }
+        *{
+            box-sizing:border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    /* Chat Bubble Button */
-    #chatBubble {
-      position: fixed;
-      bottom: 45px;
-      right: 25px;
-      width: 65px;
-      height: 65px;
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      border-radius: 50%;
-      box-shadow: 0 6px 25px rgba(37, 99, 235, 0.4);
-      cursor: pointer;
-      z-index: 999999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-      border: none;
-    }
+        body{
+            background: #f0f2f5;
+            font-family: Arial, sans-serif;
+            min-height: 200vh;
+        }
 
-    #chatBubble:hover {
-      transform: scale(1.08);
-      box-shadow: 0 8px 30px rgba(37, 99, 235, 0.55);
-    }
+        /* Chat Bubble Button */
+        #chatBubble {
+            position: fixed;
+            bottom: 45px;
+            right: 25px;
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border-radius: 50%;
+            box-shadow: 0 6px 25px rgba(37, 99, 235, 0.4);
+            cursor: pointer;
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border: none;
+        }
 
-    #chatBubble svg {
-      width: 30px;
-      height: 30px;
-      fill: white;
-    }
+        #chatBubble:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 30px rgba(37, 99, 235, 0.55);
+        }
 
-    /* Chat Widget Window */
-    #chatWidget {
-      position: fixed;
-      bottom: 100px;
-      right: 25px;
-      width: 400px;
-      max-width: calc(100vw - 30px);
-      height: 600px;
-      max-height: calc(100vh - 120px);
-      background: #111827;
-      border-radius: 16px;
-      box-shadow: 0 10px 50px rgba(0, 0, 0, 0.35);
-      z-index: 999998;
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-      transform: translateY(20px);
-      opacity: 0;
-      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+        #chatBubble svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+        }
 
-    #chatWidget.active {
-      display: flex;
-      transform: translateY(0);
-      opacity: 1;
-    }
+        /* Chat Widget Window */
+        #chatWidget {
+            position: fixed;
+            bottom: 100px;
+            right: 25px;
+            width: 400px;
+            max-width: calc(100vw - 30px);
+            height: 600px;
+            max-height: calc(100vh - 120px);
+            background: #111827;
+            border-radius: 16px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.35);
+            z-index: 999998;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-    .widget-header {
-      background: #1e293b;
-      padding: 16px 20px;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #334155;
-      font-size: 17px;
-      font-weight: 600;
-    }
+        #chatWidget.active {
+            display: flex;
+            transform: translateY(0);
+            opacity: 1;
+        }
 
-    .widget-header .close-btn {
-      background: rgba(255, 255, 255, 0.15);
-      border: none;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      color: white;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: 0.2s;
-      font-size: 14px;
-    }
+        .widget-header {
+            background: #1e293b;
+            padding: 16px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #334155;
+            font-size: 17px;
+            font-weight: 600;
+        }
 
-    .widget-header .close-btn:hover {
-      background: rgba(255, 255, 255, 0.25);
-    }
+        .widget-header .close-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            font-size: 14px;
+        }
 
-    #chat {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-      background: #0f172a;
-    }
+        .widget-header .close-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
 
-    .message {
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 15px;
-      line-height: 1.7;
-      max-width: 85%;
-      font-size: 14px;
-    }
+        #chat{
+            flex:1;
+            padding:20px;
+            overflow-y:auto;
+            background: #0f172a;
+        }
 
-    .user {
-      background: #2563eb;
-      margin-left: auto;
-      color: white;
-    }
+        .message{
+            padding:15px;
+            border-radius:12px;
+            margin-bottom:15px;
+            line-height:1.7;
+            max-width:85%;
+            font-size: 14px;
+        }
 
-    .ai {
-      background: #1e293b;
-      border: 1px solid #334155;
-      color: white;
-    }
+        .user{
+            background:#2563eb;
+            margin-left:auto;
+            color: white;
+        }
 
-    .input-area {
-      padding: 15px;
-      border-top: 1px solid #334155;
-      background: #111827;
-    }
+        .ai{
+            background:#1e293b;
+            border:1px solid #334155;
+            color: white;
+        }
 
-    textarea {
-      width: 100%;
-      height: 70px;
-      border: none;
-      outline: none;
-      border-radius: 10px;
-      padding: 15px;
-      resize: none;
-      font-size: 14px;
-      margin-bottom: 10px;
-      background: #1e293b;
-      color: white;
-    }
+        .input-area{
+            padding:15px;
+            border-top:1px solid #334155;
+            background:#111827;
+        }
 
-    button {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      background: #22c55e;
-      color: white;
-      font-size: 15px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
+        textarea{
+            width:100%;
+            height:70px;
+            border:none;
+            outline:none;
+            border-radius:10px;
+            padding:15px;
+            resize:none;
+            font-size:14px;
+            margin-bottom:10px;
+            background:#1e293b;
+            color:white;
+        }
 
-    button:hover {
-      opacity: 0.9;
-    }
+        button{
+            width:100%;
+            padding:12px;
+            border:none;
+            border-radius:10px;
+            background:#22c55e;
+            color:white;
+            font-size:15px;
+            cursor:pointer;
+            transition:0.2s;
+        }
 
-    .typing {
-      opacity: 0.7;
-      font-style: italic;
-    }
+        button:hover{
+            opacity:0.9;
+        }
 
-    /* Pulse animation */
-    @keyframes pulse {
+        .typing{
+            opacity:0.7;
+            font-style:italic;
+        }
 
-      0%,
-      100% {
-        opacity: 1;
-      }
+        /* Pulse animation */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
 
-      50% {
-        opacity: 0.4;
-      }
-    }
+        /* Responsive */
+        @media (max-width: 480px) {
+            #chatWidget {
+                right: 15px;
+                left: 15px;
+                width: auto;
+                bottom: 90px;
+            }
 
-    /* Responsive */
-    @media (max-width: 480px) {
-      #chatWidget {
-        right: 15px;
-        left: 15px;
-        width: auto;
-        bottom: 90px;
-      }
+            #chatBubble {
+                right: 15px;
+                bottom: 15px;
+            }
+        }
 
-      #chatBubble {
-        right: 15px;
-        bottom: 15px;
-      }
-    }
-  </style>
+    </style>
 </head>
