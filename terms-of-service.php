@@ -11,7 +11,7 @@
   <main class="main">
 
     <!-- Page Title -->
-    <div class="page-title dark-background" style="background-image: url(assets/img/education/showcase-1.webp);">
+    <div class="page-title dark-background position-relative" style="background-image: url(assets/img/pg-header.jpg);">
       <div class="container position-relative">
         <h1>Terms Of Service</h1>
         <p>Esse dolorum voluptatum ullam est sint nemo et est ipsa porro placeat quibusdam quia assumenda numquam molestias.</p>
