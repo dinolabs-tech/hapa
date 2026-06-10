@@ -133,7 +133,7 @@ if (isset($_POST['register']) || isset($_POST['update'])) {
       } else {
         // Create directory if not exists
         if (!is_dir($targetDir)) {
-          mkdir($targetDir, 0777, true);
+          mkdir($targetDir, 0755, true);
         }
 
         // Move uploaded file
