@@ -1,4 +1,6 @@
-<?php include('components/admin_logic.php');
+<?php
+
+include('components/admin_logic.php');
 
 // REGISTER STUDENTS ========================================
 // Initialize variables
@@ -79,7 +81,8 @@ if (isset($_POST['register']) || isset($_POST['update'])) {
   $bloodgroup = $conn->real_escape_string($_POST['bloodgroup'] ?? '');
   $height = $conn->real_escape_string($_POST['height'] ?? '');
   $weight = $conn->real_escape_string($_POST['weight'] ?? '');
-  $password = ($_POST['password'] ?? '');
+  $plain_password = ($_POST['password'] ?? '');
+  $password = $plain_password;
 
   if (isset($_POST['update'])) {
     $query = "UPDATE students SET name = ?, dob = ?, class = ?, arm = ?, password = ? WHERE id = ?";
@@ -87,19 +90,22 @@ if (isset($_POST['register']) || isset($_POST['update'])) {
     $register_message = $stmt ? 'Student record updated successfully.' : 'Error updating student record.';
   } else {
     // Check if student ID already exists
-    $checkStmt = $conn->prepare("SELECT id FROM students WHERE id = ?");
-    $checkStmt->bind_param("s", $id);
-    $checkStmt->execute();
-    $checkResult = $checkStmt->get_result();
-    
-    if ($checkResult->num_rows > 0) {
-      $register_message = 'Error: Student ID already exists. Please use a different ID.';
+    $checkQuery = "SELECT id FROM students WHERE id = ?";
+    $checkStmt = executeQuery($conn, $checkQuery, [$id], 's');
+    if ($checkStmt) {
+      $checkResult = $checkStmt->get_result();
+      if ($checkResult->num_rows > 0) {
+        $register_message = 'Error: Student ID already exists. Please use a different ID.';
+        $checkStmt->close();
+      } else {
+        $checkStmt->close();
+        $query = "INSERT INTO students (id, name, gender, dob, placeob, address, religion, state, lga, class, arm,session, term,schoolname,schooladdress,hobbies,lastclass,sickle,challenge,emergency,familydoc,docaddress,docmobile,polio,tuberculosis,measles,tetanus,whooping,gname,mobile,goccupation,gaddress,grelationship,hostel,bloodtype,bloodgroup,height,weight, password) VALUES (?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        $stmt = executeQuery($conn, $query, [$id, $name, $gender, $dob, $placeob, $address, $religion, $state, $lga, $class, $arm, $session, $term, $schoolname, $schooladdress, $hobbies, $lastclass, $sickle, $challenge, $emergency, $familydoc, $docaddress, $docmobile, $polio, $tuberculosis, $measles, $tetanus, $whooping, $gname, $mobile, $goccupation, $gaddress, $grelationship, $hostel, $bloodtype, $bloodgroup, $height, $weight, $password], 'sssssssssssssssssssssssssssssssssssssss');
+        $register_message = $stmt ? 'Student registered successfully.' : 'Error registering student.';
+      }
     } else {
-      $query = "INSERT INTO students (id, name, gender, dob, placeob, address, religion, state, lga, class, arm,session, term,schoolname,schooladdress,hobbies,lastclass,sickle,challenge,emergency,familydoc,docaddress,docmobile,polio,tuberculosis,measles,tetanus,whooping,gname,mobile,goccupation,gaddress,grelationship,hostel,bloodtype,bloodgroup,height,weight, password) VALUES (?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-      $stmt = executeQuery($conn, $query, [$id, $name, $gender, $dob, $placeob, $address, $religion, $state, $lga, $class, $arm, $session, $term, $schoolname, $schooladdress, $hobbies, $lastclass, $sickle, $challenge, $emergency, $familydoc, $docaddress, $docmobile, $polio, $tuberculosis, $measles, $tetanus, $whooping, $gname, $mobile, $goccupation, $gaddress, $grelationship, $hostel, $bloodtype, $bloodgroup, $height, $weight, $password], 'sssssssssssssssssssssssssssssssssssssss');
-      $register_message = $stmt ? 'Student registered successfully.' : 'Error registering student.';
+      $register_message = 'Error checking student ID.';
     }
-    $checkStmt->close();
   }
 
 
@@ -156,42 +162,42 @@ if (isset($_POST['bulk_upload']) && isset($_FILES['student_file'])) {
 
   if ($file_ext === 'csv' && ($handle = fopen($file, 'r')) !== false) {
     fgetcsv($handle); // Skip header
-    $inserted_count = 0;
+    $success_count = 0;
+    $duplicate_count = 0;
     $duplicate_ids = [];
-    $row_number = 1;
     
     while (($data = fgetcsv($handle, 1000, ",")) !== false) {
-      $row_number++;
       $id = $conn->real_escape_string($data[0]);
       $name = $conn->real_escape_string($data[1]);
       $dob = $conn->real_escape_string($data[2]);
       $class = $conn->real_escape_string($data[3]);
       $arm = $conn->real_escape_string($data[4]);
-      $password = $conn->real_escape_string($data[5]);
+      $password = hash_password($conn->real_escape_string($data[5]));
 
       // Check if student ID already exists
-      $checkStmt = $conn->prepare("SELECT id FROM students WHERE id = ?");
-      $checkStmt->bind_param("s", $id);
-      $checkStmt->execute();
-      $checkResult = $checkStmt->get_result();
-      
-      if ($checkResult->num_rows > 0) {
-        $duplicate_ids[] = $id . " (row $row_number)";
-      } else {
-        $query = "INSERT INTO students (id, name, dob, class, arm, password) VALUES (?, ?, ?, ?, ?, ?)";
-        $stmt = executeQuery($conn, $query, [$id, $name, $dob, $class, $arm, $password], 'ssssss');
-        if ($stmt) {
-          $inserted_count++;
+      $checkQuery = "SELECT id FROM students WHERE id = ?";
+      $checkStmt = executeQuery($conn, $checkQuery, [$id], 's');
+      if ($checkStmt) {
+        $checkResult = $checkStmt->get_result();
+        if ($checkResult->num_rows > 0) {
+          $duplicate_count++;
+          $duplicate_ids[] = $id;
+        } else {
+          $query = "INSERT INTO students (id, name, dob, class, arm, password) VALUES (?, ?, ?, ?, ?, ?)";
+          $insertStmt = executeQuery($conn, $query, [$id, $name, $dob, $class, $arm, $password], 'ssssss');
+          if ($insertStmt) {
+            $success_count++;
+          }
         }
+        $checkStmt->close();
       }
-      $checkStmt->close();
     }
     fclose($handle);
     
     // Build result message
-    $bulk_message = "Bulk upload completed. $inserted_count student(s) registered successfully.";
-    if (!empty($duplicate_ids)) {
-      $bulk_message .= " The following ID(s) already exist and were skipped: " . implode(', ', $duplicate_ids);
+    $bulk_message = "Bulk upload completed. {$success_count} student(s) enrolled successfully.";
+    if ($duplicate_count > 0) {
+      $bulk_message .= " {$duplicate_count} duplicate ID(s) skipped: " . implode(', ', $duplicate_ids);
     }
   } else {
     $bulk_message = 'Invalid file. Please upload a valid CSV file.';
@@ -232,11 +238,43 @@ if ($sessionresult && $sessionresult->num_rows > 0) {
 
 // Nigerian States
 $nigerian_states = [
-    "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno",
-    "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "FCT - Abuja", "Gombe",
-    "Imo", "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos",
-    "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto",
-    "Taraba", "Yobe", "Zamfara"
+  "Abia",
+  "Adamawa",
+  "Akwa Ibom",
+  "Anambra",
+  "Bauchi",
+  "Bayelsa",
+  "Benue",
+  "Borno",
+  "Cross River",
+  "Delta",
+  "Ebonyi",
+  "Edo",
+  "Ekiti",
+  "Enugu",
+  "FCT - Abuja",
+  "Gombe",
+  "Imo",
+  "Jigawa",
+  "Kaduna",
+  "Kano",
+  "Katsina",
+  "Kebbi",
+  "Kogi",
+  "Kwara",
+  "Lagos",
+  "Nasarawa",
+  "Niger",
+  "Ogun",
+  "Ondo",
+  "Osun",
+  "Oyo",
+  "Plateau",
+  "Rivers",
+  "Sokoto",
+  "Taraba",
+  "Yobe",
+  "Zamfara"
 ];
 
 // Close database connection
@@ -303,9 +341,11 @@ $conn->close();
                       <input type="file" id="student_file" style="margin-top:10px;" name="student_file" accept=".csv"
                         class="form-control" required>
                       <br>
-                      <button type="submit" name="bulk_upload" class="btn btn-success"> <span class="btn-label">
-                          <i class="fas fa-cloud-upload-alt"></i>
-                        </span>Upload</button>
+                      <div class="text-center">
+                        <button type="submit" name="bulk_upload" class="btn btn-success btn-icon btn-round ps-2"> <span class="btn-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                          </span></button>
+                      </div>
                     </form>
 
                     </p>
@@ -333,7 +373,7 @@ $conn->close();
 
                     <p>
                       <?php if (!empty($register_message)): ?>
-                    <div class="message"><?php echo htmlspecialchars($register_message); ?></div>
+                    <div class="alert alert-success"><?php echo htmlspecialchars($register_message); ?></div>
                   <?php endif; ?>
 
                   <?php if (!empty($bulk_message)): ?>
@@ -356,12 +396,12 @@ $conn->close();
                     </div>
 
                     <div class="col-md-2">
-                    
-                        <select class="form-select form-control form-select" style="border-color: red;" aria-label="Default select example" name="gender" required>
-                          <option value="">Select Gender</option>
-                          <option value="Male">Male</option>
-                          <option value="Female">Female</option>
-                        </select>
+
+                      <select class="form-select form-control form-select" style="border-color: red;" aria-label="Default select example" name="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
                     </div>
 
                     <div class="col-md-2">
@@ -481,19 +521,19 @@ $conn->close();
                     <div class="col-md-4">
                       <input class="form-control form-control" type="text" id="goccupation" name="goccupation"
                         value="<?php echo isset($student['goccupation']) ? htmlspecialchars($student['goccupation']) : ''; ?>"
-                        placeholder="Occupation" >
+                        placeholder="Occupation">
                     </div>
 
                     <div class="col-md-2">
                       <input class="form-control form-control" type="text" id="grelationship" name="grelationship"
                         value="<?php echo isset($student['grelationship']) ? htmlspecialchars($student['grelationship']) : ''; ?>"
-                        placeholder="Relationship" >
+                        placeholder="Relationship">
                     </div>
 
                     <div class="col-md-6">
                       <input class="form-control form-control" type="text" id="gaddress" name="gaddress"
                         value="<?php echo isset($student['gaddress']) ? htmlspecialchars($student['gaddress']) : ''; ?>"
-                        placeholder="Address" >
+                        placeholder="Address">
                     </div>
 
 
@@ -504,19 +544,19 @@ $conn->close();
                     <div class="col-md-4">
                       <input class="form-control form-control" type="text" id="schoolname" name="schoolname"
                         value="<?php echo isset($student['schoolname']) ? htmlspecialchars($student['schoolname']) : ''; ?>"
-                        placeholder="Last School Name" >
+                        placeholder="Last School Name">
                     </div>
 
                     <div class="col-md-4">
                       <input class="form-control form-control" type="text" id="schooladdress" name="schooladdress"
                         value="<?php echo isset($student['schooladdress']) ? htmlspecialchars($student['schooladdress']) : ''; ?>"
-                        placeholder="Last School Address" >
+                        placeholder="Last School Address">
                     </div>
 
                     <div class="col-md-2">
                       <input class="form-control form-control" type="text" id="hobbies" name="hobbies"
                         value="<?php echo isset($student['hobbies']) ? htmlspecialchars($student['hobbies']) : ''; ?>"
-                        placeholder="Hobbies" >
+                        placeholder="Hobbies">
                     </div>
 
                     <div class="col-md-2">
@@ -524,7 +564,7 @@ $conn->close();
                           value="<?php echo isset($student['lastclass']) ? htmlspecialchars($student['lastclass']) : ''; ?>"
                           placeholder="Last Class Attended" required> -->
 
-                      <select class="form-control form-select" name="lastclass" id="lastclass" >
+                      <select class="form-control form-select" name="lastclass" id="lastclass">
                         <option selected value="" disabled>Select Last Class</option>
                         <option value="JSS 1">JSS 1</option>
                         <option value="JSS 2">JSS 2</option>
@@ -551,7 +591,7 @@ $conn->close();
                           placeholder="Blood Type" required> -->
 
                       <select name="bloodtype" id="bloodtype" class="form-control form-select">
-                       <option value="">Blood Genotype</option>
+                        <option value="">Blood Genotype</option>
                         <option value="AA">AA</option>
                         <option value="AS">AS</option>
                         <option value="AC">AC</option>
@@ -566,7 +606,7 @@ $conn->close();
                         placeholder="Blood Group" required> -->
 
                       <select name="bloodgroup" id="bloodgroup" class="form-control form-select">
-                        <option value="" disabled selected>Blood Type</option>
+                        <option value="" disabled selected>Blood Group</option>
                         <option value="A+">A+</option>
                         <option value="A-">A−</option>
                         <option value="B+">B+</option>
@@ -582,113 +622,113 @@ $conn->close();
                     <div class="col-md-2">
                       <input class="form-control form-control" type="text" id="height" name="height"
                         value="<?php echo isset($student['height']) ? htmlspecialchars($student['height']) : ''; ?>"
-                        placeholder="height" >
+                        placeholder="Height">
                     </div>
 
                     <div class="col-md-2">
                       <input class="form-control form-control" type="text" id="weight" name="weight"
                         value="<?php echo isset($student['weight']) ? htmlspecialchars($student['weight']) : ''; ?>"
-                        placeholder="Weight" >
+                        placeholder="Weight">
                     </div>
 
-                    <!--<strong>-->
-                    <!--  <p>Have you been immunized against any of the following?</p>-->
-                    <!--</strong>-->
-                    <div class="col-md-2" style="display:none;">
+                    <strong>
+                      <p>Have you beein immunized against any of the following?</p>
+                    </strong>
+                    <div class="col-md-2">
                       <div class="col-sm-10">
                         <select class="form-select form-control form-select" aria-label="Default select example" name="polio"
                           id="polio">
-                          <option value="">Polio</option>
+                          <option value="" selected disabled>Polio</option>
                           <option value="Yes">Yes</option>
                           <option value="Yes">No</option>
                         </select>
                       </div>
                     </div>
 
-                    <div class="col-md-2" style="display:none;">
+                    <div class="col-md-2">
                       <div class="col-sm-10">
                         <select class="form-select form-control form-select" aria-label="Default select example"
                           name="tuberculosis" id="tuberculosis">
-                          <option value="">Tuberculosis</option>
+                          <option value="" selected disabled>Tuberculosis</option>
                           <option value="Yes">Yes</option>
                           <option value="Yes">No</option>
                         </select>
                       </div>
                     </div>
 
-                    <div class="col-md-2" style="display:none;">
+                    <div class="col-md-2">
                       <div class="col-sm-10">
                         <select class="form-select form-control form-select" aria-label="Default select example" name="measles"
                           id="measles">
-                          <option value="">Measles</option>
+                          <option value="" selected disabled>Measles</option>
                           <option value="Yes">Yes</option>
                           <option value="Yes">No</option>
                         </select>
                       </div>
                     </div>
 
-                    <div class="col-md-2" style="display:none;">
+                    <div class="col-md-2">
                       <div class="col-sm-10">
                         <select class="form-select form-control form-select" aria-label="Default select example" name="tetanus"
                           id="tetanus">
-                          <option value="">Tetanus</option>
+                          <option value="" selected disabled>Tetanus</option>
                           <option value="Yes">Yes</option>
                           <option value="Yes">No</option>
                         </select>
                       </div>
                     </div>
 
-                    <div class="col-md-4" style="display:none;">
+                    <div class="col-md-4">
                       <div class="col-sm-10">
                         <select class="form-select form-control form-select" aria-label="Default select example" name="whooping"
                           id="whooping">
-                          <option value="">Whooping Cough</option>
+                          <option value="" selected disabled>Whooping Cough</option>
                           <option value="Yes">Yes</option>
                           <option value="Yes">No</option>
                         </select>
                       </div>
                     </div>
 
-                    <!--<strong>-->
-                    <!--  <p>If "No"</p>-->
-                    <!--</strong>-->
-                    <div class="col-md-4" style="display:none;">
+                    <strong>
+                      <p>If "No"</p>
+                    </strong>
+                    <div class="col-md-4">
                       <input class="form-control" type="text" id="familydoc" name="familydoc"
                         value="<?php echo isset($student['familydoc']) ? htmlspecialchars($student['familydoc']) : ''; ?>"
-                        placeholder="Family Doctor" >
+                        placeholder="Family Doctor">
                     </div>
 
-                    <div class="col-md-2" style="display:none;">
+                    <div class="col-md-2">
                       <input class="form-control form-control" type="text" id="docmobile" name="docmobile"
                         value="<?php echo isset($student['docmobile']) ? htmlspecialchars($student['docmobile']) : ''; ?>"
-                        placeholder="Doctor's Mobile" >
+                        placeholder="Doctor's Mobile">
                     </div>
 
-                    <div class="col-md-6" style="display:none;">
+                    <div class="col-md-6">
                       <input class="form-control form-control" type="text" id="docaddress" name="docaddress"
                         value="<?php echo isset($student['docaddress']) ? htmlspecialchars($student['docaddress']) : ''; ?>"
-                        placeholder="Doctor's Address" >
+                        placeholder="Doctor's Address">
                     </div>
 
-                    <!--<strong>-->
-                    <!--  <p>Does your ward have:</p>-->
-                    <!--</strong>-->
-                    <div class="col-md-6" style="display:none;">
+                    <strong>
+                      <p>Does your ward have:</p>
+                    </strong>
+                    <div class="col-md-6">
                       <div class="col-sm-10">
                         <select class="form-select form-control form-select" aria-label="Default select example" name="sickle"
                           id="sickle">
-                          <option value="">Sickle Cell Anaemia</option>
+                          <option value="" selected disabled>Sickle Cell Anaemia</option>
                           <option value="Yes">Yes</option>
                           <option value="Yes">No</option>
                         </select>
                       </div>
                     </div>
 
-                    <div class="col-md-6" style="display:none;">
+                    <div class="col-md-6">
                       <div class="col-sm-10">
                         <select class="form-select form-control form-select" aria-label="Default select example" name="challenge"
                           id="challenge">
-                          <option value="">Any of the following challenges</option>
+                          <option value="" selected disabled>Any of the following challenges</option>
                           <option value="Yes">None</option>
                           <option value="Yes">Polio</option>
                           <option value="Yes">Measles</option>
@@ -699,15 +739,15 @@ $conn->close();
                       </div>
                     </div>
 
-                    <!--<strong>-->
-                    <!--  <p>in emergencies are we permitted to take your ward to the hospital?</p>-->
-                    <!--</strong>-->
-                    <div class="col-md-6" style="display:none;">
+                    <strong>
+                      <p>in emergencies are we permitted to take your ward to the hospital?</p>
+                    </strong>
+                    <div class="col-md-6">
                       <div class="col-sm-10">
                         <select class="form-select form-control form-select" aria-label="Default select example" name="emergency"
                           id="emergency">
                           <option value="Yes">Yes</option>
-                          <option value="Yes">No</option>
+                          <option value="No">No</option>
                         </select>
                       </div>
                     </div>
@@ -718,8 +758,7 @@ $conn->close();
                     </div>
                     <div class="col-md-6">
                       <div class="col-sm-10">
-                        <input class="form-control mb-3" type="file" id="formFile" name="formFile" accept=".jpg,.jpeg"
-                          >
+                        <input class="form-control mb-3" type="file" id="formFile" name="formFile" accept=".jpg,.jpeg">
                       </div>
                     </div>
 
@@ -731,18 +770,18 @@ $conn->close();
                         placeholder="Password" style="border-color: red;" required>
                     </div>
                     <br />
-                    <div class="card-action">
-                      <button type="submit" name="<?php echo isset($edit_id) && $edit_id ? 'update' : 'register'; ?>"
-                        class="btn btn-success">
+                    <div class="text-center card-action">
+                      <button type="submit" name="register"
+                        class="btn btn-success btn-icon btn-round ps-2">
                         <span class="btn-label">
-                          <i class="fa fa-check"></i>
+                          <i class="fa fa-save"></i>
                         </span>
-                        <?php echo isset($edit_id) && $edit_id ? 'Update' : 'Register'; ?>
+
                       </button>
 
-                      <button type="reset" class="btn btn-black"><span class="btn-label">
-                          <i class="fa fa-archive"></i>
-                        </span> Reset</button>
+                      <button type="reset" class="btn btn-black btn-icon btn-round ps-1"><span class="btn-label">
+                          <i class="fa fa-undo"></i>
+                        </span></button>
                     </div>
                   </form>
 
@@ -766,25 +805,25 @@ $conn->close();
       </div>
       <script>
         document.getElementById('state').addEventListener('change', function() {
-            var state = this.value;
-            var lgaSelect = document.getElementById('lga');
-            lgaSelect.innerHTML = '<option value="" disabled selected>Loading...</option>';
+          var state = this.value;
+          var lgaSelect = document.getElementById('lga');
+          lgaSelect.innerHTML = '<option value="" disabled selected>Loading...</option>';
 
-            if (state) {
-                fetch('get_lgas.php?state=' + state)
-                    .then(response => response.json())
-                    .then(data => {
-                        lgaSelect.innerHTML = '<option value="" disabled selected>Select LGA</option>';
-                        data.forEach(function(lga) {
-                            var option = document.createElement('option');
-                            option.value = lga;
-                            option.textContent = lga;
-                            lgaSelect.appendChild(option);
-                        });
-                    });
-            } else {
+          if (state) {
+            fetch('get_lgas.php?state=' + state)
+              .then(response => response.json())
+              .then(data => {
                 lgaSelect.innerHTML = '<option value="" disabled selected>Select LGA</option>';
-            }
+                data.forEach(function(lga) {
+                  var option = document.createElement('option');
+                  option.value = lga;
+                  option.textContent = lga;
+                  lgaSelect.appendChild(option);
+                });
+              });
+          } else {
+            lgaSelect.innerHTML = '<option value="" disabled selected>Select LGA</option>';
+          }
         });
 
         document.querySelector('button[type="reset"]').addEventListener('click', function() {
