@@ -571,7 +571,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="login2.php">
+            <form method="POST" action="login.php">
                 <?php echo csrf_field(); ?>
                 <div class="form-group">
                     <label for="username">Username</label>
