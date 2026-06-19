@@ -81,8 +81,7 @@ if (isset($_POST['register']) || isset($_POST['update'])) {
   $bloodgroup = $conn->real_escape_string($_POST['bloodgroup'] ?? '');
   $height = $conn->real_escape_string($_POST['height'] ?? '');
   $weight = $conn->real_escape_string($_POST['weight'] ?? '');
-  $plain_password = ($_POST['password'] ?? '');
-  $password = $plain_password;
+  $password = hash_password($_POST['password'] ?? '');
 
   if (isset($_POST['update'])) {
     $query = "UPDATE students SET name = ?, dob = ?, class = ?, arm = ?, password = ? WHERE id = ?";

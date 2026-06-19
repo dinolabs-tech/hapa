@@ -342,6 +342,31 @@ if (!defined('SECURITY_HELPER_LOADED')) {
     }
 
     /**
+     * Hash a password using bcrypt
+     * @param string $password The plain text password
+     * @return string The hashed password
+     */
+    function hash_password($password) {
+        return password_hash($password, PASSWORD_BCRYPT);
+    }
+
+    /**
+     * Verify a password against a stored value.
+     * Supports both hashed (bcrypt) and legacy plain text passwords.
+     * @param string $password The plain text password to verify
+     * @param string $stored The stored password (hash or plain text)
+     * @return bool True if password matches, false otherwise
+     */
+    function verify_password($password, $stored) {
+        // Detect if stored value is a bcrypt hash
+        if (strlen($stored) === 60 && strpos($stored, '$2y$') === 0) {
+            return password_verify($password, $stored);
+        }
+        // Legacy plain text comparison
+        return $password === $stored;
+    }
+
+    /**
      * Log security event
      * @param string $event Event type
      * @param string $message Event message

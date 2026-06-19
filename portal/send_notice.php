@@ -29,13 +29,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 // Handle delete action
 if (isset($_GET['delete'])) {
-    $delete_id = $_GET['delete'];
-    $sql = "DELETE FROM notices WHERE id=$delete_id";
-    if ($conn->query($sql) === TRUE) {
+    $delete_id = intval($_GET['delete']);
+
+    // Fetch notice before deletion for audit logging
+    $notice_before = null;
+    $stmt_fetch = $conn->prepare("SELECT * FROM notices WHERE id=?");
+    $stmt_fetch->bind_param("i", $delete_id);
+    $stmt_fetch->execute();
+    $result_fetch = $stmt_fetch->get_result();
+    if ($result_fetch && $row = $result_fetch->fetch_assoc()) {
+        $notice_before = $row;
+    }
+    $stmt_fetch->close();
+
+    // Check if the logged-in user is NOT a superuser
+    $user_id = $_SESSION['user_id'] ?? 0;
+    $is_superuser = false;
+    $stmt_role = $conn->prepare("SELECT role FROM login WHERE id=?");
+    $stmt_role->bind_param("i", $user_id);
+    $stmt_role->execute();
+    $stmt_role->bind_result($user_role);
+    if ($stmt_role->fetch() && $user_role === 'Superuser') {
+        $is_superuser = true;
+    }
+    $stmt_role->close();
+
+    $stmt = $conn->prepare("DELETE FROM notices WHERE id=?");
+    $stmt->bind_param("i", $delete_id);
+    if ($stmt->execute()) {
+        // Log the deletion in audit_logs if user is not a superuser
+        if (!$is_superuser && $notice_before !== null) {
+            require_once('helpers/audit.php');
+            audit_log('delete', 'notice', $delete_id, $notice_before, null);
+        }
         $success_message = "Notice deleted successfully";
     } else {
-        $error_message = "Error deleting notice: " . $conn->error;
+        $error_message = "Error deleting notice: " . $stmt->error;
     }
+    $stmt->close();
 }
 
 // Handle edit action

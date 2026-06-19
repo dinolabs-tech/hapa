@@ -1,5 +1,6 @@
 <?php
 include('components/admin_logic.php');
+require_once('helpers/audit.php');
 
 // =============================
 // UPDATE STUDENT
@@ -7,6 +8,17 @@ include('components/admin_logic.php');
 if (isset($_POST['update'])) {
 
     $id = $_POST['id'];
+
+    // Fetch the current (before) state for audit logging
+    $student_before = null;
+    $stmt_before = $conn->prepare("SELECT * FROM students WHERE id=?");
+    $stmt_before->bind_param("s", $id);
+    $stmt_before->execute();
+    $result_before = $stmt_before->get_result();
+    if ($result_before && $row = $result_before->fetch_assoc()) {
+        $student_before = $row;
+    }
+    $stmt_before->close();
     $name = $_POST['name'];
     $gender = $_POST['gender'];
     $dob = !empty($_POST['dob']) ? date('Y-m-d', strtotime($_POST['dob'])) : null;
@@ -47,7 +59,7 @@ if (isset($_POST['update'])) {
 
     // ✅ Hash password (only if provided)
     $password = !empty($_POST['password']) 
-        ? password_hash($_POST['password'], PASSWORD_DEFAULT) 
+        ? hash_password($_POST['password']) 
         : null;
 
     // ✅ Prepared statement
@@ -93,6 +105,64 @@ if (isset($_POST['update'])) {
 
     if ($stmt->execute()) {
 
+        // ✅ Build after state for audit logging
+        $student_after = [
+            'id' => $id,
+            'name' => $name,
+            'gender' => $gender,
+            'dob' => $dob,
+            'placeob' => $placeob,
+            'address' => $address,
+            'religion' => $religion,
+            'state' => $state,
+            'lga' => $lga,
+            'class' => $class,
+            'arm' => $arm,
+            'session' => $session_val,
+            'term' => $term,
+            'schoolname' => $schoolname,
+            'schooladdress' => $schooladdress,
+            'hobbies' => $hobbies,
+            'lastclass' => $lastclass,
+            'sickle' => $sickle,
+            'challenge' => $challenge,
+            'emergency' => $emergency,
+            'familydoc' => $familydoc,
+            'docaddress' => $docaddress,
+            'docmobile' => $docmobile,
+            'polio' => $polio,
+            'tuberculosis' => $tuberculosis,
+            'measles' => $measles,
+            'tetanus' => $tetanus,
+            'whooping' => $whooping,
+            'gname' => $gname,
+            'mobile' => $mobile,
+            'goccupation' => $goccupation,
+            'gaddress' => $gaddress,
+            'grelationship' => $grelationship,
+            'hostel' => $hostel,
+            'bloodtype' => $bloodtype,
+            'bloodgroup' => $bloodgroup,
+            'height' => $height,
+            'weight' => $weight
+        ];
+
+        // Log the update in audit_logs if user is not a superuser
+        $user_id = $_SESSION['user_id'] ?? 0;
+        $is_superuser = false;
+        $stmt_role = $conn->prepare("SELECT role FROM login WHERE id=?");
+        $stmt_role->bind_param("i", $user_id);
+        $stmt_role->execute();
+        $stmt_role->bind_result($user_role);
+        if ($stmt_role->fetch() && $user_role === 'Superuser') {
+            $is_superuser = true;
+        }
+        $stmt_role->close();
+
+        if (!$is_superuser && $student_before !== null) {
+            audit_log('update', 'student', $id, $student_before, $student_after);
+        }
+
         // ✅ File upload (same logic, just slightly safer)
         if (!empty($_FILES["formFile"]["name"])) {
 
@@ -125,6 +195,40 @@ if (isset($_POST['update'])) {
 if (isset($_POST['delete_id'])) {
 
     $id = intval($_POST['delete_id']);
+
+    // Fetch student record before deletion for audit logging
+    $student_before = null;
+    $stmt_fetch = $conn->prepare("SELECT * FROM students WHERE id=?");
+    $stmt_fetch->bind_param("i", $id);
+    $stmt_fetch->execute();
+    $result_fetch = $stmt_fetch->get_result();
+    if ($result_fetch && $row = $result_fetch->fetch_assoc()) {
+        $student_before = $row;
+    }
+    $stmt_fetch->close();
+
+    // Check if the logged-in user is NOT a superuser
+    $user_id = $_SESSION['user_id'] ?? 0;
+    $is_superuser = false;
+    $stmt_role = $conn->prepare("SELECT role FROM login WHERE id=?");
+    $stmt_role->bind_param("i", $user_id);
+    $stmt_role->execute();
+    $stmt_role->bind_result($user_role);
+    if ($stmt_role->fetch() && $user_role === 'Superuser') {
+        $is_superuser = true;
+    }
+    $stmt_role->close();
+
+    // Log the deletion in audit_logs if user is not a superuser
+    if (!$is_superuser && $student_before !== null) {
+        audit_log('delete', 'student', $id, $student_before, null);
+    }
+
+    // Delete dependent parent_student records first to avoid foreign key constraint failure
+    $stmt_parent = $conn->prepare("DELETE FROM parent_student WHERE student_id=?");
+    $stmt_parent->bind_param("i", $id);
+    $stmt_parent->execute();
+    $stmt_parent->close();
 
     $stmt = $conn->prepare("DELETE FROM students WHERE id=?");
     $stmt->bind_param("i", $id);

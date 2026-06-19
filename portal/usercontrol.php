@@ -41,10 +41,39 @@ $message = "";
 // Handle delete request
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
   $delete_id = intval($_POST['delete_id']);
+
+  // Fetch user record before deletion for audit logging
+  $user_before = null;
+  $stmt_fetch = $conn->prepare("SELECT * FROM login WHERE id=?");
+  $stmt_fetch->bind_param("i", $delete_id);
+  $stmt_fetch->execute();
+  $result_fetch = $stmt_fetch->get_result();
+  if ($result_fetch && $row = $result_fetch->fetch_assoc()) {
+    $user_before = $row;
+  }
+  $stmt_fetch->close();
+
+  // Check if the logged-in user is NOT a superuser
+  $user_id = $_SESSION['user_id'] ?? 0;
+  $is_superuser = false;
+  $stmt_role = $conn->prepare("SELECT role FROM login WHERE id=?");
+  $stmt_role->bind_param("i", $user_id);
+  $stmt_role->execute();
+  $stmt_role->bind_result($user_role);
+  if ($stmt_role->fetch() && $user_role === 'Superuser') {
+    $is_superuser = true;
+  }
+  $stmt_role->close();
+
   $stmt = $conn->prepare("DELETE FROM login WHERE id = ?");
   $stmt->bind_param("i", $delete_id);
 
   if ($stmt->execute()) {
+    // Log the deletion in audit_logs if user is not a superuser
+    if (!$is_superuser && $user_before !== null) {
+      require_once('helpers/audit.php');
+      audit_log('delete', 'user', $delete_id, $user_before, null);
+    }
     $message = "Record deleted successfully!";
   } else {
     $message = "Error deleting record: " . $stmt->error;

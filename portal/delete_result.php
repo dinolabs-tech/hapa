@@ -11,12 +11,42 @@ if (isset($_POST['delete_subject'])) {
   $term    = $_POST['term'] ?? '';
   $session = $_POST['session'] ?? '';
 
+  // Fetch records before deletion for audit logging
+  $records_before = [];
+  $stmt_fetch = $conn->prepare("SELECT * FROM mastersheet WHERE class = ? AND arm = ? AND subject = ? AND term = ? AND csession = ?");
+  if ($stmt_fetch) {
+    $stmt_fetch->bind_param("sssss", $class, $arm, $subject, $term, $session);
+    $stmt_fetch->execute();
+    $result_fetch = $stmt_fetch->get_result();
+    while ($row = $result_fetch->fetch_assoc()) {
+      $records_before[] = $row;
+    }
+    $stmt_fetch->close();
+  }
+
+  // Check if the logged-in user is NOT a superuser
+  $user_id = $_SESSION['user_id'] ?? 0;
+  $is_superuser = false;
+  $stmt_role = $conn->prepare("SELECT role FROM login WHERE id=?");
+  $stmt_role->bind_param("i", $user_id);
+  $stmt_role->execute();
+  $stmt_role->bind_result($user_role);
+  if ($stmt_role->fetch() && $user_role === 'Superuser') {
+    $is_superuser = true;
+  }
+  $stmt_role->close();
+
   $stmt = $conn->prepare("DELETE FROM mastersheet WHERE class = ? AND arm = ? AND subject = ? AND term = ? AND csession = ?");
   if ($stmt === false) {
     $delete_result_message = "<div class='alert alert-danger'>Error preparing statement: " . htmlspecialchars($conn->error) . "</div>";
   } else {
     $stmt->bind_param("sssss", $class, $arm, $subject, $term, $session);
     if ($stmt->execute()) {
+      // Log the deletion in audit_logs if user is not a superuser
+      if (!$is_superuser && !empty($records_before)) {
+        require_once('helpers/audit.php');
+        audit_log('delete', 'mastersheet', 0, $records_before, null);
+      }
       $delete_result_message = "<div class='alert alert-success'>Deleted subject <b>" . htmlspecialchars($subject) . "</b> from <b>$class $arm</b> ($term - $session)</div>";
     } else {
       $delete_result_message = "<div class='alert alert-danger'>Error deleting subject: " . htmlspecialchars($stmt->error) . "</div>";

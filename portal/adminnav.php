@@ -23,6 +23,12 @@
               <p>Dashboard</p>
             </a>
           </li>
+           <li class="nav-item">
+            <a href="audit_logs.php">
+              <i class="fas fa-shield-alt"></i>
+              <p>Security Logs</p>
+            </a>
+          </li>
         <?php
         } else {
         ?>
@@ -36,6 +42,8 @@
         <?php
         }
         ?>
+
+        
 
         <?php
         // Check if the logged-in user has 'Administrator', 'Admission', or 'Superuser' roles.
@@ -140,7 +148,7 @@
             </a>
             <div class="collapse" id="result">
               <ul class="nav nav-collapse">
-                 <li>
+                <li>
                   <a href="academic_dashboard.php">
                     <span class="sub-item">Academic Dashboard</span>
                   </a>
@@ -170,13 +178,13 @@
                     <span class="sub-item">Principal's Comments</span>
                   </a>
                 </li>
-                <?php if ($_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Superuser') {?>
-                <li>
-                  <a href="individualresult.php">
-                    <span class="sub-item">Download Student's result</span>
-                  </a>
-                </li>
-                <?php }?>
+                <?php if ($_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Superuser') { ?>
+                  <li>
+                    <a href="individualresult.php">
+                      <span class="sub-item">Download Student's result</span>
+                    </a>
+                  </li>
+                <?php } ?>
                 <li>
                   <a href="viewuploadedresult.php">
                     <span class="sub-item">View Uploaded Results</span>
@@ -375,7 +383,7 @@
                     <span class="sub-item">Transactions</span>
                   </a>
                 </li>
-                  <li>
+                <li>
                   <a href="tuckshop_payment.php">
                     <span class="sub-item">Record Payment</span>
                   </a>
@@ -408,7 +416,7 @@
             <div class="collapse" id="bursary">
               <ul class="nav nav-collapse">
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Superuser') { ?>
-                <li>
+                  <li>
                     <a href="bursary_dashboard.php">
                       <span class="sub-item">Dashboard</span>
                     </a>
@@ -434,183 +442,176 @@
                     <span class="sub-item">Students with Fees</span>
                   </a>
                 </li>
-                 </li>
-                   <li>
-                  <a href="tuckshop_payment.php">
-                    <span class="sub-item">Record Tuckshop Payment</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="students_for_payments.php">
-                    <span class="sub-item">Students for Payment</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="payments_list.php">
-                    <span class="sub-item">Payment Lists</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="reports_owing.php">
-                    <span class="sub-item">Owing Reports</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="reports_paid.php">
-                    <span class="sub-item">Paid Reports</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="reports_transactions.php">
-                    <span class="sub-item">Transaction Reports</span>
-                  </a>
-                </li>
-                <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'Ceo' || $_SESSION['role'] == 'Superuser') { ?>
-                  <li>
-                    <a href="audit_logs.php">
-                      <span class="sub-item">Audit Logs</span>
-                    </a>
-                  </li>
-                <?php } ?>
-                <li>
-                  <a href="session_rollover.php">
-                    <span class="sub-item">Term Rollover</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
           </li>
-        <?php
-        }
-        ?>
-
-        <?php
-        // Check if the logged-in user has 'Administrator' or 'Superuser' roles.
-        if ($_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Superuser') {
-        ?>
-          <li class="nav-section">
-            <span class="sidebar-mini-icon">
-              <i class="fa fa-ellipsis-h"></i>
-            </span>
-            <h4 class="text-section">Administrator</h4>
-          </li>
-
-          <li class="nav-item">
-            <a href="timetable.php">
-              <i class="fas fa-th-list"></i>
-              <p>Class Schedule</p>
+          <li>
+            <a href="tuckshop_payment.php">
+              <span class="sub-item">Record Tuckshop Payment</span>
             </a>
           </li>
-
-          <li class="nav-item">
-            <a href="calendar.php">
-              <i class="fas fa-calendar-alt"></i>
-              <p>Calendar</p>
+          <li>
+            <a href="students_for_payments.php">
+              <span class="sub-item">Students for Payment</span>
             </a>
           </li>
-
-          <li class="nav-item">
-            <a data-bs-toggle="collapse" href="#threads">
-              <i class="fas fa-comment-dots"></i>
-              <p>Discussion Threads</p>
-              <span class="caret"></span>
-            </a>
-            <div class="collapse" id="threads">
-              <ul class="nav nav-collapse">
-                <li>
-                  <a href="threads.php">
-                    <span class="sub-item">Threads</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="create_thread.php">
-                    <span class="sub-item">Create Thread</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </li>
-
-          <li class="nav-item">
-            <a href="subjects.php">
-              <i class="fas fa-book-open"></i>
-              <p>Subjects</p>
+          <li>
+            <a href="payments_list.php">
+              <span class="sub-item">Payment Lists</span>
             </a>
           </li>
-
-          <li class="nav-item">
-            <a href="admin.php">
-              <i class="fas fa-cog"></i>
-              <p>Settings</p>
+          <li>
+            <a href="reports_owing.php">
+              <span class="sub-item">Owing Reports</span>
             </a>
           </li>
-
-          <li class="nav-item">
-            <a href="usercontrol.php">
-              <i class="fas fa-user-cog"></i>
-              <p>User Control</p>
+          <li>
+            <a href="reports_paid.php">
+              <span class="sub-item">Paid Reports</span>
             </a>
           </li>
-
-          <li class="nav-item">
-            <a data-bs-toggle="collapse" href="#parents">
-              <i class="fas fa-users"></i>
-              <p>Parents</p>
-              <span class="caret"></span>
-            </a>
-            <div class="collapse" id="parents">
-              <ul class="nav nav-collapse">
-                <li>
-                  <a href="register_parent.php">
-                    <span class="sub-item">Register Parents</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="delete_parent.php">
-                    <span class="sub-item">Delete Parents</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="assign_students.php">
-                    <span class="sub-item">Assign Students</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="unassign_students.php">
-                    <span class="sub-item">Unassign Students</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </li>
-
-          <li class="nav-item">
-            <a href="send_notice.php">
-              <i class="fas fa-envelope-open"></i>
-              <p>Send Notice to Parents</p>
+          <li>
+            <a href="reports_transactions.php">
+              <span class="sub-item">Transaction Reports</span>
             </a>
           </li>
-
-          <li class="nav-item">
-            <a href="alumni_list.php">
-              <i class="fas fa-graduation-cap"></i>
-              <p>Alumni List</p>
+          <li>
+            <a href="session_rollover.php">
+              <span class="sub-item">Term Rollover</span>
             </a>
           </li>
-        <?php } ?>
-
-        <?php
-        // Check if the logged-in user has 'Administrator' or 'Superuser' roles.
-        if ($_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Superuser') { ?>
-          <li class="nav-item">
-            <a href="expiry.php">
-              <i class="fas fa-money-bill-alt"></i>
-              <p>Extend License</p>
-            </a>
-          </li>
-        <?php  } ?>
       </ul>
     </div>
+    </li>
+  <?php
+        }
+  ?>
+
+  <?php
+  // Check if the logged-in user has 'Administrator' or 'Superuser' roles.
+  if ($_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Superuser') {
+  ?>
+    <li class="nav-section">
+      <span class="sidebar-mini-icon">
+        <i class="fa fa-ellipsis-h"></i>
+      </span>
+      <h4 class="text-section">Administrator</h4>
+    </li>
+
+    <li class="nav-item">
+      <a href="timetable.php">
+        <i class="fas fa-th-list"></i>
+        <p>Class Schedule</p>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="calendar.php">
+        <i class="fas fa-calendar-alt"></i>
+        <p>Calendar</p>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a data-bs-toggle="collapse" href="#threads">
+        <i class="fas fa-comment-dots"></i>
+        <p>Discussion Threads</p>
+        <span class="caret"></span>
+      </a>
+      <div class="collapse" id="threads">
+        <ul class="nav nav-collapse">
+          <li>
+            <a href="threads.php">
+              <span class="sub-item">Threads</span>
+            </a>
+          </li>
+          <li>
+            <a href="create_thread.php">
+              <span class="sub-item">Create Thread</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item">
+      <a href="subjects.php">
+        <i class="fas fa-book-open"></i>
+        <p>Subjects</p>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="admin.php">
+        <i class="fas fa-cog"></i>
+        <p>Settings</p>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="usercontrol.php">
+        <i class="fas fa-user-cog"></i>
+        <p>User Control</p>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a data-bs-toggle="collapse" href="#parents">
+        <i class="fas fa-users"></i>
+        <p>Parents</p>
+        <span class="caret"></span>
+      </a>
+      <div class="collapse" id="parents">
+        <ul class="nav nav-collapse">
+          <li>
+            <a href="register_parent.php">
+              <span class="sub-item">Register Parents</span>
+            </a>
+          </li>
+          <li>
+            <a href="delete_parent.php">
+              <span class="sub-item">Delete Parents</span>
+            </a>
+          </li>
+          <li>
+            <a href="assign_students.php">
+              <span class="sub-item">Assign Students</span>
+            </a>
+          </li>
+          <li>
+            <a href="unassign_students.php">
+              <span class="sub-item">Unassign Students</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+
+    <li class="nav-item">
+      <a href="send_notice.php">
+        <i class="fas fa-envelope-open"></i>
+        <p>Send Notice to Parents</p>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="alumni_list.php">
+        <i class="fas fa-graduation-cap"></i>
+        <p>Alumni List</p>
+      </a>
+    </li>
+  <?php } ?>
+
+  <?php
+  // Check if the logged-in user has 'Administrator' or 'Superuser' roles.
+  if ($_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Superuser') { ?>
+    <li class="nav-item">
+      <a href="expiry.php">
+        <i class="fas fa-money-bill-alt"></i>
+        <p>Extend License</p>
+      </a>
+    </li>
+  <?php  } ?>
+  </ul>
   </div>
+</div>
 </div>
 <!-- End Sidebar -->

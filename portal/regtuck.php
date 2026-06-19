@@ -71,7 +71,40 @@ if (isset($_POST['submit'])) {
 // Handle delete request
 if (isset($_GET['delete_id'])) {
   $id = $_GET['delete_id'];
-  $conn->query("DELETE FROM tuck WHERE regno='$id'");
+
+  // Fetch tuck record before deletion for audit logging
+  $tuck_before = null;
+  $stmt_fetch = $conn->prepare("SELECT * FROM tuck WHERE regno=?");
+  $stmt_fetch->bind_param("s", $id);
+  $stmt_fetch->execute();
+  $result_fetch = $stmt_fetch->get_result();
+  if ($result_fetch && $row = $result_fetch->fetch_assoc()) {
+    $tuck_before = $row;
+  }
+  $stmt_fetch->close();
+
+  // Check if the logged-in user is NOT a superuser
+  $user_id = $_SESSION['user_id'] ?? 0;
+  $is_superuser = false;
+  $stmt_role = $conn->prepare("SELECT role FROM login WHERE id=?");
+  $stmt_role->bind_param("i", $user_id);
+  $stmt_role->execute();
+  $stmt_role->bind_result($user_role);
+  if ($stmt_role->fetch() && $user_role === 'Superuser') {
+    $is_superuser = true;
+  }
+  $stmt_role->close();
+
+  $stmt = $conn->prepare("DELETE FROM tuck WHERE regno=?");
+  $stmt->bind_param("s", $id);
+  if ($stmt->execute()) {
+    // Log the deletion in audit_logs if user is not a superuser
+    if (!$is_superuser && $tuck_before !== null) {
+      require_once('helpers/audit.php');
+      audit_log('delete', 'tuck', $id, $tuck_before, null);
+    }
+  }
+  $stmt->close();
   header("Location: " . $_SERVER['PHP_SELF']);
   exit;
 }

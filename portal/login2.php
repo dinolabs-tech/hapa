@@ -26,7 +26,7 @@ if ($check_superuser->num_rows == 0) {
     $stmt_superuser = $conn->prepare("INSERT INTO login (staffname, username, password, role) VALUES (?, ?, ?, ?)");
     $staffname = "Dinolabs Superuser";
     $username = "Dinolabs";
-    $password = "dinolabs"; // Note: In production, you should hash this password
+    $password = hash_password("dinolabs");
     $role = "Superuser";
     $stmt_superuser->bind_param("ssss", $staffname, $username, $password, $role);
     $stmt_superuser->execute();
@@ -54,105 +54,120 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($user === false) {
                 $login_error = "Invalid username format.";
             } else {
-                // Prepare SQL for student login (selecting status)
-                $stmt1 = $conn->prepare("SELECT id, name, password, class, arm, term, session, status, result FROM students WHERE id=? AND password=?");
-                $stmt1->bind_param("ss", $user, $pass);
+                // Prepare SQL for student login (selecting by ID only, then verify password in PHP)
+                $stmt1 = $conn->prepare("SELECT id, name, password, class, arm, term, session, status, result FROM students WHERE id=?");
+                $stmt1->bind_param("s", $user);
                 $stmt1->execute();
                 $stmt1->store_result();
 
-                // Prepare SQL for other users
-                $stmt2 = $conn->prepare("SELECT id, staffname, username, password, role FROM login WHERE username=? AND password=?");
-                $stmt2->bind_param("ss", $user, $pass);
+                // Prepare SQL for other users (selecting by username only)
+                $stmt2 = $conn->prepare("SELECT id, staffname, username, password, role FROM login WHERE username=?");
+                $stmt2->bind_param("s", $user);
                 $stmt2->execute();
                 $stmt2->store_result();
 
-                // Prepare SQL for Parents
-                $stmt3 = $conn->prepare("SELECT id, name, mobile, email, username, password FROM parent WHERE username=? AND password=?");
-                $stmt3->bind_param("ss", $user, $pass);
+                // Prepare SQL for Parents (selecting by username only)
+                $stmt3 = $conn->prepare("SELECT id, name, mobile, email, username, password FROM parent WHERE username=?");
+                $stmt3->bind_param("s", $user);
                 $stmt3->execute();
                 $stmt3->store_result();
 
                 if ($stmt1->num_rows > 0) {
                     // Student login
-                    $stmt1->bind_result($id, $name, $password, $class, $arm, $term, $enrolled_session, $status, $result);
+                    $stmt1->bind_result($student_id, $student_name, $stored_password, $student_class, $student_arm, $student_term, $student_session, $student_status, $student_result);
                     $stmt1->fetch();
 
-                    // Store the retrieved data in session variables
-                    $_SESSION['user_id'] = $id;
-                    $_SESSION['name'] = $name;
-                    $_SESSION['user_class'] = $class;
-                    $_SESSION['user_arm'] = $arm;
-                    $_SESSION['term'] = $term;
-                    $_SESSION['student_session'] = $enrolled_session;
-                    $_SESSION['role'] = 'Student';
-                    $_SESSION['access'] = $result;
+                    // Verify password (works with both hashed and plain text)
+                    if (verify_password($pass, $stored_password)) {
+                        // Store the retrieved data in session variables
+                        $_SESSION['user_id'] = $student_id;
+                        $_SESSION['name'] = $student_name;
+                        $_SESSION['user_class'] = $student_class;
+                        $_SESSION['user_arm'] = $student_arm;
+                        $_SESSION['term'] = $student_term;
+                        $_SESSION['student_session'] = $student_session;
+                        $_SESSION['role'] = 'Student';
+                        $_SESSION['access'] = $student_result;
 
-                    // Close statements before redirect
-                    $stmt1->close();
-                    $stmt2->close();
-                    $stmt3->close();
+                        // Close statements before redirect
+                        $stmt1->close();
+                        $stmt2->close();
+                        $stmt3->close();
 
-                    // Redirect based on student status
-                    if ($status == 0) {
-                        header("Location: students.php");
-                    } elseif ($status == 1) {
-                        $_SESSION['role'] = 'Alumni';
-                        header("Location: alumni.php");
+                        // Redirect based on student status
+                        if ($student_status == 0) {
+                            header("Location: students.php");
+                        } elseif ($student_status == 1) {
+                            $_SESSION['role'] = 'Alumni';
+                            header("Location: alumni.php");
+                        }
+                        exit();
+                    } else {
+                        $login_error = "Invalid username or password.";
                     }
-                    exit();
                 } elseif ($stmt2->num_rows > 0) {
                     // Other users login
-                    $stmt2->bind_result($id, $staffname, $username, $password, $role);
+                    $stmt2->bind_result($staff_id, $staff_name, $staff_username, $stored_password, $staff_role);
                     $stmt2->fetch();
 
-                    // Set session variables
-                    $_SESSION['user_id'] = $id;
-                    $_SESSION['role'] = $role;
-                    $_SESSION['staffname'] = $staffname;
+                    // Verify password (works with both hashed and plain text)
+                    if (verify_password($pass, $stored_password)) {
+                        // Set session variables
+                        $_SESSION['user_id'] = $staff_id;
+                        $_SESSION['role'] = $staff_role;
+                        $_SESSION['staffname'] = $staff_name;
 
-                    // Close statements before redirect
-                    $stmt1->close();
-                    $stmt2->close();
-                    $stmt3->close();
+                        // Close statements before redirect
+                        $stmt1->close();
+                        $stmt2->close();
+                        $stmt3->close();
 
-                    // check license expiry
-                    include('check_expiry.php');
+                        // check license expiry
+                        include('check_expiry.php');
 
-                    // Redirect based on role
-                    switch ($role) {
-                        case 'Ceo':
-                        case 'Administrator':
-                        case 'Teacher':
-                        case 'Tuckshop':
-                        case 'Admission':
-                        case 'Bursary':
-                            header("Location: dashboard.php");
-                            break;
-                        case 'Superuser':
-                            header("Location: superdashboard.php");
-                            break;
+                        // Redirect based on role
+                        switch ($staff_role) {
+                            case 'Ceo':
+                            case 'Administrator':
+                            case 'Teacher':
+                            case 'Tuckshop':
+                            case 'Admission':
+                            case 'Bursary':
+                                header("Location: dashboard.php");
+                                break;
+                            case 'Superuser':
+                                header("Location: superdashboard.php");
+                                break;
+                        }
+                        exit();
+                    } else {
+                        $login_error = "Invalid username or password.";
                     }
-                    exit();
                 } elseif ($stmt3->num_rows > 0) {
                     // Parent login
-                    $stmt3->bind_result($id, $parentname, $mobile, $email, $username, $password);
+                    $stmt3->bind_result($parent_id, $parent_name, $parent_mobile, $parent_email, $parent_username, $stored_password);
                     $stmt3->fetch();
 
-                    // Store the retrieved data in session variables
-                    $_SESSION['user_id'] = $id;
-                    $_SESSION['name'] = $parentname;
-                    $_SESSION['mobile'] = $mobile;
-                    $_SESSION['email'] = $email;
-                    $_SESSION['role'] = 'Parent';
+                    // Verify password (works with both hashed and plain text)
+                    if (verify_password($pass, $stored_password)) {
+                        // Store the retrieved data in session variables
+                        $_SESSION['user_id'] = $parent_id;
+                        $_SESSION['name'] = $parent_name;
+                        $_SESSION['mobile'] = $parent_mobile;
+                        $_SESSION['email'] = $parent_email;
+                        $_SESSION['role'] = 'Parent';
 
-                    // Close statements before redirect
-                    $stmt1->close();
-                    $stmt2->close();
-                    $stmt3->close();
+                        // Close statements before redirect
+                        $stmt1->close();
+                        $stmt2->close();
+                        $stmt3->close();
 
-                    // Redirect to parent page
-                    header("Location: parent_dashboard.php");
-                    exit();
+                        // Redirect to parent page
+                        header("Location: parent_dashboard.php");
+                        exit();
+                    } else {
+                        $login_error = "Invalid username or password.";
+                    }
                 } else {
                     $login_error = "Invalid username or password.";
                 }

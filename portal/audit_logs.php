@@ -47,7 +47,7 @@ if ($filters['date_to'] !== '') {
   $params[] = $filters['date_to'] . ' 23:59:59';
   $types .= 's';
 }
-$sql = "SELECT a.id, a.user_id, u.username, a.action, a.object_type, a.object_id, a.timestamp, a.ip, s.name AS object_name FROM audit_logs a LEFT JOIN login u ON a.user_id = u.id LEFT JOIN students s ON a.object_type = 'student' AND a.object_id = s.id";
+$sql = "SELECT a.id, a.user_id, u.username, a.action, a.object_type, a.object_id, a.before_state, a.after_state, a.timestamp, a.ip, s.name AS object_name FROM audit_logs a LEFT JOIN login u ON a.user_id = u.id LEFT JOIN students s ON a.object_type = 'student' AND a.object_id = s.id";
 if ($where) $sql .= " WHERE " . implode(' AND ', $where);
 $sql .= " ORDER BY a.timestamp DESC LIMIT 1000";
 $stmt = $mysqli->prepare($sql);
@@ -183,6 +183,8 @@ if (isset($_GET['export']) && in_array($_GET['export'], ['csv', 'pdf'])) {
                         <th>User</th>
                         <th>Action</th>
                         <th>Object Type</th>
+                        <th>Before State</th>
+                        <th>After State</th>
                         <th>Timestamp</th>
                         <th>IP</th>
                       </tr>
@@ -194,6 +196,20 @@ if (isset($_GET['export']) && in_array($_GET['export'], ['csv', 'pdf'])) {
                           <td><?= htmlspecialchars($log['username'] ?? 'System') ?></td>
                           <td><?= htmlspecialchars($log['action']) ?></td>
                           <td><?= htmlspecialchars($log['object_type']) ?></td>
+                          <td style="max-width:300px; word-break:break-word; font-size:11px;">
+                            <?php if (!empty($log['before_state'])): ?>
+                              <pre style="margin:0; white-space:pre-wrap; max-height:200px; overflow-y:auto;"><?= htmlspecialchars(json_encode(json_decode($log['before_state'], true), JSON_PRETTY_PRINT)) ?></pre>
+                            <?php else: ?>
+                              <span class="text-muted">N/A</span>
+                            <?php endif; ?>
+                          </td>
+                          <td style="max-width:300px; word-break:break-word; font-size:11px;">
+                            <?php if (!empty($log['after_state'])): ?>
+                              <pre style="margin:0; white-space:pre-wrap; max-height:200px; overflow-y:auto;"><?= htmlspecialchars(json_encode(json_decode($log['after_state'], true), JSON_PRETTY_PRINT)) ?></pre>
+                            <?php else: ?>
+                              <span class="text-muted">N/A</span>
+                            <?php endif; ?>
+                          </td>
                           <td><?= htmlspecialchars($log['timestamp']) ?></td>
                           <td><?= htmlspecialchars($log['ip']) ?></td>
                         </tr>

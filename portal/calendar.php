@@ -48,11 +48,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Handle delete request
 if (isset($_GET['delete_id'])) {
-  $id = $_GET['delete_id'];
+  $id = intval($_GET['delete_id']);
+
+  // Fetch calendar event before deletion for audit logging
+  $event_before = null;
+  $stmt_fetch = $conn->prepare("SELECT * FROM calendar WHERE id=?");
+  $stmt_fetch->bind_param("i", $id);
+  $stmt_fetch->execute();
+  $result_fetch = $stmt_fetch->get_result();
+  if ($result_fetch && $row = $result_fetch->fetch_assoc()) {
+    $event_before = $row;
+  }
+  $stmt_fetch->close();
+
+  // Check if the logged-in user is NOT a superuser
+  $user_id = $_SESSION['user_id'] ?? 0;
+  $is_superuser = false;
+  $stmt_role = $conn->prepare("SELECT role FROM login WHERE id=?");
+  $stmt_role->bind_param("i", $user_id);
+  $stmt_role->execute();
+  $stmt_role->bind_result($user_role);
+  if ($stmt_role->fetch() && $user_role === 'Superuser') {
+    $is_superuser = true;
+  }
+  $stmt_role->close();
+
   $stmt = $conn->prepare("DELETE FROM calendar WHERE id = ?");
   $stmt->bind_param("i", $id);
   $stmt->execute();
   $stmt->close();
+
+  // Log the deletion in audit_logs if user is not a superuser
+  if (!$is_superuser && $event_before !== null) {
+    require_once('helpers/audit.php');
+    audit_log('delete', 'calendar_event', $id, $event_before, null);
+  }
 }
 
 // Fetch events

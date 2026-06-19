@@ -10,21 +10,51 @@ include('db_connection.php');
 
 // Handle delete action
 if (isset($_GET['delete'])) {
-    $delete_id = $_GET['delete'];
+    $delete_id = intval($_GET['delete']);
+
+    // Fetch parent record before deletion for audit logging
+    $parent_before = null;
+    $stmt_fetch = $conn->prepare("SELECT * FROM parent WHERE id=?");
+    $stmt_fetch->bind_param("i", $delete_id);
+    $stmt_fetch->execute();
+    $result_fetch = $stmt_fetch->get_result();
+    if ($result_fetch && $row = $result_fetch->fetch_assoc()) {
+        $parent_before = $row;
+    }
+    $stmt_fetch->close();
+
+    // Check if the logged-in user is NOT a superuser
+    $user_id = $_SESSION['user_id'] ?? 0;
+    $is_superuser = false;
+    $stmt_role = $conn->prepare("SELECT role FROM login WHERE id=?");
+    $stmt_role->bind_param("i", $user_id);
+    $stmt_role->execute();
+    $stmt_role->bind_result($user_role);
+    if ($stmt_role->fetch() && $user_role === 'Superuser') {
+        $is_superuser = true;
+    }
+    $stmt_role->close();
 
     // Delete the record from the parent_student table
-    $sql = "DELETE FROM parent_student WHERE parent_id = '$delete_id'";
-    if ($conn->query($sql) === TRUE) {
-        // Delete the record from the parent table
-        $sql = "DELETE FROM parent WHERE id = '$delete_id'";
-        if ($conn->query($sql) === TRUE) {
-            $success = "Parent deleted successfully.";
-        } else {
-            $success = "Error deleting parent: " . $conn->error;
+    $stmt_parent = $conn->prepare("DELETE FROM parent_student WHERE parent_id=?");
+    $stmt_parent->bind_param("i", $delete_id);
+    $stmt_parent->execute();
+    $stmt_parent->close();
+
+    // Delete the record from the parent table
+    $stmt = $conn->prepare("DELETE FROM parent WHERE id=?");
+    $stmt->bind_param("i", $delete_id);
+    if ($stmt->execute()) {
+        // Log the deletion in audit_logs if user is not a superuser
+        if (!$is_superuser && $parent_before !== null) {
+            require_once('helpers/audit.php');
+            audit_log('delete', 'parent', $delete_id, $parent_before, null);
         }
+        $success = "Parent deleted successfully.";
     } else {
-        $success = "Error deleting parent: " . $conn->error;
+        $success = "Error deleting parent: " . $stmt->error;
     }
+    $stmt->close();
 }
 
 

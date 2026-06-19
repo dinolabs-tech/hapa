@@ -106,20 +106,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_delete'])) {
     $currentSession = $row['csession'];
   }
 
-  // SQL query to delete all records for the selected class and arm in current term/session
-  $sql = "DELETE FROM principalcomments WHERE class='$deleteClass' AND arm='$deleteArm' AND term='$currentTerm' AND csession='$currentSession'";
-  if ($conn->query($sql) === TRUE) {
+  // Fetch records before bulk deletion for audit logging
+  $bulk_records_before = [];
+  $stmt_fetch = $conn->prepare("SELECT * FROM principalcomments WHERE class=? AND arm=? AND term=? AND csession=?");
+  if ($stmt_fetch) {
+    $stmt_fetch->bind_param("ssss", $deleteClass, $deleteArm, $currentTerm, $currentSession);
+    $stmt_fetch->execute();
+    $result_fetch = $stmt_fetch->get_result();
+    while ($row = $result_fetch->fetch_assoc()) {
+      $bulk_records_before[] = $row;
+    }
+    $stmt_fetch->close();
+  }
+
+  // Check if the logged-in user is NOT a superuser
+  $user_id = $_SESSION['user_id'] ?? 0;
+  $is_superuser = false;
+  $stmt_role = $conn->prepare("SELECT role FROM login WHERE id=?");
+  $stmt_role->bind_param("i", $user_id);
+  $stmt_role->execute();
+  $stmt_role->bind_result($user_role);
+  if ($stmt_role->fetch() && $user_role === 'Superuser') {
+    $is_superuser = true;
+  }
+  $stmt_role->close();
+
+  // Delete all records for the selected class and arm in current term/session
+  $stmt = $conn->prepare("DELETE FROM principalcomments WHERE class=? AND arm=? AND term=? AND csession=?");
+  $stmt->bind_param("ssss", $deleteClass, $deleteArm, $currentTerm, $currentSession);
+  if ($stmt->execute()) {
+    // Log the bulk deletion in audit_logs if user is not a superuser
+    if (!$is_superuser && !empty($bulk_records_before)) {
+      require_once('helpers/audit.php');
+      audit_log('bulk_delete', 'principal_comment', 0, $bulk_records_before, null);
+    }
     $bulkDeleteMessage = 'All principal comments for ' . htmlspecialchars($deleteClass) . ' ' . htmlspecialchars($deleteArm) . ' have been deleted successfully!';
   } else {
-    $bulkDeleteMessage = 'Error deleting comments: ' . $conn->error;
+    $bulkDeleteMessage = 'Error deleting comments: ' . $stmt->error;
   }
+  $stmt->close();
 }
 
 
 // Handle record deletion
 if (isset($_GET['delete'])) {
   $delete_id = $_GET['delete'];
-  $conn->query("DELETE FROM principalcomments WHERE id='$delete_id'");
+
+  // Fetch comment record before deletion for audit logging
+  $comment_before = null;
+  $stmt_fetch = $conn->prepare("SELECT * FROM principalcomments WHERE id=?");
+  $stmt_fetch->bind_param("s", $delete_id);
+  $stmt_fetch->execute();
+  $result_fetch = $stmt_fetch->get_result();
+  if ($result_fetch && $row = $result_fetch->fetch_assoc()) {
+    $comment_before = $row;
+  }
+  $stmt_fetch->close();
+
+  // Check if the logged-in user is NOT a superuser
+  $user_id = $_SESSION['user_id'] ?? 0;
+  $is_superuser = false;
+  $stmt_role = $conn->prepare("SELECT role FROM login WHERE id=?");
+  $stmt_role->bind_param("i", $user_id);
+  $stmt_role->execute();
+  $stmt_role->bind_result($user_role);
+  if ($stmt_role->fetch() && $user_role === 'Superuser') {
+    $is_superuser = true;
+  }
+  $stmt_role->close();
+
+  $stmt = $conn->prepare("DELETE FROM principalcomments WHERE id=?");
+  $stmt->bind_param("s", $delete_id);
+  if ($stmt->execute()) {
+    // Log the deletion in audit_logs if user is not a superuser
+    if (!$is_superuser && $comment_before !== null) {
+      require_once('helpers/audit.php');
+      audit_log('delete', 'principal_comment', $delete_id, $comment_before, null);
+    }
+  }
+  $stmt->close();
 }
 
 // Fetch the record to edit if an ID is passed
