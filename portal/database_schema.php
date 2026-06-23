@@ -859,7 +859,7 @@ $tables = [
             `studentclass` varchar(222) NOT NULL,
             `csession` varchar(222) NOT NULL,
             `vbalance` varchar(222) NOT NULL,
-            `photo` blob NOT NULL,
+            `photo` blob DEFAULT NULL,
             `passcode` int(11) NOT NULL,
             PRIMARY KEY (`regno`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
