@@ -3,30 +3,15 @@
 /**
  * EduHive - Login Page
  * Side-by-side layout matching desktop application design
- * Supports modern bcrypt hashed passwords and legacy plain text / MD5 (forward & backward compatibility)
  */
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-if (!defined('APP_INIT')) {
-    define('APP_INIT', true);
-}
-require_once 'config/school_config.php';
-
-
 session_start();
 $login_error = '';
 
-// Database connection
+// Database connection (includes security helpers)
 include 'db_connection.php';
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Load password helper for forward/backward compatibility
-require_once __DIR__ . '/helpers/password_helper.php';
 
 // Create Database if it doesnt exist
 include 'database_schema.php';
@@ -37,11 +22,11 @@ $check_superuser->execute();
 $check_superuser->store_result();
 
 if ($check_superuser->num_rows == 0) {
-    // Superuser doesn't exist, create one with hashed password
+    // Superuser doesn't exist, create one
     $stmt_superuser = $conn->prepare("INSERT INTO login (staffname, username, password, role) VALUES (?, ?, ?, ?)");
     $staffname = "Dinolabs Superuser";
     $username = "Dinolabs";
-    $password = hash_password("dinolabs"); // Now properly hashed
+    $password = hash_password("dinolabs");
     $role = "Superuser";
     $stmt_superuser->bind_param("ssss", $staffname, $username, $password, $role);
     $stmt_superuser->execute();
@@ -51,164 +36,149 @@ $check_superuser->close();
 
 // Existing login logic
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get the posted credentials
-    $user = htmlspecialchars($_POST['username'], ENT_QUOTES, 'UTF-8');
-    $pass = htmlspecialchars($_POST['password'], ENT_QUOTES, 'UTF-8');
-
-    // Track if user was found and password was verified
-    $authenticated = false;
-    $login_table = ''; // 'students', 'login', or 'parent'
-    $user_data = [];
-
-    // -------------------------------------------------------
-    // 1. Check students table
-    // -------------------------------------------------------
-    if (!$authenticated) {
-        $stmt1 = $conn->prepare("SELECT id, name, password, class, arm, term, session, status, result FROM students WHERE id = ? OR email = ?");
-        $stmt1->bind_param("ss", $user, $user);
-        $stmt1->execute();
-        $result1 = $stmt1->get_result();
-
-        if ($result1->num_rows > 0) {
-            $row = $result1->fetch_assoc();
-            $needs_rehash = false;
-            if (verify_password($pass, $row['password'], $needs_rehash)) {
-                $authenticated = true;
-                $login_table = 'students';
-                $user_data = $row;
-
-                // Rehash if password was verified using legacy format
-                if ($needs_rehash) {
-                    rehash_password_in_db($conn, 'students', 'id', $row['id'], $pass);
-                    $user_data['password'] = hash_password($pass);
-                }
-            }
-        }
-        $stmt1->close();
-    }
-
-    // -------------------------------------------------------
-    // 2. Check login table (staff: admin, teacher, bursary, etc.)
-    // -------------------------------------------------------
-    if (!$authenticated) {
-        $stmt2 = $conn->prepare("SELECT id, staffname, username, password, role, status FROM login WHERE username = ?");
-        $stmt2->bind_param("s", $user);
-        $stmt2->execute();
-        $result2 = $stmt2->get_result();
-
-        if ($result2->num_rows > 0) {
-            $row = $result2->fetch_assoc();
-            // Check if account is inactive
-            if ($row['status'] === 'Inactive') {
-                $login_error = "Your account has been deactivated. Please contact the administrator.";
-            } else {
-                $needs_rehash = false;
-                if (verify_password($pass, $row['password'], $needs_rehash)) {
-                    $authenticated = true;
-                    $login_table = 'login';
-                    $user_data = $row;
-
-                    // Rehash if password was verified using legacy format
-                    if ($needs_rehash) {
-                        rehash_password_in_db($conn, 'login', 'id', $row['id'], $pass);
-                        $user_data['password'] = hash_password($pass);
-                    }
-                }
-            }
-        }
-        $stmt2->close();
-    }
-
-    // -------------------------------------------------------
-    // 3. Check parent table
-    // -------------------------------------------------------
-    if (!$authenticated) {
-        $stmt3 = $conn->prepare("SELECT id, name, mobile, email, username, password FROM parent WHERE username = ? OR email = ?");
-        $stmt3->bind_param("ss", $user, $user);
-        $stmt3->execute();
-        $result3 = $stmt3->get_result();
-
-        if ($result3->num_rows > 0) {
-            $row = $result3->fetch_assoc();
-            $needs_rehash = false;
-            if (verify_password($pass, $row['password'], $needs_rehash)) {
-                $authenticated = true;
-                $login_table = 'parent';
-                $user_data = $row;
-
-                // Rehash if password was verified using legacy format
-                if ($needs_rehash) {
-                    rehash_password_in_db($conn, 'parent', 'id', $row['id'], $pass);
-                    $user_data['password'] = hash_password($pass);
-                }
-            }
-        }
-        $stmt3->close();
-    }
-
-    // -------------------------------------------------------
-    // Process authenticated user
-    // -------------------------------------------------------
-    if ($authenticated) {
-        if ($login_table === 'students') {
-            // Student login
-            $_SESSION['user_id'] = $user_data['id'];
-            $_SESSION['name'] = $user_data['name'];
-            $_SESSION['user_class'] = $user_data['class'];
-            $_SESSION['user_arm'] = $user_data['arm'];
-            $_SESSION['term'] = $user_data['term'];
-            $_SESSION['student_session'] = $user_data['session'];
-            $_SESSION['role'] = 'Student';
-            $_SESSION['access'] = $user_data['result'];
-
-            // Redirect based on student status
-            if ($user_data['status'] == 0) {
-                header("Location: students.php");
-            } elseif ($user_data['status'] == 1) {
-                $_SESSION['role'] = 'Alumni';
-                header("Location: alumni.php");
-            }
-            exit();
-        } elseif ($login_table === 'login') {
-            // Staff login
-            $_SESSION['user_id'] = $user_data['id'];
-            $_SESSION['role'] = $user_data['role'];
-            $_SESSION['staffname'] = $user_data['staffname'];
-            $_SESSION['email'] = '';
-
-            // Redirect based on role
-            switch ($user_data['role']) {
-                case 'Ceo':
-                case 'Administrator':
-                case 'Teacher':
-                case 'Tuckshop':
-                case 'Admission':
-                case 'Bursary':
-                    header("Location: dashboard.php");
-                    break;
-                case 'Superuser':
-                    header("Location: superdashboard.php");
-                    break;
-                default:
-                    header("Location: dashboard.php");
-                    break;
-            }
-            exit();
-        } elseif ($login_table === 'parent') {
-            // Parent login
-            $_SESSION['user_id'] = $user_data['id'];
-            $_SESSION['name'] = $user_data['name'];
-            $_SESSION['mobile'] = $user_data['mobile'];
-            $_SESSION['email'] = $user_data['email'];
-            $_SESSION['role'] = 'Parent';
-
-            header("Location: parent_dashboard.php");
-            exit();
-        }
+    // Verify CSRF token
+    if (!csrf_verify()) {
+        $login_error = "Invalid request. Please refresh the page and try again.";
     } else {
-        $login_error = "Invalid username or password.";
-    }
+        // Regenerate CSRF token after verification
+        csrf_regenerate();
 
+        // Rate limiting for login attempts
+        if (!rate_limit_check('login', 5, 300)) {
+            $login_error = "Too many login attempts. Please try again in 5 minutes.";
+        } else {
+            // Get the posted credentials with proper validation
+            $user = validate_string($_POST['username'], 1, 50);
+            $pass = $_POST['password']; // Don't sanitize password before verification
+
+            if ($user === false) {
+                $login_error = "Invalid username format.";
+            } else {
+                // Prepare SQL for student login (selecting by ID only, then verify password in PHP)
+                $stmt1 = $conn->prepare("SELECT id, name, password, class, arm, term, session, status, result FROM students WHERE id=?");
+                $stmt1->bind_param("s", $user);
+                $stmt1->execute();
+                $stmt1->store_result();
+
+                // Prepare SQL for other users (selecting by username only)
+                $stmt2 = $conn->prepare("SELECT id, staffname, username, password, role FROM login WHERE username=?");
+                $stmt2->bind_param("s", $user);
+                $stmt2->execute();
+                $stmt2->store_result();
+
+                // Prepare SQL for Parents (selecting by username only)
+                $stmt3 = $conn->prepare("SELECT id, name, mobile, email, username, password FROM parent WHERE username=?");
+                $stmt3->bind_param("s", $user);
+                $stmt3->execute();
+                $stmt3->store_result();
+
+                if ($stmt1->num_rows > 0) {
+                    // Student login
+                    $stmt1->bind_result($student_id, $student_name, $stored_password, $student_class, $student_arm, $student_term, $student_session, $student_status, $student_result);
+                    $stmt1->fetch();
+
+                    // Verify password (works with both hashed and plain text)
+                    if (verify_password($pass, $stored_password)) {
+                        // Store the retrieved data in session variables
+                        $_SESSION['user_id'] = $student_id;
+                        $_SESSION['name'] = $student_name;
+                        $_SESSION['user_class'] = $student_class;
+                        $_SESSION['user_arm'] = $student_arm;
+                        $_SESSION['term'] = $student_term;
+                        $_SESSION['student_session'] = $student_session;
+                        $_SESSION['role'] = 'Student';
+                        $_SESSION['access'] = $student_result;
+
+                        // Close statements before redirect
+                        $stmt1->close();
+                        $stmt2->close();
+                        $stmt3->close();
+
+                        // Redirect based on student status
+                        if ($student_status == 0) {
+                            header("Location: students.php");
+                        } elseif ($student_status == 1) {
+                            $_SESSION['role'] = 'Alumni';
+                            header("Location: alumni.php");
+                        }
+                        exit();
+                    } else {
+                        $login_error = "Invalid username or password.";
+                    }
+                } elseif ($stmt2->num_rows > 0) {
+                    // Other users login
+                    $stmt2->bind_result($staff_id, $staff_name, $staff_username, $stored_password, $staff_role);
+                    $stmt2->fetch();
+
+                    // Verify password (works with both hashed and plain text)
+                    if (verify_password($pass, $stored_password)) {
+                        // Set session variables
+                        $_SESSION['user_id'] = $staff_id;
+                        $_SESSION['role'] = $staff_role;
+                        $_SESSION['staffname'] = $staff_name;
+
+                        // Close statements before redirect
+                        $stmt1->close();
+                        $stmt2->close();
+                        $stmt3->close();
+
+                        // check license expiry
+                        include('check_expiry.php');
+
+                        // Redirect based on role
+                        switch ($staff_role) {
+                            case 'Ceo':
+                            case 'Administrator':
+                            case 'Teacher':
+                            case 'Tuckshop':
+                            case 'Admission':
+                            case 'Bursary':
+                                header("Location: dashboard.php");
+                                break;
+                            case 'Superuser':
+                                header("Location: superdashboard.php");
+                                break;
+                        }
+                        exit();
+                    } else {
+                        $login_error = "Invalid username or password.";
+                    }
+                } elseif ($stmt3->num_rows > 0) {
+                    // Parent login
+                    $stmt3->bind_result($parent_id, $parent_name, $parent_mobile, $parent_email, $parent_username, $stored_password);
+                    $stmt3->fetch();
+
+                    // Verify password (works with both hashed and plain text)
+                    if (verify_password($pass, $stored_password)) {
+                        // Store the retrieved data in session variables
+                        $_SESSION['user_id'] = $parent_id;
+                        $_SESSION['name'] = $parent_name;
+                        $_SESSION['mobile'] = $parent_mobile;
+                        $_SESSION['email'] = $parent_email;
+                        $_SESSION['role'] = 'Parent';
+
+                        // Close statements before redirect
+                        $stmt1->close();
+                        $stmt2->close();
+                        $stmt3->close();
+
+                        // Redirect to parent page
+                        header("Location: parent_dashboard.php");
+                        exit();
+                    } else {
+                        $login_error = "Invalid username or password.";
+                    }
+                } else {
+                    $login_error = "Invalid username or password.";
+                }
+
+                // Close statements and connection
+                $stmt1->close();
+                $stmt2->close();
+                $stmt3->close();
+            }
+        }
+    }
     $conn->close();
 }
 ?>
@@ -832,7 +802,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- Background Image -->
     <div class="login-bg-image"></div>
     <div class="login-bg-overlay"></div>
-    
+
     <!-- Glassmorphism Background Elements -->
     <div class="login-bg"></div>
     <div class="login-grid-overlay"></div>
@@ -852,7 +822,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="login-particle"></div>
     <div class="login-particle"></div>
     <div class="login-particle"></div>
-
     <div class="login-container">
         <!-- Left Side - Welcome Section -->
         <div class="welcome-section">
@@ -860,7 +829,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <i class="fas fa-user-lock"></i>
             </div>
             <h2>Welcome Back!</h2>
-            <p>Login to access your EduHive dashboard and manage your school efficiently.</p>
+            <p>Login to access your Portal dashboard.</p>
 
             <ul class="feature-list">
                 <li>
@@ -885,8 +854,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <!-- Right Side - Login Form -->
         <div class="form-section">
             <a href="index.php" class="logo">
-                <img src="assets/img/logo.png" alt="logo" width="70px" height="70px">
-                <span class="logo-text">HAPA College</span>
+                <div class="logo-icon"><img src="assets/img/logo.png" alt=""></div>
+                <span class="logo-text">Hapa College</span>
             </a>
 
             <h1 class="form-title">Sign In</h1>
@@ -900,6 +869,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <?php endif; ?>
 
             <form method="POST" action="login.php">
+                <?php echo csrf_field(); ?>
                 <div class="form-group">
                     <label for="username">Username</label>
                     <div class="input-icon">
@@ -931,7 +901,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <div class="register-link">
-                <a href="../index.php">
+                <a href="index.php">
                     </i> Homepage
                 </a>
             </div>
