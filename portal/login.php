@@ -901,7 +901,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <div class="register-link">
-                <a href="index.php">
+                <a href="../index.php">
                     </i> Homepage
                 </a>
             </div>
