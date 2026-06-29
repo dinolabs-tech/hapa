@@ -23,7 +23,7 @@
               <p>Dashboard</p>
             </a>
           </li>
-           <li class="nav-item">
+          <li class="nav-item">
             <a href="audit_logs.php">
               <i class="fas fa-shield-alt"></i>
               <p>Security Logs</p>
@@ -43,7 +43,7 @@
         }
         ?>
 
-        
+
 
         <?php
         // Check if the logged-in user has 'Administrator', 'Admission', or 'Superuser' roles.
@@ -596,6 +596,13 @@
       <a href="alumni_list.php">
         <i class="fas fa-graduation-cap"></i>
         <p>Alumni List</p>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a href="idcard.php">
+        <i class="fas fa-id-card"></i>
+        <p>Print Student ID Card</p>
       </a>
     </li>
   <?php } ?>

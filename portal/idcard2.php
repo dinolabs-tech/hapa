@@ -13,6 +13,7 @@ if (!isset($_SESSION['user_id']) && !isset($_GET['student_id'])) {
 require('includes/fpdf.php');
 include 'db_connection.php';
 
+
 //=======================================================================
 // Get student ID
 $student_id = isset($_GET['student_id']) ? $_GET['student_id'] : $_SESSION['user_id'];
@@ -34,6 +35,7 @@ if ($stmt->fetch()) {
 } else {
     die("Student not found.");
 }
+
 
 // Extend FPDF class with custom methods
 class PDF extends FPDF {
@@ -109,120 +111,117 @@ class PDF extends FPDF {
     }
 }
 
-// Instantiate PDF in portrait mode with custom dimensions: 54mm x 85mm
-$pdf = new PDF('P', 'mm', array(54, 85));
-$pdf->SetMargins(1, 1, 1); // Minimal margins
+$pdf = new PDF('L', 'mm', array(85, 54));
+$pdf->SetMargins(5, 5, 5);
 
 //=================== Front Side ===================//
 $pdf->AddPage();
 $pdf->SetAutoPageBreak(false, 0);
 
-// Border for the front side (covering nearly entire card)
+
+// Colored header bar
+$pdf->SetFillColor(90,174,255); // Royal blue
+$pdf->RoundedRect(1, 1, 83, 13, 2, 'F');
+
+// Border
 $pdf->SetDrawColor(0, 191, 255); // Deep sky blue
 $pdf->SetLineWidth(0.5);
-$pdf->RoundedRect(1, 1, 52, 83, 3, 'D');
+$pdf->RoundedRect(1, 1, 83, 52, 3, 'D');
 
-// Top header bar
-$pdf->SetFillColor(65, 105, 225); // Royal blue
-$pdf->RoundedRect(1, 1, 52, 13, 2, 'F');
-
-// Header text
-$pdf->SetFont('Arial', 'B', 10);
+// Header
+$pdf->SetFont('Arial', 'B', 12);
 $pdf->SetTextColor(255, 255, 255);
-$pdf->SetXY(1, 4);
-$pdf->Cell(52, 6, 'Your School Name', 0, 1, 'C');
+$pdf->SetXY(5, 4);
+$pdf->Cell(80, 6, 'HAPA COLLEGE', 0, 1, 'C');
 
-// Optional Logo (adjust size if needed)
+// Logo
 if (file_exists('assets/img/logo.png')) {
-    $pdf->Image('assets/img/logo.png', 2, 3, 10, 8);
+    $pdf->Image('assets/img/logo.png', 0, 1, 12, 12);
 }
 
-// Student Photo (centered)
+// Student Name
+$pdf->SetTextColor(0, 0, 139); // Dark blue
+$pdf->SetXY(5, 15);
+$pdf->SetFont('Arial', 'B', 9);
+$pdf->MultiCell(75, 4, $student['name'], 0, 'C');
+
+
+// Student Photo with circular frame from studentimg folder
 $photo_filename = str_replace('/', '_', $student['id']); // e.g., wf_1000_24
 $photo_path = "studentimg/" . $photo_filename . ".jpg";
+
 if (!file_exists($photo_path)) {
     $photo_path = "studentimg/default.jpg"; // Fallback to default image
 }
+
 if (file_exists($photo_path)) {
-    // Center the photo horizontally; photo width = 20 mm
-    $photoWidth = 20;
-    $photoX = (54 - $photoWidth) / 2;
-    $pdf->Image($photo_path, $photoX, 15, $photoWidth, 20);
-    // Draw circular frame using the Ellipse method (adjust center & radius as needed)
-    $centerX = 54 / 2;
-    $centerY = 15 + (20 / 2);
+    $pdf->Image($photo_path, 3, 23, 25, 25);
     $pdf->SetDrawColor(255, 215, 0); // Gold
     $pdf->SetLineWidth(0.3);
-    $pdf->Ellipse($centerX, $centerY, 10, 10, 'D');
+    $pdf->Ellipse(19.5, 27.5, 12.5, 12.5, 'D');
 }
 
-// Student Name (below photo, centered)
-$pdf->SetXY(1, 38);
-$pdf->SetFont('Arial', 'B', 9);
-$pdf->SetTextColor(0, 0, 139); // Dark blue
-$pdf->MultiCell(52, 5, $student['name'], 0,  'C');
-
-// Details background box (for ID, Class, Arm)
-$detailsBoxWidth = 44;
-$detailsBoxHeight = 20;
-$detailsBoxX = (54 - $detailsBoxWidth) / 2;
-$detailsBoxY = 50;
+// Details background box
 $pdf->SetFillColor(240, 248, 255); // Alice blue
-$pdf->RoundedRect($detailsBoxX, $detailsBoxY, $detailsBoxWidth, $detailsBoxHeight, 2, 'F');
+$pdf->RoundedRect(32, 24, 47, 25, 1, 'F');
 
-// Calculate vertical centering for text inside details box
-$totalTextHeight = 15; // Adjust if you have more or fewer lines
-$textStartY = $detailsBoxY + ($detailsBoxHeight - $totalTextHeight) / 2;
+// Calculate vertical centering for text inside the details box
+$boxTop = 20;
+$boxHeight = 25;
+$totalTextHeight = 9; // 4 for the first line and 5 for the second line (adjust if needed)
+$detailsY = $boxTop + (($boxHeight - $totalTextHeight) / 2); // This will be 28
 
-// Student Details text inside the details box
-$pdf->SetXY($detailsBoxX, $textStartY);
-$pdf->SetFont('Arial', 'B', 8);
+// Student Details
+$pdf->SetTextColor(0, 0, 139); // Dark blue
+$detailsX = 35;
+
+$pdf->SetXY($detailsX, $detailsY);
+$pdf->SetFont('Arial', 'B', 9);
 $pdf->SetTextColor(65, 105, 225);
-$pdf->Cell($detailsBoxWidth, 5, "ID: " . $student['id'], 0, 1, 'C');
-$pdf->SetX($detailsBoxX);
-$pdf->Cell($detailsBoxWidth, 5, "Class: " . $student['class'], 0, 1, 'C');
-$pdf->SetX($detailsBoxX);
-$pdf->Cell($detailsBoxWidth, 5, "Arm: " . $student['arm'], 0, 1, 'C');
+$pdf->Cell(35, 5, "ID: " . $student['id'], 0, 1);
+
+$pdf->SetX($detailsX);
+$pdf->Cell(35, 5, "Class: " . $student['class'], 0, 1);
+
+$pdf->SetX($detailsX);
+$pdf->Cell(35, 5, "Arm: " . $student['arm'], 0, 1);
 
 //=================== Back Side ===================//
 $pdf->AddPage();
 
-// Border for back side
+// Border
 $pdf->SetDrawColor(0, 191, 255); // Deep sky blue
 $pdf->SetLineWidth(0.5);
-$pdf->RoundedRect(1, 1, 52, 83, 3, 'D');
+$pdf->RoundedRect(1, 1, 83, 52, 3, 'D');
 
-// Top header bar on back side
-$pdf->SetFillColor(65, 105, 225); // Royal blue
-$pdf->RoundedRect(1, 1, 52, 10, 2, 'F');
+// Header bar
+$pdf->SetFillColor(90,174,255); // Royal blue
+$pdf->RoundedRect(1, 1, 83, 10, 2, 'F');
 
-// Header text on back
-$pdf->SetFont('Arial', 'B', 10);
+// Header
+$pdf->SetFont('Arial', 'B', 12);
 $pdf->SetTextColor(255, 255, 255);
-$pdf->SetXY(1, 3);
-$pdf->Cell(52, 6, 'Student ID Card', 0, 1, 'C');
+$pdf->SetXY(5, 3);
+$pdf->Cell(75, 6, 'Student ID Card', 0, 1, 'C');
 
 // Contact info box
-$contactBoxX = 3;
-$contactBoxY = 12;
-$contactBoxWidth = 46;
-$contactBoxHeight = 60;
 $pdf->SetFillColor(245, 245, 220); // Beige
-$pdf->RoundedRect($contactBoxX, $contactBoxY, $contactBoxWidth, $contactBoxHeight, 2, 'F');
+$pdf->RoundedRect(3, 13, 79, 36, 2, 'F');
 
-// Contact details inside the box
+// Contact details
 $pdf->SetTextColor(0, 100, 0); // Dark green
 $pdf->SetFont('Arial', '', 8);
-$pdf->SetXY($contactBoxX, $contactBoxY + 3);
-$pdf->MultiCell($contactBoxWidth, 4, "School Address: 123 Main Street, City", 0,  'C');
-$pdf->SetX($contactBoxX);
-$pdf->MultiCell($contactBoxWidth, 4, "Phone: +123456789", 0,  'C');
-$pdf->SetX($contactBoxX);
-$pdf->MultiCell($contactBoxWidth, 4, "Email: info@yourschool.com", 0,  'C');
-$pdf->Ln(2);
-// Return message as a multi‑line, centered text
-$pdf->SetX($contactBoxX);
-$pdf->MultiCell($contactBoxWidth, 4, "If found please return to School Name at School Address....................more text here", 0, 'C');
+$pdf->SetXY(5, 17);
+$pdf->Cell(75, 4, "KM 3, Akure Owo Express Road, Oba Ile,", 0, 1, 'C');
+$pdf->Cell(75, 4, "Akure, Ondo State, Nigeria.", 0, 1, 'C');
+$pdf->SetX(5);
+$pdf->Cell(75, 4, "+234-803-504-2727, +234-803-883-8583", 0, 1, 'C');
+$pdf->SetX(5);
+$pdf->Cell(75, 4, "hapacollege2013@yahoo.com", 0, 1, 'C');
+$pdf->Ln(3);
+$pdf->SetX(5);
+$pdf->MultiCell(75, 4, "If found please return to HAPA COLLEGE", 0, 'C');
+
 
 $pdf->Output();
 ?>

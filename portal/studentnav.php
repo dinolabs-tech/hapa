@@ -268,14 +268,6 @@
           </a>
         </li>
 
-        <li class="nav-item">
-          <a href="idcard.php">
-            <i class="fas fa-id-card"></i>
-            <p>Download ID Card</p>
-          </a>
-        </li>
-
-
 
         <li class="nav-item">
           <a data-bs-toggle="collapse" href="#threads">
