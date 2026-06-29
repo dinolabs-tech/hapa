@@ -215,7 +215,7 @@ if (isset($_GET['student_id'])) {
     $pdf->SetXY(4, 45);
     $pdf->SetFont('Arial', 'B', 9);
     $pdf->SetTextColor(25, 25, 112);
-    $pdf->Cell(77, 5, $student['name'], 0, 1, 'C');
+    $pdf->Cell(77, 5, $student['name'], 0, 1, 'L');
 
     // Generate QR Code
     $qr_code_text = $student['id'];
