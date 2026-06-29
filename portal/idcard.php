@@ -4,8 +4,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-define('APP_INIT', true);
-require_once 'config/school_config.php';
 require('db_connection.php');
 
 // Check if student_id is provided - if yes, generate PDF
