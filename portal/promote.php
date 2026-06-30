@@ -371,9 +371,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST['initiate'])) {
                                                                         <input type="hidden" name="promote_session" value="<?= htmlspecialchars($session[0], ENT_QUOTES) ?>">
                                                                         <select name="action" class="form-control form-select mb-3" required>
                                                                             <option value="" disabled selected>Select Action</option>
-                                                                            <option value="promote">Promote</option>
-                                                                            <option value="trial">Promote on Trial</option>
-                                                                            <option value="repeat">Repeat</option>
+                                                                            <option value="PROMOTE">PROMOTE</option>
+                                                                            <option value="PROMOTE ON TRIAL">PROMOTE ON TRIAL</option>
+                                                                            <option value="REPEAT">REPEAT</option>
                                                                         </select>
                                                                         <button type="submit" name="initiate" class="btn btn-primary initiateBtn">Initiate</button>
                                                                     </form>
