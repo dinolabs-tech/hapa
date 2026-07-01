@@ -266,7 +266,7 @@ if (isset($_GET['student_id'])) {
     $pdf->SetFont('Arial', 'B', 6);
     $pdf->SetTextColor(255, 215, 0);
     $pdf->SetXY(5, 11);
-    $pdf->Cell(75, 3, 'REVERSE SIDE', 0, 1, 'C');
+    $pdf->Cell(75, 3, 'This card remains the property of HAPA COLLEGE', 0, 1, 'C');
 
     // Important Information Box
     $pdf->SetFillColor(248, 248, 255); // Ghost white
