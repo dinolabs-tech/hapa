@@ -114,7 +114,7 @@ if (isset($_GET['student_id'])) {
     $pdf->SetAutoPageBreak(false, 0);
 
     // Outer border with gold accent
-    $pdf->SetDrawColor(184, 134, 11); // Dark goldenrod
+    $pdf->SetDrawColor(25, 25, 112); // Dark goldenrod
     $pdf->SetLineWidth(0.8);
     $pdf->Rect(1.5, 1.5, 82, 51, 'D');
 
@@ -133,11 +133,11 @@ if (isset($_GET['student_id'])) {
 
     // School Logo
     if (file_exists('assets/img/logo.png')) {
-        $pdf->Image('assets/img/logo.png', 4, 4, 10, 8);
+        $pdf->Image('assets/img/logo.png', 4, 2, 10, 10);
     }
 
     // School Name with better typography
-    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->SetFont('Arial', 'B', 18);
     $pdf->SetTextColor(255, 255, 255);
     $pdf->SetXY(16, 4);
     $pdf->MultiCell(65, 5, strtoupper("HAPA COLLEGE"), 0, 'C');
@@ -145,8 +145,8 @@ if (isset($_GET['student_id'])) {
     // "STUDENT ID CARD" subtitle
     $pdf->SetFont('Arial', 'B', 7);
     $pdf->SetTextColor(255, 215, 0); // Gold
-    $pdf->SetXY(4, 13);
-    $pdf->Cell(77, 4, 'OFFICIAL STUDENT IDENTIFICATION', 0, 1, 'C');
+    $pdf->SetXY(4, 14);
+    $pdf->Cell(77, 4, 'OFFICIAL STUDENT IDENTIFICATION CARD', 0, 1, 'C');
 
     // Student Photo with professional circular frame
     $photo_filename = str_replace('/', '_', $student['id']);
@@ -168,7 +168,7 @@ if (isset($_GET['student_id'])) {
         $pdf->Ellipse(19.5, 30, 12.5, 14.5, 'D');
         
         // Photo
-        $pdf->Image($photo_path, 7, 20, 25, 20);
+        $pdf->Image($photo_path, 7, 20, 25, 24);
     }
 
     // Student Information Box with professional styling
@@ -202,14 +202,14 @@ if (isset($_GET['student_id'])) {
     $pdf->Cell(40, 5, $student['class'], 0, 1, 'L');
 
     // Arm
-    $pdf->SetX($detailsX);
-    $pdf->SetFont('Arial', 'B', 6);
-    $pdf->SetTextColor(128, 128, 128);
-    $pdf->Cell(40, 3, 'ARM', 0, 1, 'L');
-    $pdf->SetX($detailsX);
-    $pdf->SetFont('Arial', 'B', 10);
-    $pdf->SetTextColor(25, 25, 112);
-    $pdf->Cell(40, 5, $student['arm'], 0, 1, 'L');
+    // $pdf->SetX($detailsX);
+    // $pdf->SetFont('Arial', 'B', 6);
+    // $pdf->SetTextColor(128, 128, 128);
+    // $pdf->Cell(40, 3, 'ARM', 0, 1, 'L');
+    // $pdf->SetX($detailsX);
+    // $pdf->SetFont('Arial', 'B', 10);
+    // $pdf->SetTextColor(25, 25, 112);
+    // $pdf->Cell(40, 5, $student['arm'], 0, 1, 'L');
 
     // Student Name at bottom
     $pdf->SetXY(4, 45);
@@ -224,9 +224,9 @@ if (isset($_GET['student_id'])) {
 
     // QR Code with professional frame
     $qr_size = 14;
-    $qr_x = 68;
-    $qr_y = 35;
-    $pdf->SetDrawColor(255, 215, 0); // Gold frame
+    $qr_x = 67;
+    $qr_y = 34;
+    $pdf->SetDrawColor(25, 25, 112); // Gold frame
     $pdf->SetLineWidth(0.5);
     $pdf->Rect($qr_x - 1, $qr_y - 1, $qr_size + 2, $qr_size + 2, 'D');
     $pdf->Image($qr_file_path, $qr_x, $qr_y, $qr_size, $qr_size, 'PNG');
@@ -241,7 +241,7 @@ if (isset($_GET['student_id'])) {
     $pdf->AddPage();
 
     // Outer border
-    $pdf->SetDrawColor(184, 134, 11); // Dark goldenrod
+    $pdf->SetDrawColor(25, 25, 112); // Dark goldenrod
     $pdf->SetLineWidth(0.8);
     $pdf->Rect(1.5, 1.5, 82, 51, 'D');
 
@@ -265,13 +265,13 @@ if (isset($_GET['student_id'])) {
     // "Back" indicator
     $pdf->SetFont('Arial', 'B', 6);
     $pdf->SetTextColor(255, 215, 0);
-    $pdf->SetXY(5, 10);
+    $pdf->SetXY(5, 11);
     $pdf->Cell(75, 3, 'REVERSE SIDE', 0, 1, 'C');
 
     // Important Information Box
     $pdf->SetFillColor(248, 248, 255); // Ghost white
     $pdf->SetLineWidth(0.4);
-    $pdf->Rect(5, 14, 75, 30, 'F');
+    $pdf->Rect(5, 15, 75, 30, 'F');
 
     // Important Information Header
     $pdf->SetXY(9, 16);
@@ -312,11 +312,11 @@ if (isset($_GET['student_id'])) {
     $pdf->SetXY(9, 46);
     $pdf->SetFont('Arial', 'B', 7);
     $pdf->SetTextColor(25, 25, 112);
-    $pdf->MultiCell(68, 3.5, "HAPA COLLEGE", 0, 'L');
+    $pdf->MultiCell(68, 3.5, "HAPA COLLEGE or Nearest Police Station", 0, 'L');
 
     // Principal signature
     if (file_exists('assets/img/signature.jpg')) {
-        $pdf->Image('assets/img/signature.jpg', 55, 40, 25, 8);
+        $pdf->Image('assets/img/signature.jpg', 55, 38, 25, 8);
     }
 
     $pdf->Output();

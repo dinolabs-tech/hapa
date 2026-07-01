@@ -51,7 +51,7 @@ class MyPDF extends FPDF
     function Header()
     {
         $this->SetFont('Arial', 'B', 10);
-        $this->Image('assets/img/logo.png', 10, 8, 20);
+        $this->Image('assets/img/logo.png', 10, 12, 24);
 
         // Student photo in the top-right corner
         if (!empty($this->studentImage) && file_exists($this->studentImage)) {
