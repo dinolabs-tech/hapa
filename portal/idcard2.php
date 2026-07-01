@@ -181,7 +181,8 @@ $pdf->SetTextColor(65, 105, 225);
 $pdf->Cell(35, 5, "ID: " . $student['id'], 0, 1);
 
 $pdf->SetX($detailsX);
-$pdf->Cell(35, 5, "Class: " . $student['class'], 0, 1);
+$class_display = preg_replace('/\s*\d+$/', '', $student['class']);
+$pdf->Cell(35, 5, "Class: " . $class_display, 0, 1);
 
 $pdf->SetX($detailsX);
 $pdf->Cell(35, 5, "Arm: " . $student['arm'], 0, 1);

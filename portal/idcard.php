@@ -199,17 +199,18 @@ if (isset($_GET['student_id'])) {
     $pdf->SetX($detailsX);
     $pdf->SetFont('Arial', 'B', 10);
     $pdf->SetTextColor(25, 25, 112);
-    $pdf->Cell(40, 5, $student['class'], 0, 1, 'L');
+    $class_display = preg_replace('/\s*\d+$/', '', $student['class']);
+    $pdf->Cell(40, 5, $class_display, 0, 1, 'L');
 
     // Arm
-    // $pdf->SetX($detailsX);
-    // $pdf->SetFont('Arial', 'B', 6);
-    // $pdf->SetTextColor(128, 128, 128);
-    // $pdf->Cell(40, 3, 'ARM', 0, 1, 'L');
-    // $pdf->SetX($detailsX);
-    // $pdf->SetFont('Arial', 'B', 10);
-    // $pdf->SetTextColor(25, 25, 112);
-    // $pdf->Cell(40, 5, $student['arm'], 0, 1, 'L');
+    $pdf->SetX($detailsX);
+    $pdf->SetFont('Arial', 'B', 6);
+    $pdf->SetTextColor(128, 128, 128);
+    $pdf->Cell(40, 3, 'ARM', 0, 1, 'L');
+    $pdf->SetX($detailsX);
+    $pdf->SetFont('Arial', 'B', 10);
+    $pdf->SetTextColor(25, 25, 112);
+    $pdf->Cell(40, 5, $student['arm'], 0, 1, 'L');
 
     // Student Name at bottom
     $pdf->SetXY(4, 45);
