@@ -116,15 +116,15 @@ if (isset($_GET['student_id'])) {
     // Outer border with gold accent
     $pdf->SetDrawColor(184, 134, 11); // Dark goldenrod
     $pdf->SetLineWidth(0.8);
-    $pdf->RoundedRect(1.5, 1.5, 82, 51, 2, 'D');
+    $pdf->Rect(1.5, 1.5, 82, 51, 'D');
 
     // Premium gradient header (simulated with layered rectangles)
     // Dark blue base
     $pdf->SetFillColor(25, 25, 112); // Midnight blue
-    $pdf->RoundedRect(2.5, 2.5, 80, 16, 1.5, 'F');
+    $pdf->Rect(2.5, 2.5, 80, 16, 'F');
     // Lighter blue overlay for gradient effect
     $pdf->SetFillColor(65, 105, 225); // Royal blue
-    $pdf->RoundedRect(2.5, 2.5, 80, 10, 1.5, 'F');
+    $pdf->Rect(2.5, 2.5, 80, 10, 'F');
 
     // Gold accent line
     $pdf->SetDrawColor(255, 215, 0); // Gold
@@ -174,7 +174,7 @@ if (isset($_GET['student_id'])) {
     // Student Information Box with professional styling
     $pdf->SetFillColor(248, 248, 255); // Ghost white
     $pdf->SetLineWidth(0.4);
-    $pdf->RoundedRect(35, 19, 46, 24, 2, 'F');
+    $pdf->Rect(35, 19, 46, 24, 'F');
 
     // Student Details with improved typography
     $pdf->SetTextColor(25, 25, 112); // Midnight blue
@@ -228,7 +228,7 @@ if (isset($_GET['student_id'])) {
     $qr_y = 35;
     $pdf->SetDrawColor(255, 215, 0); // Gold frame
     $pdf->SetLineWidth(0.5);
-    $pdf->RoundedRect($qr_x - 1, $qr_y - 1, $qr_size + 2, $qr_size + 2, 1, 'D');
+    $pdf->Rect($qr_x - 1, $qr_y - 1, $qr_size + 2, $qr_size + 2, 'D');
     $pdf->Image($qr_file_path, $qr_x, $qr_y, $qr_size, $qr_size, 'PNG');
 
     // "SCAN ME" label
@@ -243,13 +243,13 @@ if (isset($_GET['student_id'])) {
     // Outer border
     $pdf->SetDrawColor(184, 134, 11); // Dark goldenrod
     $pdf->SetLineWidth(0.8);
-    $pdf->RoundedRect(1.5, 1.5, 82, 51, 2, 'D');
+    $pdf->Rect(1.5, 1.5, 82, 51, 'D');
 
     // Header bar with gradient effect
     $pdf->SetFillColor(25, 25, 112); // Midnight blue
-    $pdf->RoundedRect(2.5, 2.5, 80, 12, 1.5, 'F');
+    $pdf->Rect(2.5, 2.5, 80, 12, 'F');
     $pdf->SetFillColor(65, 105, 225); // Royal blue overlay
-    $pdf->RoundedRect(2.5, 2.5, 80, 7, 1.5, 'F');
+    $pdf->Rect(2.5, 2.5, 80, 7, 'F');
 
     // Gold accent line
     $pdf->SetDrawColor(255, 215, 0);
@@ -271,7 +271,7 @@ if (isset($_GET['student_id'])) {
     // Important Information Box
     $pdf->SetFillColor(248, 248, 255); // Ghost white
     $pdf->SetLineWidth(0.4);
-    $pdf->RoundedRect(5, 14, 75, 30, 2, 'F');
+    $pdf->Rect(5, 14, 75, 30, 'F');
 
     // Important Information Header
     $pdf->SetXY(9, 16);

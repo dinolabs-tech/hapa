@@ -121,12 +121,12 @@ $pdf->SetAutoPageBreak(false, 0);
 
 // Colored header bar
 $pdf->SetFillColor(90,174,255); // Royal blue
-$pdf->RoundedRect(1, 1, 83, 13, 2, 'F');
+$pdf->Rect(1, 1, 83, 13, 'F');
 
 // Border
 $pdf->SetDrawColor(0, 191, 255); // Deep sky blue
 $pdf->SetLineWidth(0.5);
-$pdf->RoundedRect(1, 1, 83, 52, 3, 'D');
+$pdf->Rect(1, 1, 83, 52, 'D');
 
 // Header
 $pdf->SetFont('Arial', 'B', 12);
@@ -163,7 +163,7 @@ if (file_exists($photo_path)) {
 
 // Details background box
 $pdf->SetFillColor(240, 248, 255); // Alice blue
-$pdf->RoundedRect(32, 24, 47, 25, 1, 'F');
+$pdf->Rect(32, 24, 47, 25, 'F');
 
 // Calculate vertical centering for text inside the details box
 $boxTop = 20;
@@ -192,11 +192,11 @@ $pdf->AddPage();
 // Border
 $pdf->SetDrawColor(0, 191, 255); // Deep sky blue
 $pdf->SetLineWidth(0.5);
-$pdf->RoundedRect(1, 1, 83, 52, 3, 'D');
+$pdf->Rect(1, 1, 83, 52, 'D');
 
 // Header bar
 $pdf->SetFillColor(90,174,255); // Royal blue
-$pdf->RoundedRect(1, 1, 83, 10, 2, 'F');
+$pdf->Rect(1, 1, 83, 10, 'F');
 
 // Header
 $pdf->SetFont('Arial', 'B', 12);
@@ -206,7 +206,7 @@ $pdf->Cell(75, 6, 'Student ID Card', 0, 1, 'C');
 
 // Contact info box
 $pdf->SetFillColor(245, 245, 220); // Beige
-$pdf->RoundedRect(3, 13, 79, 36, 2, 'F');
+$pdf->Rect(3, 13, 79, 36, 'F');
 
 // Contact details
 $pdf->SetTextColor(0, 100, 0); // Dark green

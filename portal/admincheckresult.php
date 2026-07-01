@@ -387,7 +387,7 @@ if (file_exists($qr_file_path)) {
 }
 
 
-$pdf->SetFont('Arial', 'B', 13);
+$pdf->SetFont('Arial', 'B', 14);
 $pdf->Cell(95, 7, "Promotional Status: {$promotec}", 'B', 0, 'C');
 
 // Output the PDF
