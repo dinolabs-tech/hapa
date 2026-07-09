@@ -117,7 +117,7 @@ $conn->close();
                                 <td>
                                   <img src="<?= $imagePath ?>" width="100" class="img-thumbnail rounded-circle me-2">
 
-                                  <button class="btn btn-primary view-student-btn"
+                                  <button class="btn btn-primary view-student-btn" style="width:10px;padding-right:36px;"
                                     data-bs-toggle="modal"
                                     data-bs-target="#studentModal"
                                     data-id="<?= htmlspecialchars($student['id'], ENT_QUOTES) ?>"
@@ -132,7 +132,7 @@ $conn->close();
                                     data-class="<?= htmlspecialchars($student['class'], ENT_QUOTES) ?>"
                                     data-arm="<?= htmlspecialchars($student['arm'], ENT_QUOTES) ?>"
                                     data-img="<?= $imagePath ?>">
-                                    View
+                                    <i class="fas fa-eye"></i>
                                   </button>
                                 </td>
                               </tr>

@@ -58,8 +58,8 @@ if (isset($_POST['update'])) {
     $weight = $_POST['weight'];
 
     // ✅ Hash password (only if provided)
-    $password = !empty($_POST['password']) 
-        ? hash_password($_POST['password']) 
+    $password = !empty($_POST['password'])
+        ? hash_password($_POST['password'])
         : null;
 
     // ✅ Prepared statement
@@ -84,22 +84,87 @@ if (isset($_POST['update'])) {
     if ($password !== null) {
         $stmt->bind_param(
             "sssssssssssssssssssssssssssssssssssssssi",
-            $name, $gender, $dob, $placeob, $address, $religion, $state, $lga,
-            $class, $arm, $session_val, $term, $schoolname, $schooladdress, $hobbies,
-            $lastclass, $sickle, $challenge, $emergency, $familydoc, $docaddress,
-            $docmobile, $polio, $tuberculosis, $measles, $tetanus, $whooping,
-            $gname, $mobile, $goccupation, $gaddress, $grelationship, $hostel,
-            $bloodtype, $bloodgroup, $height, $weight, $password, $id
+            $name,
+            $gender,
+            $dob,
+            $placeob,
+            $address,
+            $religion,
+            $state,
+            $lga,
+            $class,
+            $arm,
+            $session_val,
+            $term,
+            $schoolname,
+            $schooladdress,
+            $hobbies,
+            $lastclass,
+            $sickle,
+            $challenge,
+            $emergency,
+            $familydoc,
+            $docaddress,
+            $docmobile,
+            $polio,
+            $tuberculosis,
+            $measles,
+            $tetanus,
+            $whooping,
+            $gname,
+            $mobile,
+            $goccupation,
+            $gaddress,
+            $grelationship,
+            $hostel,
+            $bloodtype,
+            $bloodgroup,
+            $height,
+            $weight,
+            $password,
+            $id
         );
     } else {
         $stmt->bind_param(
             "ssssssssssssssssssssssssssssssssssssssi",
-            $name, $gender, $dob, $placeob, $address, $religion, $state, $lga,
-            $class, $arm, $session_val, $term, $schoolname, $schooladdress, $hobbies,
-            $lastclass, $sickle, $challenge, $emergency, $familydoc, $docaddress,
-            $docmobile, $polio, $tuberculosis, $measles, $tetanus, $whooping,
-            $gname, $mobile, $goccupation, $gaddress, $grelationship, $hostel,
-            $bloodtype, $bloodgroup, $height, $weight, $id
+            $name,
+            $gender,
+            $dob,
+            $placeob,
+            $address,
+            $religion,
+            $state,
+            $lga,
+            $class,
+            $arm,
+            $session_val,
+            $term,
+            $schoolname,
+            $schooladdress,
+            $hobbies,
+            $lastclass,
+            $sickle,
+            $challenge,
+            $emergency,
+            $familydoc,
+            $docaddress,
+            $docmobile,
+            $polio,
+            $tuberculosis,
+            $measles,
+            $tetanus,
+            $whooping,
+            $gname,
+            $mobile,
+            $goccupation,
+            $gaddress,
+            $grelationship,
+            $hostel,
+            $bloodtype,
+            $bloodgroup,
+            $height,
+            $weight,
+            $id
         );
     }
 
@@ -183,7 +248,6 @@ if (isset($_POST['update'])) {
 
         header("Location: " . $_SERVER['PHP_SELF']);
         exit;
-
     } else {
         echo "Error: " . $stmt->error;
     }
@@ -783,22 +847,22 @@ $conn->close();
                                                                         class="btn btn-warning me-3 btn-icon btn-round ps-1">
                                                                         <i class="fas fa-edit"></i>
                                                                     </a>
+                                                                    <?php if ($_SESSION['role'] === 'Superuser') { ?>
+                                                                        <!-- DELETE BUTTON (SAFE - POST) -->
+                                                                        <form method="POST"
+                                                                            onsubmit="return confirm('Are you sure you want to delete this record?');"
+                                                                            style="display:inline-block; margin:0; padding:0;">
 
-                                                                    <!-- DELETE BUTTON (SAFE - POST) -->
-                                                                    <form method="POST"
-                                                                        onsubmit="return confirm('Are you sure you want to delete this record?');"
-                                                                        style="display:inline-block; margin:0; padding:0;">
+                                                                            <input type="hidden"
+                                                                                name="delete_id"
+                                                                                value="<?php echo htmlspecialchars($student['id']); ?>">
 
-                                                                        <input type="hidden"
-                                                                            name="delete_id"
-                                                                            value="<?php echo htmlspecialchars($student['id']); ?>">
-
-                                                                        <button type="submit"
-                                                                            class="btn btn-danger btn-icon btn-round">
-                                                                            <i class="fas fa-trash"></i>
-                                                                        </button>
-                                                                    </form>
-
+                                                                            <button type="submit"
+                                                                                class="btn btn-danger btn-icon btn-round">
+                                                                                <i class="fas fa-trash"></i>
+                                                                            </button>
+                                                                        </form>
+                                                                    <?php } ?>
                                                                 </td>
                                                             </tr>
                                                         <?php endforeach; ?>
