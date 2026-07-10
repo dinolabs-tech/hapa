@@ -454,6 +454,7 @@ body::after {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
   font-weight: 500 !important;
   border-radius: 16px !important;
+  width:auto;
 }
 
 .btn-primary {
@@ -476,7 +477,7 @@ body::after {
   position: absolute !important;
   top: 0 !important;
   left: -100% !important;
-  width: 100% !important;
+  width: auto !important;
   height: 100% !important;
   background: linear-gradient(
     90deg,

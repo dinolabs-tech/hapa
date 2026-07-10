@@ -294,7 +294,6 @@ $conn->close();
                                       class="btn btn-primary btn-sm">
                                       <i class="fa fa-edit"></i>
                                     </a>
-
                                     <input type="hidden" name="delete_id"
                                       value="<?php echo htmlspecialchars($student['id']); ?>">
                                     <button type="submit" class="btn btn-danger btn-sm"><span class="btn-label">
