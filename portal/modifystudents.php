@@ -258,7 +258,7 @@ if (isset($_POST['update'])) {
 // =============================
 if (isset($_POST['delete_id'])) {
 
-    $id = intval($_POST['delete_id']);
+    $id = $_POST['delete_id'];
 
     // Fetch student record before deletion for audit logging
     $student_before = null;
@@ -290,12 +290,12 @@ if (isset($_POST['delete_id'])) {
 
     // Delete dependent parent_student records first to avoid foreign key constraint failure
     $stmt_parent = $conn->prepare("DELETE FROM parent_student WHERE student_id=?");
-    $stmt_parent->bind_param("i", $id);
+    $stmt_parent->bind_param("s", $id);
     $stmt_parent->execute();
     $stmt_parent->close();
 
     $stmt = $conn->prepare("DELETE FROM students WHERE id=?");
-    $stmt->bind_param("i", $id);
+    $stmt->bind_param("s", $id);
 
     if ($stmt->execute()) {
         header("Location: " . $_SERVER['PHP_SELF']);
@@ -335,10 +335,10 @@ if ($result && $result->num_rows > 0) {
 $studentDetails = null;
 
 if (isset($_GET['edit'])) {
-    $id = intval($_GET['edit']);
+    $id = $_GET['edit'];
 
     $stmt = $conn->prepare("SELECT * FROM students WHERE id=?");
-    $stmt->bind_param("i", $id);
+    $stmt->bind_param("s", $id);
     $stmt->execute();
 
     $studentDetails = $stmt->get_result()->fetch_assoc();
