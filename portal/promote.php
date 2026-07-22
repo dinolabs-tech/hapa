@@ -11,7 +11,7 @@ if (isset($_POST['initiate'])) {
     $promote_session = $_POST['promote_session'];
     $action = $_POST['action'];
 
-    $comment = ($action === 'promote') ? 'Promoted' : (($action === 'trial') ? 'Promoted on Trial' : 'To Repeat');
+    $comment = ($action === 'promote') ? 'PROMOTED' : (($action === 'trial') ? 'PROMOTED ON TRIAL' : 'TO REPEAT');
 
     try {
         // Use advisory lock for promotion operation to prevent concurrent promotions
@@ -371,9 +371,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($_POST['initiate'])) {
                                                                         <input type="hidden" name="promote_session" value="<?= htmlspecialchars($session[0], ENT_QUOTES) ?>">
                                                                         <select name="action" class="form-control form-select mb-3" required>
                                                                             <option value="" disabled selected>Select Action</option>
-                                                                            <option value="PROMOTE">PROMOTE</option>
-                                                                            <option value="PROMOTE ON TRIAL">PROMOTE ON TRIAL</option>
-                                                                            <option value="REPEAT">REPEAT</option>
+                                                                            <option value="promote">PROMOTE</option>
+                                                                            <option value="trial">PROMOTE ON TRIAL</option>
+                                                                            <option value="repeat">REPEAT</option>
                                                                         </select>
                                                                         <button type="submit" name="initiate" class="btn btn-primary initiateBtn">Initiate</button>
                                                                     </form>
