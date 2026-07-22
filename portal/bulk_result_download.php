@@ -150,6 +150,14 @@ $pdf = new MyPDF();
 foreach ($students as $student_id) {
     // Fetch student details
     $sd = $conn->query("SELECT * FROM students WHERE id='$student_id'")->fetch_assoc();
+    
+    // Override class and arm with values from mastersheet to show the class at the time of result
+    $mastersheet_data = $conn->query("SELECT class, arm FROM mastersheet WHERE id='$student_id' AND term='$term' AND csession='$session' LIMIT 1")->fetch_assoc();
+    if ($mastersheet_data) {
+        $sd['class'] = $mastersheet_data['class'];
+        $sd['arm'] = $mastersheet_data['arm'];
+    }
+    
     $photo_filename = str_replace('/', '_', $student_id);
     $photo_path = "studentimg/{$photo_filename}.jpg";
     if (!file_exists($photo_path)) $photo_path = "studentimg/default.jpg";
