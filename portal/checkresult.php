@@ -134,6 +134,12 @@ $student_details = $result->fetch_assoc();
 $result = $conn->query("SELECT * FROM students WHERE id = '$user_id'");
 $student_photo = $result->fetch_assoc();
 
+// Override class and arm with values from mastersheet to show the class at the time of result
+if ($student_details) {
+    $student_photo['class'] = $student_details['class'];
+    $student_photo['arm'] = $student_details['arm'];
+}
+
 // Query for class comments and principal comments
 $class_comments_result = $conn->query("SELECT * FROM classcomments WHERE id = '$user_id' and term = '$term' and csession = '$csession'");
 $class_comments = $class_comments_result->fetch_assoc();
@@ -144,7 +150,7 @@ $principal_comment = $principal_comments_result->fetch_assoc();
 $next_term_result = $conn->query("SELECT Next FROM nextterm WHERE id = 1");
 $next_term = $next_term_result->fetch_assoc()['Next'];
 
-$promotec = $conn->query("SELECT comment FROM promote WHERE id='$student_id' AND term='$term' AND csession='$csession'")->fetch_assoc()['comment'] ?? 'N/A';
+$promotec = $conn->query("SELECT comment FROM promote WHERE id='$user_id' AND term='$term' AND csession='$csession'")->fetch_assoc()['comment'] ?? 'N/A';
 
 // Create the PDF
 $pdf = new PDF();
@@ -379,7 +385,7 @@ for ($i = 0; $i < $maxRows; $i++) {
 // --- QR Code ---
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 $base_url = $protocol . '://' . $_SERVER['HTTP_HOST'];
-$qr_code_text = "This result is an authenticated academic document issued to " . $student_details['name'] . ". Its authenticity and legal status can be verified through " . $base_url . "/eduhive/verify.php?student_id=" . $student_id . "&type=result";
+$qr_code_text = "This result is an authenticated academic document issued to " . $student_details['name'] . ". Its authenticity and legal status can be verified through " . $base_url . "/eduhive/verify.php?student_id=" . $user_id . "&type=result";
 $qr_file_path = 'temp_qr_' . md5($qr_code_text) . '.png';
 QRcode::png($qr_code_text, $qr_file_path, QR_ECLEVEL_L, 4, 2);
 $qr_w = 25;

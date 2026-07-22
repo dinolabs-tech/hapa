@@ -119,11 +119,7 @@ $pdf = new MyPDF();
 $pdf->studentImage = $photo_path;
 $pdf->AddPage();
 
-// Fetch student details
-$student_details_result = $conn->query("SELECT * FROM students WHERE id = '$student_id'");
-$student_details = $student_details_result->fetch_assoc();
-
-// Fetch current term and session
+// Fetch current term and session first
 $current_term_result = $conn->query("SELECT * FROM currentterm WHERE id = 1");
 $current_term = $current_term_result->fetch_assoc();
 $term = $current_term['cterm'];
@@ -131,6 +127,17 @@ $term = $current_term['cterm'];
 $current_session_result = $conn->query("SELECT * FROM currentsession WHERE id = 1");
 $current_session = $current_session_result->fetch_assoc();
 $curr_session = $current_session['csession'];
+
+// Fetch student details from students table
+$student_details_result = $conn->query("SELECT * FROM students WHERE id = '$student_id'");
+$student_details = $student_details_result->fetch_assoc();
+
+// Fetch class and arm from mastersheet to show the class at the time of result
+$mastersheet_result = $conn->query("SELECT class, arm FROM mastersheet WHERE id = '$student_id' AND term = '$term' AND csession = '$curr_session' LIMIT 1");
+if ($mastersheet_data = $mastersheet_result->fetch_assoc()) {
+    $student_details['class'] = $mastersheet_data['class'];
+    $student_details['arm'] = $mastersheet_data['arm'];
+}
 
 // Fetch class comments
 $class_comments_result = $conn->query("SELECT * FROM classcomments WHERE id = '$student_id' AND term = '$term' AND csession = '$curr_session'");

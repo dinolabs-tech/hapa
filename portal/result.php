@@ -42,6 +42,13 @@ $gender      = $student_details['gender'];
 $class       = $student_details['class'];
 $arm         = $student_details['arm'];
 
+// Override class and arm with values from mastersheet to show the class at the time of result
+$mastersheet_query = mysqli_query($conn, "SELECT class, arm FROM mastersheet WHERE id='$loginid' AND term='$selected_term' AND csession='$selected_session' LIMIT 1");
+if ($mastersheet_data = mysqli_fetch_assoc($mastersheet_query)) {
+    $class = $mastersheet_data['class'];
+    $arm = $mastersheet_data['arm'];
+}
+
 // Determine if it's a CBT result request
 $is_cbt_result = isset($_GET['cbt']) && $_GET['cbt'] == 'true';
 
