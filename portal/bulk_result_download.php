@@ -115,9 +115,14 @@ if (empty($class) || empty($arm)) {
 $class = htmlspecialchars($class);
 $arm = htmlspecialchars($arm);
 
-// Fetch students in the specified class and arm
-$stmt = $conn->prepare("SELECT id FROM students WHERE class = ? AND arm = ? AND status = 0 ORDER BY name");
-$stmt->bind_param("ss", $class, $arm);
+// Fetch current term and session first
+$term = $conn->query("SELECT cterm FROM currentterm WHERE id=1")->fetch_assoc()['cterm'];
+$session = $conn->query("SELECT csession FROM currentsession WHERE id=1")->fetch_assoc()['csession'];
+
+// Fetch students from mastersheet for the selected class, arm, term and session
+// This ensures we get the exact students that had results uploaded for this specific class/arm/term/session
+$stmt = $conn->prepare("SELECT DISTINCT id FROM mastersheet WHERE class = ? AND arm = ? AND term = ? AND csession = ? ORDER BY id");
+$stmt->bind_param("ssss", $class, $arm, $term, $session);
 $stmt->execute();
 $result = $stmt->get_result();
 $students = [];
@@ -133,15 +138,11 @@ if (empty($students)) {
     $pdf->SetFont('Arial', 'B', 16);
     $pdf->Cell(0, 10, 'No Students Found', 0, 1, 'C');
     $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, "No students found for Class: $class, Arm: $arm", 0, 1, 'C');
+    $pdf->Cell(0, 10, "No results found for Class: $class, Arm: $arm, Term: $term, Session: $session", 0, 1, 'C');
     $filename = str_replace([' ', '/'], '_', "{$class}_{$arm}_results.pdf");
     $pdf->Output('D', $filename);
     exit();
 }
-
-// Fetch current term and session
-$term = $conn->query("SELECT cterm FROM currentterm WHERE id=1")->fetch_assoc()['cterm'];
-$session = $conn->query("SELECT csession FROM currentsession WHERE id=1")->fetch_assoc()['csession'];
 
 // Instantiate PDF
 $pdf = new MyPDF();
