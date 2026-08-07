@@ -102,17 +102,22 @@ if (isset($_POST['initiate'])) {
                         }
                     }
                 } elseif ($action === 'repeat') {
-                    // Move student back to previous class if they were mistakenly promoted
-                    foreach ($demotionMapping as $currentClass => $previousClass) {
-                        if ($promote_class === $currentClass) {
-                            $stmt = $conn->prepare("UPDATE students SET class = ? WHERE class = ? AND id = ?");
-                            $stmt->bind_param("sss", $previousClass, $currentClass, $promote_id);
-                            $stmt->execute();
-                            $stmt->close();
-                            $new_class = $previousClass;
-                            break;
-                        }
+                    // Check if student was already promoted in the promote table for this term/session
+                    $promote_check = $conn->prepare("SELECT class, comment FROM promote WHERE id = ? AND term = ? AND csession = ? FOR UPDATE");
+                    $promote_check->bind_param("sss", $promote_id, $promote_term, $promote_session);
+                    $promote_check->execute();
+                    $promote_check->bind_result($promoted_class, $promote_comment);
+                    
+                    if ($promote_check->fetch() && ($promote_comment === 'PROMOTED' || $promote_comment === 'PROMOTED ON TRIAL')) {
+                        // Student was promoted in this term/session, so move back to the class they were promoted from
+                        $stmt = $conn->prepare("UPDATE students SET class = ? WHERE class = ? AND id = ?");
+                        $stmt->bind_param("sss", $promoted_class, $promote_class, $promote_id);
+                        $stmt->execute();
+                        $stmt->close();
+                        $new_class = $promoted_class;
                     }
+                    // If no promote record exists for this term/session, retain current class (do nothing)
+                    $promote_check->close();
                 }
 
                 // Commit transaction
