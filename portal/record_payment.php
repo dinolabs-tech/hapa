@@ -103,14 +103,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['amount'])) {
           }
         }
       }
+      unset($fi); // break the reference left by the by-reference foreach over $fee_items
       
       // Step 3: Handle overpayment (credit/refund)
       $overpayment = $remaining > 0 ? $remaining : 0;
 
       // Calculate totals
+      // NOTE: $allocated_amount already includes the discount (the discount is
+      // subtracted from $remaining before allocation), so it must only be
+      // applied once to the balance.
       $allocated_amount = $amount - $overpayment;
       $new_total_paid = $total_paid + $allocated_amount;
-      $new_balance = $balance - $allocated_amount - $discount;
+      $new_balance = $balance - $allocated_amount;
 
       // Insert payment
       $stmt = $mysqli->prepare("INSERT INTO payments (student_id, amount, payment_method, payment_date, reference, receipt_number, created_by, paid_by, bank_from, bank_to, transfer_mode, transfer_id, paid_for, discount, total_paid_term, balance_term, tuckshop_deposit, term, session) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -164,6 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['amount'])) {
               $discount_remaining -= $discount_alloc;
             }
           }
+          unset($fi); // break the reference left by the by-reference foreach over $fee_items
         }
       }
 
@@ -198,6 +203,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['amount'])) {
       }
 
       $mysqli->commit();
+
+      // Refresh the stat widgets so they reflect the payment just recorded
+      $total_paid = $new_total_paid;
+      $balance    = $total_fee - $total_paid;
+
       $alerts[] = ['success', 'Payment recorded successfully.'];
     } catch (Exception $e) {
       $mysqli->rollback();
@@ -417,7 +427,7 @@ $mysqli->commit();
                     <input type="text" name="reference" class="form-control">
                   </div>
                   <div class="col-md-12 text-center">
-                    <button class="btn btn-icon btn-round btn-primary" type="submit"><i class="fa fa-save"></i>
+                    <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i>
                     </button>
                   </div>
                 </form>
