@@ -259,11 +259,13 @@ if (isset($_POST['update'])) {
 if (isset($_POST['delete_id'])) {
 
     $id = $_POST['delete_id'];
+    $delete_blocked = null;
+    $delete_error = null;
 
     // Fetch student record before deletion for audit logging
     $student_before = null;
     $stmt_fetch = $conn->prepare("SELECT * FROM students WHERE id=?");
-    $stmt_fetch->bind_param("i", $id);
+    $stmt_fetch->bind_param("s", $id);
     $stmt_fetch->execute();
     $result_fetch = $stmt_fetch->get_result();
     if ($result_fetch && $row = $result_fetch->fetch_assoc()) {
@@ -271,37 +273,209 @@ if (isset($_POST['delete_id'])) {
     }
     $stmt_fetch->close();
 
-    // Check if the logged-in user is NOT a superuser
-    $user_id = $_SESSION['user_id'] ?? 0;
-    $is_superuser = false;
-    $stmt_role = $conn->prepare("SELECT role FROM login WHERE id=?");
-    $stmt_role->bind_param("i", $user_id);
-    $stmt_role->execute();
-    $stmt_role->bind_result($user_role);
-    if ($stmt_role->fetch() && $user_role === 'Superuser') {
-        $is_superuser = true;
+    // =====================================================
+    // BURSARY GUARD: block deletion of unsettled students
+    // =====================================================
+    $blockers = [];
+
+    // Which target tables actually exist in this database. Both the guards
+    // below and the cascade skip tables that don't exist, so a missing table
+    // never aborts the delete (e.g. schema not yet migrated on some env).
+    $existing_tables = [];
+    $res_tables = $conn->query(
+        "SELECT table_name AS t FROM information_schema.tables
+         WHERE table_schema = DATABASE()
+         AND table_name IN ('payment_allocations','payments','student_fee_items','student_fees',
+                            'transactions','carryovers','tuck','attendance','testimonial',
+                            'student_ef_list','mastersheet','classcomments','principalcomments',
+                            'parent','parent_student','students')"
+    );
+    while ($row_t = $res_tables->fetch_assoc()) {
+        $existing_tables[$row_t['t']] = true;
     }
-    $stmt_role->close();
 
-    // Log the deletion in audit_logs if user is not a superuser
-    if (!$is_superuser && $student_before !== null) {
-        audit_log('delete', 'student', $id, $student_before, null);
+    // 1. Outstanding fee balance (active fee items not fully paid)
+    $outstanding = 0.0;
+    if (isset($existing_tables['student_fee_items'], $existing_tables['student_fees'])) {
+        $stmt_guard = $conn->prepare(
+            "SELECT COALESCE(SUM(sfi.amount - sfi.paid_amount), 0) AS outstanding
+             FROM student_fee_items sfi
+             JOIN student_fees sf ON sfi.student_fee_id = sf.id
+             WHERE sf.student_id = ? AND sf.status = 'active'"
+        );
+        $stmt_guard->bind_param("s", $id);
+        $stmt_guard->execute();
+        $outstanding = (float)$stmt_guard->get_result()->fetch_assoc()['outstanding'];
+        $stmt_guard->close();
+        if ($outstanding > 0) {
+            $blockers[] = "outstanding fee balance of " . money_format_naira($outstanding);
+        }
     }
 
-    // Delete dependent parent_student records first to avoid foreign key constraint failure
-    $stmt_parent = $conn->prepare("DELETE FROM parent_student WHERE student_id=?");
-    $stmt_parent->bind_param("s", $id);
-    $stmt_parent->execute();
-    $stmt_parent->close();
+    // 2. Cash received that is NOT allocated to any fee item
+    //    (allocated payments = settled school income, deletable per strategy B;
+    //     unallocated cash must be allocated or refunded by Bursary first)
+    $unallocated = 0.0;
+    if (isset($existing_tables['payments'], $existing_tables['payment_allocations'])) {
+        $stmt_guard = $conn->prepare(
+            "SELECT COALESCE((SELECT SUM(CASE WHEN payment_method = 'refund' THEN -amount ELSE amount END)
+                             FROM payments WHERE student_id = ?), 0)
+                  - COALESCE((SELECT SUM(pa.allocated_amount)
+                              FROM payment_allocations pa
+                              JOIN payments p ON pa.payment_id = p.id
+                              WHERE p.student_id = ?), 0) AS unallocated"
+        );
+        $stmt_guard->bind_param("ss", $id, $id);
+        $stmt_guard->execute();
+        $unallocated = (float)$stmt_guard->get_result()->fetch_assoc()['unallocated'];
+        $stmt_guard->close();
+        if ($unallocated > 0.009) {
+            $blockers[] = "unallocated payments totalling " . money_format_naira($unallocated);
+        }
+    }
 
-    $stmt = $conn->prepare("DELETE FROM students WHERE id=?");
-    $stmt->bind_param("s", $id);
+    // 3. Carryover balance owed from previous terms
+    $carryover = 0.0;
+    if (isset($existing_tables['carryovers'])) {
+        $stmt_guard = $conn->prepare("SELECT COALESCE(SUM(amount), 0) AS carryover FROM carryovers WHERE student_id = ?");
+        $stmt_guard->bind_param("s", $id);
+        $stmt_guard->execute();
+        $carryover = (float)$stmt_guard->get_result()->fetch_assoc()['carryover'];
+        $stmt_guard->close();
+        if ($carryover > 0) {
+            $blockers[] = "carryover balance of " . money_format_naira($carryover);
+        }
+    }
 
-    if ($stmt->execute()) {
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
+    // 4. Tuckshop prepaid credit held on the student's behalf
+    $tuck_balance = 0.0;
+    if (isset($existing_tables['tuck'])) {
+        $stmt_guard = $conn->prepare("SELECT COALESCE(vbalance, 0) AS tuck_balance FROM tuck WHERE regno = ?");
+        $stmt_guard->bind_param("s", $id);
+        $stmt_guard->execute();
+        $tuck_balance = (float)$stmt_guard->get_result()->fetch_assoc()['tuck_balance'];
+        $stmt_guard->close();
+        if ($tuck_balance > 0) {
+            $blockers[] = "tuckshop credit of " . money_format_naira($tuck_balance);
+        }
+    }
+
+    if (!empty($blockers)) {
+        // Bursary records are not settled - abort without touching anything
+        $student_name = $student_before['name'] ?? $id;
+        $delete_blocked = "Cannot delete " . $student_name . ": " . implode("; ", $blockers)
+            . ". Settle/refund these with the Bursary first, then delete.";
     } else {
-        echo "Delete failed";
+
+        // Check if the logged-in user is NOT a superuser
+        $user_id = $_SESSION['user_id'] ?? 0;
+        $is_superuser = false;
+        $stmt_role = $conn->prepare("SELECT role FROM login WHERE id=?");
+        $stmt_role->bind_param("i", $user_id);
+        $stmt_role->execute();
+        $stmt_role->bind_result($user_role);
+        if ($stmt_role->fetch() && $user_role === 'Superuser') {
+            $is_superuser = true;
+        }
+        $stmt_role->close();
+
+        // Log the deletion in audit_logs if user is not a superuser.
+        // Include a bursary summary so the financial state at deletion time stays traceable.
+        if (!$is_superuser && $student_before !== null) {
+            $student_before['bursary_summary'] = [
+                'outstanding_balance' => $outstanding,
+                'unallocated_payments' => $unallocated,
+                'carryover_balance' => $carryover,
+                'tuckshop_credit' => $tuck_balance,
+            ];
+            audit_log('delete', 'student', $id, $student_before, null);
+        }
+
+        // Child -> parent order to avoid orphan rows and FK constraint failures.
+        // The first statement has two placeholders (both bound to the student id).
+        $cascade_sql = [
+            "DELETE FROM payment_allocations WHERE payment_id IN (SELECT id FROM payments WHERE student_id=?)
+                OR student_fee_item_id IN (SELECT sfi.id FROM student_fee_items sfi
+                                           JOIN student_fees sf ON sfi.student_fee_id = sf.id
+                                           WHERE sf.student_id=?)",
+            "DELETE FROM payments WHERE student_id=?",
+            "DELETE FROM student_fee_items WHERE student_fee_id IN (SELECT id FROM student_fees WHERE student_id=?)",
+            "DELETE FROM student_fees WHERE student_id=?",
+            "DELETE FROM transactions WHERE student_id=?",
+            "DELETE FROM carryovers WHERE student_id=?",
+            "DELETE FROM tuck WHERE regno=?",
+            "DELETE FROM attendance WHERE student_id=?",
+            "DELETE FROM testimonial WHERE student_id=?",
+            "DELETE FROM student_ef_list WHERE student_id=?",
+            "DELETE FROM mastersheet WHERE id=?",
+            "DELETE FROM classcomments WHERE id=?",
+            "DELETE FROM principalcomments WHERE id=?",
+            "DELETE FROM parent_student WHERE student_id=?", // real FK to students(id)
+            "DELETE FROM students WHERE id=?",
+        ];
+
+        try {
+            $conn->begin_transaction();
+
+            // Identify parents linked to this student (legacy parent.student_id
+            // column or parent_student link) BEFORE the link rows are removed,
+            // so we can later drop parents whose only child was this student.
+            $candidate_parents = [];
+            if (isset($existing_tables['parent'])) {
+                if (isset($existing_tables['parent_student'])) {
+                    $sql_parents = "SELECT id FROM parent WHERE student_id=?
+                        OR id IN (SELECT parent_id FROM parent_student WHERE student_id=?)";
+                } else {
+                    $sql_parents = "SELECT id FROM parent WHERE student_id=?";
+                }
+                $stmt_p = $conn->prepare($sql_parents);
+                if (substr_count($sql_parents, '?') === 2) {
+                    $stmt_p->bind_param("ss", $id, $id);
+                } else {
+                    $stmt_p->bind_param("s", $id);
+                }
+                $stmt_p->execute();
+                $res_p = $stmt_p->get_result();
+                while ($row_p = $res_p->fetch_assoc()) {
+                    $candidate_parents[] = (int)$row_p['id'];
+                }
+                $stmt_p->close();
+            }
+
+            // $existing_tables was computed above and covers every cascade
+            // target, so a missing table is skipped instead of aborting.
+            foreach ($cascade_sql as $sql) {
+                if (!preg_match('/^DELETE FROM\s+(\S+)/i', $sql, $m) || !isset($existing_tables[$m[1]])) {
+                    continue;
+                }
+                $stmt_del = $conn->prepare($sql);
+                if (substr_count($sql, '?') === 2) {
+                    $stmt_del->bind_param("ss", $id, $id);
+                } else {
+                    $stmt_del->bind_param("s", $id);
+                }
+                $stmt_del->execute();
+                $stmt_del->close();
+            }
+
+            // Drop parents whose only links were to this student. Parents that
+            // still have parent_student rows for other students are kept.
+            foreach ($candidate_parents as $pid) {
+                $stmt_p = $conn->prepare(
+                    "DELETE FROM parent WHERE id=?
+                     AND NOT EXISTS (SELECT 1 FROM parent_student WHERE parent_id=?)"
+                );
+                $stmt_p->bind_param("ii", $pid, $pid);
+                $stmt_p->execute();
+                $stmt_p->close();
+            }
+            $conn->commit();
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        } catch (Throwable $e) {
+            $conn->rollback();
+            $delete_error = "Delete failed: " . $e->getMessage();
+        }
     }
 }
 
@@ -817,6 +991,16 @@ $conn->close();
                                 </div>
                                 <div class="card-body pb-0">
                                     <div class="mb-4 mt-2">
+                                        <?php if (!empty($delete_blocked)): ?>
+                                            <div class="alert alert-warning" role="alert">
+                                                <?php echo htmlspecialchars($delete_blocked); ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($delete_error)): ?>
+                                            <div class="alert alert-danger" role="alert">
+                                                <?php echo htmlspecialchars($delete_error); ?>
+                                            </div>
+                                        <?php endif; ?>
                                         <div class="table-responsive">
                                             <table id="multi-filter-select" class="display table table-striped table-hover">
                                                 <thead>
@@ -847,7 +1031,7 @@ $conn->close();
                                                                         class="btn btn-warning me-3 btn-icon btn-round ps-1">
                                                                         <i class="fas fa-edit"></i>
                                                                     </a>
-                                                                    <?php if ($_SESSION['role'] === 'Superuser') { ?>
+                                                                    <?php if ($_SESSION['role'] === 'Superuser' || $_SESSION['role'] === 'Administrator') { ?>
                                                                         <!-- DELETE BUTTON (SAFE - POST) -->
                                                                         <form method="POST"
                                                                             onsubmit="return confirm('Are you sure you want to delete this record?');"

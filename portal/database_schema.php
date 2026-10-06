@@ -1070,10 +1070,10 @@ $tables = [
 // Create tables
 foreach ($tables as $tableName => $query) {
     if (!tableExists($conn, $tableName)) {
-        if ($conn->query($query) === TRUE) {
-            // Table created successfully
-        } else {
-            error_log("Error creating table $tableName: " . $conn->error);
+        try {
+            $conn->query($query);
+        } catch (mysqli_sql_exception $e) {
+            error_log("Error creating table $tableName: " . $e->getMessage());
         }
     }
 }

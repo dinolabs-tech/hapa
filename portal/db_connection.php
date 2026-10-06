@@ -19,7 +19,7 @@ $dbname = "hapacoll_portal";
 // $servername = "localhost";
 // $username = "root";
 // $password = "";
-// $dbname = "eduhive";
+// $dbname = "hapa";
 
 // Create connection with error reporting
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
