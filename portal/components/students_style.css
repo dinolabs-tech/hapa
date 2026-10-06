@@ -541,6 +541,7 @@ body::after {
   border: 1px solid rgba(255, 255, 255, 0.3) !important;
   box-shadow: 0 4px 15px rgba(243, 84, 93, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
   color: #ffffff !important;
+  padding: 8px;
 }
 
 .btn-danger:hover {

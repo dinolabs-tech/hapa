@@ -858,7 +858,7 @@ $conn->close();
                                                                                 value="<?php echo htmlspecialchars($student['id']); ?>">
 
                                                                             <button type="submit"
-                                                                                class="btn btn-danger btn-icon btn-round">
+                                                                                class="btn btn-danger btn-icon btn-round ">
                                                                                 <i class="fas fa-trash"></i>
                                                                             </button>
                                                                         </form>
