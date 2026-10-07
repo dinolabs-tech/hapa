@@ -237,11 +237,11 @@ if ($session_result) {
                       <div class="row mt-3">
                         <div class="col-md-12 text-center">
                           <!-- Submit Button -->
-                          <button type="submit" class="btn btn-success btn-icon btn-round ps-1 mx-3"><span class="btn-label">
+                          <button type="submit" class="btn btn-success btn-icon btn-round mx-3"><span class="btn-label">
                               <i class="fa fa-cloud-upload-alt"></i></button>
 
                           <!-- Download Template Link -->
-                          <a href="download_template.php" class="btn btn-warning btn-icon btn-round ps-1"><span class="btn-label">
+                          <a href="download_template.php" class="btn btn-warning btn-icon btn-round"><span class="btn-label">
                               <i class="fa fa-cloud-download-alt"></i></a>
                         </div>
                       </div>

@@ -175,7 +175,7 @@ $conn->close();
 
                                                                 <td>
                                                                     <a href="?edit=<?php echo $student['id']; ?>"
-                                                                        class="btn btn-warning btn-icon btn-round ps-1">
+                                                                        class="btn btn-warning btn-icon btn-round">
                                                                         <span class="fas fa-edit"></span></a>
                                                                 </td>
                                                             </tr>

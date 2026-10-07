@@ -1069,7 +1069,7 @@ $conn->close();
 
                                                                     <!-- EDIT BUTTON -->
                                                                     <a href="?edit=<?php echo urlencode($student['id']); ?>"
-                                                                        class="btn btn-warning me-3 btn-icon btn-round ps-1">
+                                                                        class="btn btn-warning me-3 btn-icon btn-round">
                                                                         <i class="fas fa-edit"></i>
                                                                     </a>
                                                                     <?php if ($_SESSION['role'] === 'Superuser' || $_SESSION['role'] === 'Administrator') { ?>

@@ -341,7 +341,7 @@ $conn->close();
                         class="form-control" required>
                       <br>
                       <div class="text-center">
-                        <button type="submit" name="bulk_upload" class="btn btn-success btn-icon btn-round ps-2"> <span class="btn-label">
+                        <button type="submit" name="bulk_upload" class="btn btn-success btn-icon btn-round"> <span class="btn-label">
                             <i class="fas fa-cloud-upload-alt"></i>
                           </span></button>
                       </div>
@@ -771,14 +771,14 @@ $conn->close();
                     <br />
                     <div class="text-center card-action">
                       <button type="submit" name="register"
-                        class="btn btn-success btn-icon btn-round ps-2">
+                        class="btn btn-success btn-icon btn-round">
                         <span class="btn-label">
                           <i class="fa fa-save"></i>
                         </span>
 
                       </button>
 
-                      <button type="reset" class="btn btn-black btn-icon btn-round ps-1"><span class="btn-label">
+                      <button type="reset" class="btn btn-black btn-icon btn-round"><span class="btn-label">
                           <i class="fa fa-undo"></i>
                         </span></button>
                     </div>

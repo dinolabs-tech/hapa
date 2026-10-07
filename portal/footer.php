@@ -1,7 +1,7 @@
 <?php if ($_SESSION['role'] !== 'Student' && $_SESSION['role'] !== 'Parent' && $_SESSION['role'] !== 'Alumni') { ?>
   <!-- Chat Bubble Button -->
   <button id="chatBubble" onclick="toggleChat()">
-    <i class="fa-solid fa-robot"></i>
+    <i class="fas fa-robot"></i>
   </button>
 <?php  } ?>
 

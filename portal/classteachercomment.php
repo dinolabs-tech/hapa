@@ -313,7 +313,7 @@ $records = $conn->query("SELECT * FROM classcomments where term = '$term' AND cs
 
                       <!-- DOWNLOAD Button -->
                       <div class="text-center mt-3">
-                        <button type="submit" name="bulk_upload" class="btn btn-primary btn-icon btn-round ps-1">
+                        <button type="submit" name="bulk_upload" class="btn btn-primary btn-icon btn-round">
                           <span class="btn-label">
                             <i class="fa fa-cloud-download-alt"></i>
                           </span>
@@ -432,10 +432,10 @@ $records = $conn->query("SELECT * FROM classcomments where term = '$term' AND cs
                       <br>
 
                       <div class="text-center">
-                        <button type="submit" class="btn btn-success btn-icon btn-round ps-1">
+                        <button type="submit" class="btn btn-success btn-icon btn-round">
                           <span class="btn-label">
                             <i class="fa fa-save"></i></button>
-                        <button type="reset" class="btn btn-secondary btn-icon btn-round ps-1">
+                        <button type="reset" class="btn btn-secondary btn-icon btn-round">
                           <span class="btn-label">
                             <i class="fa fa-undo"></i></button>
                       </div>
@@ -498,7 +498,7 @@ $records = $conn->query("SELECT * FROM classcomments where term = '$term' AND cs
                       </select>
                       <br>
                       <div class="text-center">
-                        <button type="submit" class="btn btn-primary btn-icon btn-round ps-1" name="csv_upload">
+                        <button type="submit" class="btn btn-primary btn-icon btn-round" name="csv_upload">
                           <span class="btn-label">
                             <i class="fa fa-cloud-upload-alt"></i></button>
                       </div>
@@ -545,7 +545,7 @@ $records = $conn->query("SELECT * FROM classcomments where term = '$term' AND cs
                           </select>
                         </div>
                         <div class="col-md-4">
-                          <button type="submit" name="bulk_delete" class="btn btn-danger btn-round ps-3">
+                          <button type="submit" name="bulk_delete" class="btn btn-danger btn-round">
                             <span class="btn-label">
                               <i class="fa fa-trash"></i>
                             </span>
@@ -617,11 +617,11 @@ $records = $conn->query("SELECT * FROM classcomments where term = '$term' AND cs
                               <!-- Edit button: calls JavaScript function to populate form for editing -->
                               <a href="javascript:void(0);"
                                 onclick="editClassCommentRecord('<?php echo htmlspecialchars($row['id']); ?>', '<?php echo htmlspecialchars($row['name']); ?>', '<?php echo htmlspecialchars($row['comment']); ?>', '<?php echo htmlspecialchars($row['schlopen']); ?>', '<?php echo htmlspecialchars($row['dayspresent']); ?>', '<?php echo htmlspecialchars($row['daysabsent']); ?>', '<?php echo htmlspecialchars($row['attentiveness']); ?>', '<?php echo htmlspecialchars($row['neatness']); ?>', '<?php echo htmlspecialchars($row['politeness']); ?>', '<?php echo htmlspecialchars($row['selfcontrol']); ?>', '<?php echo htmlspecialchars($row['punctuality']); ?>', '<?php echo htmlspecialchars($row['relationship']); ?>', '<?php echo htmlspecialchars($row['handwriting']); ?>', '<?php echo htmlspecialchars($row['music']); ?>', '<?php echo htmlspecialchars($row['club']); ?>', '<?php echo htmlspecialchars($row['sport']); ?>', '<?php echo htmlspecialchars($row['class']); ?>', '<?php echo htmlspecialchars($row['arm']); ?>', '<?php echo htmlspecialchars($row['term']); ?>', '<?php echo htmlspecialchars($row['csession']); ?>')"
-                                class="btn btn-warning btn-icon btn-round ps-1 me-2"><span class="btn-label">
+                                class="btn btn-warning btn-icon btn-round me-2"><span class="btn-label">
                                   <i class="fa fa-edit"></i></span></a>
                               <!-- Delete button: links to delete the record -->
                               <a href="?delete=<?php echo htmlspecialchars($row['id']); ?>"
-                                class="btn btn-danger btn-icon btn-round ps-1"><span
+                                class="btn btn-danger btn-icon btn-round"><span
                                   class="btn-label">
                                   <i class="fa fa-trash"></i></span></a>
                             </td>

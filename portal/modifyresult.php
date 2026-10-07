@@ -327,7 +327,7 @@ $stmt->close();
                                                 <input type="text" id="search_term" name="search_term" placeholder="Enter ID or Name" class="form-control" required>
                                             </div>
                                             <div class="text-center">
-                                                <button type="submit" name="search" class="btn btn-success btn-icon btn-round ps-1">
+                                                <button type="submit" name="search" class="btn btn-success btn-icon btn-round">
                                                     <span class="btn-label">
                                                         <i class="fa fa-search"></i>
                                                 </button>
@@ -360,7 +360,7 @@ $stmt->close();
                                                         echo "<td>";
                                                         echo "<form style='display: inline;' method='POST'>";
                                                         echo "<input type='hidden' name='search_term' value='" . htmlspecialchars($student['name']) . "'>";
-                                                        echo "<button type='submit' name='search' class='btn btn-warning btn-icon btn-round ps-1'>";
+                                                        echo "<button type='submit' name='search' class='btn btn-warning btn-icon btn-round'>";
                                                         echo "<span class='btn-label'>";
                                                         echo "<i class='fa fa-edit'></i>";
                                                         echo "</button>";
@@ -415,9 +415,10 @@ $stmt->close();
                                                                         <input type="hidden" name="subject" value="<?php echo htmlspecialchars($record['subject']); ?>">
                                                                         <input type="hidden" name="term" value="<?php echo htmlspecialchars($record['term']); ?>">
                                                                         <input type="hidden" name="session" value="<?php echo htmlspecialchars($record['csession']); ?>">
-                                                                        <button type="submit" name="edit" class="btn btn-warning btn-icon btn-round ps-1">
+                                                                        <button type="submit" name="edit" class="btn btn-warning btn-icon btn-round">
                                                                             <span class="btn-label">
                                                                                 <i class="fa fa-edit"></i>
+                                                                            </span>
                                                                         </button>
                                                                     </form>
                                                                 </td>

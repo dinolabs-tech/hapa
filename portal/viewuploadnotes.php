@@ -220,7 +220,7 @@ $conn->close();
                                 <form action="viewuploadnotes.php" method="post" style="display:inline;">
                                   <input type="hidden" name="note_id" value="<?php echo $assignment['id']; ?>">
                                   <input type="hidden" name="file_name" value="<?php echo $assignment['file_name']; ?>">
-                                  <button type="submit" name="delete" class="btn btn-danger btn-icon btn-round ps-1"><span class="btn-label">
+                                  <button type="submit" name="delete" class="btn btn-danger btn-icon btn-round"><span class="btn-label">
                                       <i class="fa fa-trash"></i></button>
                                 </form>
                               </td>

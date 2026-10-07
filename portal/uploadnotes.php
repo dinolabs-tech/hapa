@@ -239,7 +239,7 @@ $conn->close();
           
                                 <br>
                               <input class="form-control" type="file" id="document" name="document" accept=".doc,.docx" required><br>
-                              <button type="submit" name="upload" class="ps-1 btn btn-success btn-icon btn-round"><span class="btn-label">
+                              <button type="submit" name="upload" class="btn btn-success btn-icon btn-round"><span class="btn-label">
                               <i class="fa fa-cloud-upload-alt"></i></button>
                           </form>
                           </p>

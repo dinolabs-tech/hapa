@@ -341,7 +341,7 @@ $conn->close();
                                                                     <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                                                                         <input type="hidden" name="regno" value="<?= htmlspecialchars($student['regno']) ?>">
                                                                         <input type="hidden" name="select_student" value="1">
-                                                                        <button type="submit" class="btn btn-info btn-icon btn-round ps-1"><span class="btn-label">
+                                                                        <button type="submit" class="btn btn-info btn-icon btn-round"><span class="btn-label">
                                                                                 <i class="fa fa-check-circle"></i></button>
                                                                     </form>
                                                                 </td>
@@ -394,7 +394,7 @@ $conn->close();
                                                                 <input type="hidden" name="product_name" value="<?= htmlspecialchars($product['productname']) ?>">
                                                                 <input type="hidden" name="price" value="<?= htmlspecialchars($product['sellprice']) ?>">
                                                                 <input type="number" name="qty" value="1" min="1" class="form-control d-inline w-50">
-                                                                <button type="submit" class="btn btn-success btn-icon btn-round ps-1"><span class="btn-label">
+                                                                <button type="submit" class="btn btn-success btn-icon btn-round"><span class="btn-label">
                                                                         <i class="fa fa-shopping-cart"></i></button>
                                                             </form>
                                                         </td>
@@ -430,7 +430,7 @@ $conn->close();
                                                                 <form method="POST" class="d-inline">
                                                                     <input type="hidden" name="action" value="remove_from_cart">
                                                                     <input type="hidden" name="product_id" value="<?= htmlspecialchars($item['product_id']) ?>">
-                                                                    <button type="submit" class="btn btn-danger btn-icon btn-round ps-1"><span class="btn-label">
+                                                                    <button type="submit" class="btn btn-danger btn-icon btn-round"><span class="btn-label">
                                                                             <i class="fa fa-trash"></i></button>
                                                                 </form>
                                                             </td>

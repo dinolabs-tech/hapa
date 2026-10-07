@@ -300,7 +300,7 @@ $conn->close();
 
                       <!-- DOWNLOAD Button -->
                       <div class="text-center mt-3">
-                        <button type="submit" name="bulk_upload" class="btn btn-primary btn-icon btn-round ps-1">
+                        <button type="submit" name="bulk_upload" class="btn btn-primary btn-icon btn-round">
                           <span class="btn-label">
                             <i class="fa fa-cloud-download-alt"></i>
                           </span>
@@ -395,10 +395,10 @@ $conn->close();
                       </div>
 
                       <div class="text-center">
-                        <button type="submit" class="btn btn-success btn-icon btn-round ps-1">
+                        <button type="submit" class="btn btn-success btn-icon btn-round">
                           <span class="btn-label">
                             <i class="fa fa-save"></i></button>
-                        <button type="button" class="btn btn-secondary btn-icon btn-round ps-1" onclick="window.location.href='principalcomment.php';">
+                        <button type="button" class="btn btn-secondary btn-icon btn-round" onclick="window.location.href='principalcomment.php';">
                           <span class="btn-label">
                             <i class="fa fa-undo"></i></button>
                       </div>
@@ -461,7 +461,7 @@ $conn->close();
                       </select>
                       <br>
                       <div class="text-center">
-                        <button type="submit" class="btn btn-warning btn-icon btn-round ps-1" name="csv_upload">
+                        <button type="submit" class="btn btn-warning btn-icon btn-round" name="csv_upload">
                           <span class="btn-label">
                             <i class="fa fa-cloud-upload-alt"></i></button>
                       </div>
@@ -511,7 +511,7 @@ $conn->close();
                           </select>
                         </div>
                         <div class="col-md-4">
-                          <button type="submit" name="bulk_delete" class="btn btn-danger btn-round ps-3">
+                          <button type="submit" name="bulk_delete" class="btn btn-danger btn-round">
                             <span class="btn-label">
                               <i class="fa fa-trash"></i>
                             </span>
@@ -567,9 +567,9 @@ $conn->close();
                               <td><?php echo $row['term']; ?></td>
                               <td><?php echo $row['csession']; ?></td>
                               <td class="d-flex">
-                                <a href="?edit=<?php echo $row['id']; ?>" class="btn btn-warning btn-icon btn-round me-2 ps-1"><span class="btn-label">
+                                <a href="?edit=<?php echo $row['id']; ?>" class="btn btn-warning btn-icon btn-round me-2"><span class="btn-label">
                                     <i class="fa fa-edit"></i></a>
-                                <a href="?delete=<?php echo $row['id']; ?>" class="btn btn-danger btn-icon btn-round ps-1"><span class="btn-label">
+                                <a href="?delete=<?php echo $row['id']; ?>" class="btn btn-danger btn-icon btn-round"><span class="btn-label">
                                     <i class="fa fa-trash"></i></a>
                               </td>
                             </tr>

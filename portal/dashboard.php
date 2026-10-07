@@ -510,12 +510,12 @@ $difference = $diff->days;
 
 
 <?php if ($_SESSION['role'] !== 'Tuckshop' && $_SESSION['role'] !== 'Admission' && $_SESSION['role'] !== 'Bursary') { ?>
-  <div class="chatbot-icon" onclick="toggleChatbot()">AI</div>
+  <div class="chatbot-icon d-none" onclick="toggleChatbot()">AI</div>
 <?php  }?>
 
 
   <!-- Chatbot popup -->
-  <div class="chatbot-popup" id="chatbotPopup">
+  <div class="chatbot-popup d-none" id="chatbotPopup">
     <div class="chatbot-header" id="chatbotHeader">
       Analyze Academic Performance
       <span class="close-button" onclick="closeChatbot()">X</span>
