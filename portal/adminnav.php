@@ -9,6 +9,19 @@
     include('logo_header.php');
     ?>
   </div>
+  <div class="sp-profile-card">
+    <img src="assets/img/profile-img.jpg" class="img-fluid" alt="photo" />
+    <div>
+      <div class="sp-name"><?php echo htmlspecialchars($student_name); ?></div>
+      <?php if ($_SESSION['role'] !== '') { ?>
+        <span class="sp-chip"><?php echo $_SESSION['role']; ?></span>
+      <?php } ?>
+    </div>
+    <a href="../logout.php">
+      <i class="fas fa-sign-out-alt ms-auto text-white" title="Sign out"></i>
+    </a>
+  </div>
+
   <div class="sidebar-wrapper scrollbar scrollbar-inner">
     <div class="sidebar-content">
       <?php if ($_SESSION['role'] == 'Administrator') { ?>
@@ -20,7 +33,7 @@
         </div>
       <?php } ?>
 
-      <ul class="nav nav-secondary">
+      <ul class="nav nav-secondary" style="margin-bottom:60px;">
 
         <?php
         // Check if the logged-in user has the 'Superuser' role.
