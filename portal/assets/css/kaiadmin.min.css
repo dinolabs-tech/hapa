@@ -442,7 +442,7 @@ body {
   max-width: unset;
 }
 .main-panel .row {
-  --bs-gutter-x: 30px;
+  --bs-gutter-x: 10px;
 }
 .main-panel .page-header {
   display: flex;
@@ -534,8 +534,8 @@ body {
 }
 @media (min-width: 576px) {
   .page-inner {
-    padding-right: 30px;
-    padding-left: 30px;
+    padding-right: 10px;
+    padding-left: 10px;
   }
 }
 .page-inner-fill {

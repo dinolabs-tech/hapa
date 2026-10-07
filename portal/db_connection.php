@@ -10,16 +10,16 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Database configuration
-// $servername = "localhost";
-// $username = "hapacoll_root";
-// $password = "foxtrot2november";
-// $dbname = "hapacoll_portal";
+$servername = "localhost";
+$username = "hapacoll_root";
+$password = "foxtrot2november";
+$dbname = "hapacoll_portal";
 
 // Local development configuration (commented out)
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "hapa";
+// $servername = "localhost";
+// $username = "root";
+// $password = "";
+// $dbname = "hapa";
 
 // Create connection with error reporting
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
