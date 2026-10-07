@@ -59,7 +59,7 @@ $difference = $diff->days;
 
       <div class="container">
         <div class="page-inner">
-           <div
+          <div
             class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4 d-flex">
             <div>
               <h3 class="fw-bold mb-3">Dashboard</h3>
@@ -69,12 +69,12 @@ $difference = $diff->days;
               </ol>
             </div>
             <?php if ($difference <= '30') { ?>
-                <div class="col-md-8 d-flex ms-auto">
-                  <marquee behavior="" direction="" class="text-danger fw-bold mt-2" style="border-left: solid red 5px; height:40px; border-bottom:solid 1px red; border-radius:10px;"><a href="expiry.php">
-                      <h5 class="mt-1">Your license will expire in <?= $difference; ?> day(s) time, click on me to make payment</h5>
-                    </a></marquee>
-                  <span class="ms-auto card bg-danger p-3 text-white fw-bold col-4 col-md-2 text-center"><a href="expiry.php" class="text-white"><?= $expirydate ?></a></span>
-                </div>
+              <div class="col-md-8 d-flex ms-auto">
+                <marquee behavior="" direction="" class="text-danger fw-bold mt-2" style="border-left: solid red 5px; height:40px; border-bottom:solid 1px red; border-radius:10px;"><a href="expiry.php">
+                    <h5 class="mt-1">Your license will expire in <?= $difference; ?> day(s) time, click on me to make payment</h5>
+                  </a></marquee>
+                <span class="ms-auto card bg-danger p-3 text-white fw-bold col-4 col-md-2 text-center"><a href="expiry.php" class="text-white"><?= $expirydate ?></a></span>
+              </div>
             <?php } ?>
           </div>
 
@@ -82,7 +82,7 @@ $difference = $diff->days;
           <div class="row">
 
             <div class="col-md-12">
-              <div class="card card-primary card-round curves-shadow">
+              <div class="card card-primary card-round bg-primary-gradient curves-shadow">
                 <div class="card-header">
                   <div class="card-head-row">
                     <div class="card-title">DinoPilot</div>
@@ -100,7 +100,7 @@ $difference = $diff->days;
           <!-- ================ STUDENT ENROLLED PANEL =================== -->
           <div class="row">
             <div class="col-sm-6 col-md-3">
-              <div class="card card-stats card-success card-round">
+              <div class="card card-stats card-success bg-success-gradient card-round">
                 <div class="card-body skew-shadow">
                   <div class="row align-items-center">
                     <div class="col-icon">
@@ -112,7 +112,6 @@ $difference = $diff->days;
                       <div class="numbers">
                         <p class="card-category">Students Enrolled</p>
                         <h4 class="card-title"><?php echo $total_students; ?></h4>
-
                       </div>
                     </div>
                   </div>
@@ -121,7 +120,7 @@ $difference = $diff->days;
             </div>
 
             <div class="col-sm-6 col-md-3">
-              <div class="card card-stats card-secondary card-round">
+              <div class="card card-stats card-secondary bg-secondary-gradient card-round">
                 <div class="card-body curves-shadow">
                   <div class="row align-items-center">
                     <div class="col-icon">
@@ -142,7 +141,7 @@ $difference = $diff->days;
             </div>
 
             <div class="col-sm-6 col-md-3">
-              <div class="card card-stats card-primary card-round">
+              <div class="card card-stats card-primary bg-primary-gradient card-round">
                 <div class="card-body bubble-shadow">
                   <div class="row align-items-center">
                     <div class="col-icon">
@@ -163,7 +162,7 @@ $difference = $diff->days;
             </div>
 
             <div class="col-sm-6 col-md-3">
-              <div class="card card-stats card-info card-round">
+              <div class="card card-stats card-info bg-info-gradient card-round">
                 <div class="card-body skew-shadow">
                   <div class="row align-items-center">
                     <div class="col-icon">
@@ -189,85 +188,94 @@ $difference = $diff->days;
           <!-- ===================== BURSARY WIDGETS PANEL STARTS HERE ======================= -->
           <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'Administrator' || $_SESSION['role'] == 'Bursary') { ?>
             <div class="row">
-              <div class="col-md-12">
-                <div class="card card-round">
-                  <div class="card-header">
-                    <div class="card-head-row">
-                      <div class="card-title">Bursary Management</div>
-                    </div>
-                  </div>
-                  <div class="card-body">
-                    <div class="row mb-4">
-                      <div class="col-md-3">
-                        <div class="card text-white bg-primary">
-                          <div class="card-body">
-                            <h5 class="card-title">Total Students</h5>
-                            <h2><?= number_format($total_students) ?></h2>
-                          </div>
+              <h5 class="fw-bold">Bursary Management</h5>
+
+              <div class="col-sm-6 col-xl-3">
+                <div class="card card-stats card-primary bg-primary-gradient card-round eh-stat">
+                  <div class="card-body bubble-shadow">
+                    <div class="row align-items-center">
+                      <div class="col-icon">
+                        <div class="icon-big text-center icon-primary bubble-shadow-small">
+                          <i class="fas fa-mars"></i>
                         </div>
                       </div>
-                      <div class="col-md-3">
-                        <div class="card text-white bg-success">
-                          <div class="card-body">
-                            <h5 class="card-title">Fee Structures</h5>
-                            <h2><?= number_format($total_fee_structures) ?></h2>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-3">
-                        <div class="card text-white bg-info">
-                          <div class="card-body">
-                            <h5 class="card-title">Total Paid</h5>
-                            <h2><?= money_format_naira($total_paid ?? 0) ?></h2>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-3">
-                        <div class="card text-white bg-warning">
-                          <div class="card-body">
-                            <h5 class="card-title">Outstanding</h5>
-                            <h2><?= money_format_naira($total_outstanding ?? 0) ?></h2>
-                          </div>
+                      <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers">
+                          <p class="card-category">Total Students</p>
+                          <h4 class="card-title"><?= number_format($total_students) ?></h4>
                         </div>
                       </div>
                     </div>
-
-
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="card">
-                          <div class="card-header">Quick Actions</div>
-                          <div class="card-body">
-                            <a href="fee_items.php" class="btn btn-outline-primary btn-sm me-2">Manage Fee Items</a>
-                            <a href="fee_structures.php" class="btn btn-outline-primary btn-sm me-2">Manage Structures</a>
-                            <a href="assign_fees.php" class="btn btn-outline-primary btn-sm me-2">Assign Fees</a>
-                            <a href="session_rollover.php" class="btn btn-outline-warning btn-sm">Session Rollover</a>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <div class="card">
-                          <div class="card-header">Reports</div>
-                          <div class="card-body">
-                            <a href="reports_owing.php" class="btn btn-outline-secondary btn-sm me-2">Owing Report</a>
-                            <a href="reports_paid.php" class="btn btn-outline-secondary btn-sm me-2">Paid Report</a>
-                            <a href="reports_transactions.php" class="btn btn-outline-secondary btn-sm me-2">Transactions</a>
-                            <a href="payments_list.php" class="btn btn-outline-secondary btn-sm me-2">Payments List</a>
-                            <a href="audit_logs.php" class="btn btn-outline-danger btn-sm">Audit Logs</a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
                   </div>
                 </div>
               </div>
+
+              <div class="col-sm-6 col-xl-3">
+                <div class="card card-stats card-primary bg-black-gradient card-round eh-stat">
+                  <div class="card-body bubble-shadow">
+                    <div class="row align-items-center">
+                      <div class="col-icon">
+                        <div class="icon-big text-center icon-black bubble-shadow-small">
+                          <i class="fas fa-mars"></i>
+                        </div>
+                      </div>
+                      <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers">
+                          <p class="card-category">Fee Structures</p>
+                          <h4 class="card-title"><?= number_format($total_fee_structures) ?></h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-6 col-xl-3">
+                <div class="card card-stats card-primary bg-success-gradient card-round eh-stat">
+                  <div class="card-body bubble-shadow">
+                    <div class="row align-items-center">
+                      <div class="col-icon">
+                        <div class="icon-big text-center icon-success bubble-shadow-small">
+                          <i class="fas fa-mars"></i>
+                        </div>
+                      </div>
+                      <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers">
+                          <p class="card-category">Total Paid</p>
+                          <h4 class="card-title"><?= money_format_naira($total_paid ?? 0) ?></h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-sm-6 col-xl-3">
+                <div class="card card-stats card-primary bg-danger-gradient card-round eh-stat">
+                  <div class="card-body bubble-shadow">
+                    <div class="row align-items-center">
+                      <div class="col-icon">
+                        <div class="icon-big text-center icon-danger bubble-shadow-small">
+                          <i class="fas fa-mars"></i>
+                        </div>
+                      </div>
+                      <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers">
+                          <p class="card-category">Outstanding</p>
+                          <h4 class="card-title"><?= money_format_naira($total_outstanding ?? 0) ?></h4>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           <?php } ?>
           <!-- ===================== BURSARY WIDGETS PANEL ENDS HERE ======================= -->
 
           <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-7">
               <div class="card card-round">
                 <div class="card-header">
                   <div class="card-head-row">
@@ -282,12 +290,9 @@ $difference = $diff->days;
                 </div>
               </div>
             </div>
-          </div>
 
-
-          <!-- ACADEMIC CALENDAR -->
-          <div class="row">
-            <div class="col-md-12">
+            <!-- ACADEMIC CALENDAR -->
+            <div class="col-md-5">
               <div class="card card-round">
                 <div class="card-header">
                   <div class="card-head-row card-tools-still-right">
@@ -431,9 +436,9 @@ $difference = $diff->days;
                 </div>
               </div>
             </div>
-          </div>
-          <!-- ACADEMIC CALENDAR ENDS HERE -->
+            <!-- ACADEMIC CALENDAR ENDS HERE -->
 
+          </div>
 
           <?php
           // Birthday celebrants logic
@@ -509,9 +514,9 @@ $difference = $diff->days;
   <?php include('scripts.php'); ?>
 
 
-<?php if ($_SESSION['role'] !== 'Tuckshop' && $_SESSION['role'] !== 'Admission' && $_SESSION['role'] !== 'Bursary') { ?>
-  <div class="chatbot-icon d-none" onclick="toggleChatbot()">AI</div>
-<?php  }?>
+  <?php if ($_SESSION['role'] !== 'Tuckshop' && $_SESSION['role'] !== 'Admission' && $_SESSION['role'] !== 'Bursary') { ?>
+    <div class="chatbot-icon d-none" onclick="toggleChatbot()">AI</div>
+  <?php  } ?>
 
 
   <!-- Chatbot popup -->

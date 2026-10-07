@@ -88,7 +88,7 @@ if (isset($_POST['expirydate_submit'])) {
           <div class="row">
 
             <div class="col-md-12">
-              <div class="card card-primary card-round curves-shadow">
+              <div class="card card-primary bg-primary-gradient card-round curves-shadow">
                 <div class="card-header">
                   <div class="card-head-row">
                     <div class="card-title">DinoPilot</div>
@@ -107,7 +107,7 @@ if (isset($_POST['expirydate_submit'])) {
           <!-- ================ STUDENT ENROLLED PANEL =================== -->
           <div class="row">
             <div class="col-sm-6 col-md-3">
-              <div class="card card-stats card-success card-round">
+              <div class="card card-stats card-success bg-success-gradient card-round">
                 <div class="card-body skew-shadow">
                   <div class="row align-items-center">
                     <div class="col-icon">
@@ -127,7 +127,7 @@ if (isset($_POST['expirydate_submit'])) {
             </div>
 
             <div class="col-sm-6 col-md-3">
-              <div class="card card-stats card-danger card-round">
+              <div class="card card-stats card-danger bg-danger-gradient card-round">
                 <div class="card-body bubble-shadow">
                   <div class="row align-items-center">
                     <div class="col-icon">
@@ -148,7 +148,7 @@ if (isset($_POST['expirydate_submit'])) {
 
 
             <div class="col-sm-6 col-md-3">
-              <div class="card card-stats card-danger card-round">
+              <div class="card card-stats card-danger bg-danger-gradient card-round">
                 <div class="card-body">
                   <div class="row align-items-center">
                     <div class="col col-stats ms-3 ms-sm-0">
@@ -170,7 +170,7 @@ if (isset($_POST['expirydate_submit'])) {
             </div>
 
             <div class="col-sm-6 col-md-3">
-              <a href="developer.php" class="card card-stats card-danger card-round">
+              <a href="developer.php" class="card card-stats card-danger bg-danger-gradient card-round">
                 <div class="card-body skew-shadow">
                   <div class="row align-items-center">
                     <div class="col-icon">
@@ -193,7 +193,7 @@ if (isset($_POST['expirydate_submit'])) {
           <!-- ================ STUDENT ENROLLED PANEL =================== -->
           <div class="row">
             <div class="col-sm-6 col-md-3">
-              <div class="card card-stats card-success card-round">
+              <div class="card card-stats card-success bg-success-gradient card-round">
                 <div class="card-body skew-shadow">
                   <div class="row align-items-center">
                     <div class="col-icon">
@@ -214,7 +214,7 @@ if (isset($_POST['expirydate_submit'])) {
             </div>
 
             <div class="col-sm-6 col-md-3">
-              <div class="card card-stats card-primary card-round">
+              <div class="card card-stats card-primary bg-primary-gradient card-round">
                 <div class="card-body bubble-shadow">
                   <div class="row align-items-center">
                     <div class="col-icon">
@@ -235,7 +235,7 @@ if (isset($_POST['expirydate_submit'])) {
             </div>
 
             <div class="col-sm-6 col-md-3">
-              <div class="card card-stats card-secondary card-round">
+              <div class="card card-stats card-secondary bg-secondary-gradient card-round">
                 <div class="card-body curves-shadow">
                   <div class="row align-items-center">
                     <div class="col-icon">
@@ -256,7 +256,7 @@ if (isset($_POST['expirydate_submit'])) {
             </div>
 
             <div class="col-sm-6 col-md-3">
-              <div class="card card-stats card-info card-round">
+              <div class="card card-stats card-info bg-info-gradient card-round">
                 <div class="card-body skew-shadow">
                   <div class="row align-items-center">
                     <div class="col-icon">

@@ -3276,7 +3276,7 @@ label {
   border-color: transparent !important;
 }
 .card-stats .card-body {
-  padding: 15px !important;
+  padding: 5px !important;
 }
 .card-stats .card-title {
   margin-bottom: 0 !important;
@@ -3307,7 +3307,7 @@ label {
 .card-stats .icon-big.icon-secondary,
 .card-stats .icon-big.icon-success,
 .card-stats .icon-big.icon-warning {
-  border-radius: 5px;
+  border-radius: 50px;
 }
 .card-stats .icon-big.icon-black i,
 .card-stats .icon-big.icon-danger i,

@@ -17,7 +17,7 @@
         <span class="sp-chip"><?php echo $_SESSION['role']; ?></span>
       <?php } ?>
     </div>
-    <a href="../logout.php">
+    <a href="logout.php">
       <i class="fas fa-sign-out-alt ms-auto text-white" title="Sign out"></i>
     </a>
   </div>
