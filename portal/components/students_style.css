@@ -653,3 +653,34 @@ body::after {
   color: #ffffff !important;
   box-shadow: 0 4px 12px rgba(21, 114, 232, 0.3) !important;
 }
+
+
+/* ==========================================================
+   Mobile drawer: keep the topbar visible when the drawer opens
+   (fixes the topbar/topnav disappearing on phones). Applies to
+   every portal - admin / student / parent / alumni - because they
+   all share includes/navbar.php + the .main-panel/.main-header
+   markup and load this file.
+   ----------------------------------------------------------
+   On <=991.5px KaiAdmin turns the sidebar into an off-canvas
+   drawer: .nav_open slides .sidebar in AND translates .main-panel
+   265px right. That transform makes .main-panel the containing
+   block for the position:fixed .main-header, dragging the topbar
+   265px off-screen (it "disappears").
+
+   Fix: cancel the push on the HEADER only (page content keeps
+   sliding exactly as before), lift the header above the drawer so
+   its controls stay visible/tappable, and drop the drawer just
+   below the header so its profile card isn't hidden behind it.
+   Scoped to <=991.5px AND .nav_open, so desktop + the closed
+   state are completely untouched.
+   ========================================================== */
+@media screen and (max-width: 991.5px) {
+  .nav_open .main-header {
+    transform: translate3d(-265px, 0, 0) !important;
+    z-index: 1003 !important;   /* above the drawer (1002) so hamburger stays clickable */
+  }
+  .nav_open .sidebar {
+    top: 70px;                  /* start the drawer just under the topbar */
+  }
+}
