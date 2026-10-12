@@ -175,7 +175,7 @@ if (isset($_GET['export']) && in_array($_GET['export'], ['csv', 'pdf'])) {
           <div class="col-md-12">
             <div class="card">
               <div class="card-body">
-                <div class="table-reponsive">
+                <div class="table-responsive">
                   <table id="basic-datatables" class="table table-striped table-bordered table-hover bg-white">
                     <thead class="table-light">
                       <tr>
