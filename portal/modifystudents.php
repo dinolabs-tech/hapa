@@ -21,7 +21,7 @@ if (isset($_POST['update'])) {
     $stmt_before->close();
     $name = $_POST['name'] ?? '';
     $gender = $_POST['gender'] ?? '';
-    $dob = !empty($_POST['dob']) ? date('Y-m-d', strtotime($_POST['dob'])) : null;
+    $dob = !empty($_POST['dob']) ? date('d/m/Y', strtotime($_POST['dob'])) : null;
     $placeob = $_POST['placeob'] ?? '';
     $address = $_POST['address'] ?? '';
     $religion = $_POST['religion'] ?? '';
