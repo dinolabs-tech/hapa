@@ -19,43 +19,43 @@ if (isset($_POST['update'])) {
         $student_before = $row;
     }
     $stmt_before->close();
-    $name = $_POST['name'];
-    $gender = $_POST['gender'];
+    $name = $_POST['name'] ?? '';
+    $gender = $_POST['gender'] ?? '';
     $dob = !empty($_POST['dob']) ? date('Y-m-d', strtotime($_POST['dob'])) : null;
-    $placeob = $_POST['placeob'];
-    $address = $_POST['address'];
-    $religion = $_POST['religion'];
-    $state = $_POST['state'];
-    $lga = $_POST['lga'];
-    $class = $_POST['class'];
-    $arm = $_POST['arm'];
-    $session_val = $_POST['session'];
-    $term = $_POST['term'];
-    $schoolname = $_POST['schoolname'];
-    $schooladdress = $_POST['schooladdress'];
-    $hobbies = $_POST['hobbies'];
+    $placeob = $_POST['placeob'] ?? '';
+    $address = $_POST['address'] ?? '';
+    $religion = $_POST['religion'] ?? '';
+    $state = $_POST['state'] ?? '';
+    $lga = $_POST['lga'] ?? '';
+    $class = $_POST['class'] ?? '';
+    $arm = $_POST['arm'] ?? '';
+    $session_val = $_POST['session'] ?? '';
+    $term = $_POST['term'] ?? '';
+    $schoolname = $_POST['schoolname'] ?? '';
+    $schooladdress = $_POST['schooladdress'] ?? '';
+    $hobbies = $_POST['hobbies'] ?? '';
     $lastclass = $_POST['lastclass'] ?? '';
-    $sickle = $_POST['sickle'];
-    $challenge = $_POST['challenge'];
-    $emergency = $_POST['emergency'];
-    $familydoc = $_POST['familydoc'];
-    $docaddress = $_POST['docaddress'];
-    $docmobile = $_POST['docmobile'];
-    $polio = $_POST['polio'];
-    $tuberculosis = $_POST['tuberculosis'];
-    $measles = $_POST['measles'];
-    $tetanus = $_POST['tetanus'];
-    $whooping = $_POST['whooping'];
-    $gname = $_POST['gname'];
-    $mobile = $_POST['mobile'];
-    $goccupation = $_POST['goccupation'];
-    $gaddress = $_POST['gaddress'];
-    $grelationship = $_POST['grelationship'];
-    $hostel = $_POST['hostel'];
+    $sickle = $_POST['sickle'] ?? '';
+    $challenge = $_POST['challenge'] ?? '';
+    $emergency = $_POST['emergency'] ?? '';
+    $familydoc = $_POST['familydoc'] ?? '';
+    $docaddress = $_POST['docaddress'] ?? '';
+    $docmobile = $_POST['docmobile'] ?? '';
+    $polio = $_POST['polio'] ?? '';
+    $tuberculosis = $_POST['tuberculosis'] ?? '';
+    $measles = $_POST['measles'] ?? '';
+    $tetanus = $_POST['tetanus'] ?? '';
+    $whooping = $_POST['whooping'] ?? '';
+    $gname = $_POST['gname'] ?? '';
+    $mobile = $_POST['mobile'] ?? '';
+    $goccupation = $_POST['goccupation'] ?? '';
+    $gaddress = $_POST['gaddress'] ?? '';
+    $grelationship = $_POST['grelationship'] ?? '';
+    $hostel = $_POST['hostel'] ?? '';
     $bloodtype = $_POST['bloodtype'] ?? '';
     $bloodgroup = $_POST['bloodgroup'] ?? '';
-    $height = $_POST['height'];
-    $weight = $_POST['weight'];
+    $height = $_POST['height'] ?? '';
+    $weight = $_POST['weight'] ?? '';
 
     // ✅ Hash password (only if provided)
     $password = !empty($_POST['password'])
@@ -83,7 +83,7 @@ if (isset($_POST['update'])) {
     // Bind params dynamically
     if ($password !== null) {
         $stmt->bind_param(
-            "sssssssssssssssssssssssssssssssssssssssi",
+            "sssssssssssssssssssssssssssssssssssssss",
             $name,
             $gender,
             $dob,
@@ -126,7 +126,7 @@ if (isset($_POST['update'])) {
         );
     } else {
         $stmt->bind_param(
-            "ssssssssssssssssssssssssssssssssssssssi",
+            "ssssssssssssssssssssssssssssssssssssss",
             $name,
             $gender,
             $dob,
