@@ -26,7 +26,7 @@
     <div class="sidebar-content">
       <?php if ($_SESSION['role'] == 'Administrator') { ?>
         <div class="mx-3 mb-4">
-          <a href="mailto:support@dinolabstech.com" class="d-flex text-white ms-5">
+          <a href="mailto:support@dinolabstech.com?subject=Hapa College%20-%20Eduhive%20Support%20request" class="d-flex text-white ms-5">
             <i class="fas fa-headset mt-2 me-3"></i>
             <p>Contact Support</p>
           </a>
